@@ -1,0 +1,327 @@
+================================================================================
+PROJECTHUB RBAC ARCHITECTURE DIAGRAM
+================================================================================
+
+1. THREE-ROLE SYSTEM HIERARCHY
+================================================================================
+
+                    ┌─────────────────────┐
+                    │   All Users Enter   │
+                    │ Authentication Flow │
+                    └──────────┬──────────┘
+                               │
+                    ┌──────────┴──────────┐
+                    │   User has Role?    │
+                    └────────┬────────────┘
+                             │
+               ┌─────────────┼─────────────┐
+               │             │             │
+          ┌────▼─────┐  ┌────▼─────┐  ┌───▼────┐
+          │  ADMIN   │  │INSTRUCTOR│  │STUDENT │
+          └────┬─────┘  └────┬─────┘  └───┬────┘
+               │             │             │
+               │ FULL ACCESS │             │
+               │  ALL USERS  │  OWNS       │MEMBER
+               │  ALL        │  PROJECTS   │ OF
+               │  RESOURCES  │  & ASSIGNS  │PROJECT
+               │             │  STUDENTS   │ONLY
+               │             │             │
+               └─────────────┼─────────────┘
+                             │
+                    ┌────────▼────────┐
+                    │ Resource Access │
+                    │   GRANTED or    │
+                    │    DENIED       │
+                    └─────────────────┘
+
+2. REQUEST FLOW DIAGRAM
+================================================================================
+
+        ┌──────────────────────────────────┐
+        │  HTTP Request (GET/POST/PUT/DEL) │
+        └─────────────┬────────────────────┘
+                      │
+        ┌─────────────▼──────────────┐
+        │ Is User Authenticated?     │
+        │ (auth:sanctum middleware)  │
+        └──────┬────────────┬────────┘
+            NO │            │ YES
+               │            │
+         ┌─────▼┐   ┌───────▼──────────────────┐
+         │ 401  │   │ Check Route Middleware   │
+         │ Not  │   │ (if role:admin applied)  │
+         │ Auth │   └───────┬────────────┬─────┘
+         └──────┘      FAIL │            │ PASS
+                      ┌─────▼────┐ ┌─────▼──────────────┐
+                      │    403    │ │ Call Controller    │
+                      │ Forbidden │ │ Method             │
+                      └───────────┘ └──────┬─────────────┘
+                                           │
+                            ┌──────────────▼──────────────┐
+                            │ $this->authorize() Called?  │
+                            └───────┬──────────────┬──────┘
+                                YES │              │ NO
+                                    │              │
+                            ┌───────▼──────┐ ┌────▼──────────┐
+                            │ Check Policy │ │ Proceed to    │
+                            └───┬──────┬───┘ │ Business Logic│
+                         ALLOW  │      │DENY └────────────────┘
+                            ┌───▼──┐ ┌─▼────┐
+                            │200   │ │403   │
+                            │ OK   │ │Forb. │
+                            └──────┘ └──────┘
+
+3. POLICY AUTHORIZATION FLOWCHART
+================================================================================
+
+                    ┌──────────────────────┐
+                    │ Is User Admin Role?  │
+                    └──────┬────────┬──────┘
+                        YES│        │NO
+                    ┌──────▼┐   ┌───▼──────────────┐
+                    │ALLOW  │   │ Check Ownership: │
+                    │ PASS  │   │ User owns this   │
+                    └───────┘   │ resource?        │
+                                └────┬────────┬────┘
+                                 YES │        │NO
+                            ┌────────▼┐ ┌─────▼──────────┐
+                            │ ALLOW   │ │ Check Member   │
+                            │ PASS    │ │ ship/Assignment│
+                            └─────────┘ └────┬────────┬──┘
+                                          YES│        │NO
+                                    ┌────────▼┐ ┌────▼───┐
+                                    │ ALLOW   │ │ DENY   │
+                                    │ PASS    │ │REJECT  │
+                                    └─────────┘ └────────┘
+
+4. PROJECTPOLICY AUTHORIZATION TREE
+================================================================================
+
+                         PROJECT POLICY
+                              │
+                ┌─────────────┬┼┬─────────────┐
+                │             ││             │
+         ┌──────▼──────┐ ┌────▼──────┐ ┌────▼──────┐ ┌─────▼────┐
+         │ VIEW        │ │ CREATE    │ │ UPDATE    │ │ DELETE   │
+         │ (resource)  │ │ (class)   │ │(resource) │ │(resource)│
+         └──────┬──────┘ └────┬──────┘ └────┬──────┘ └─────┬────┘
+                │             │             │             │
+         ┌──────▼──────┐      │       ┌─────▼──────┐      │
+         │ Admin? ALLOW│      │       │ Admin? YES  │      │
+         │             │      │       │             │      │
+         │ Instructor? │  ┌───▼───┐  └─────┬──────┘      │
+         │ Own? ALLOW  │  │Admin? │        │             │
+         │             │  │Instruc│   Instruc. Own?  ┌───▼────┐
+         │ Student?   │  │tor?   │   YES→ALLOW │  Admin?    │
+         │ Member?    │  │ALLOW  │        │     │  Instruc? │
+         │ ALLOW      │  └───┬───┘        │     │  Own?     │
+         │             │     │        DENY│     │  ALLOW    │
+         └─────────────┘     │           └────▼──┘          │
+                             │                   │          │
+                          DENY│                   │       DENY│
+                         ┌────▼─┐              ┌──▼──┐    ┌──▼──┐
+                         │REJECT │             │ALLOW│    │REJECT
+                         └───────┘             └─────┘    └──────┘
+
+5. TASKPOLICY AUTHORIZATION TREE
+================================================================================
+
+                         TASK POLICY
+                            │
+              ┌─────────┬───┼──┬─────────┐
+              │         │   │  │         │
+         ┌────▼────┐ ┌─┴──▼┐ ┌┴─▼────┐ ┌┴──▼────┐
+         │ VIEW    │ │CREATE│ │UPDATE │ │ DELETE │
+         │(resource)│ │(column)│(resrc)│ │(resrc) │
+         └────┬────┘ └──┬───┘ └──┬────┘ └──┬─────┘
+              │         │        │        │
+         ┌────▼────┐ ┌──▼────┐ ┌─▼─┐ ┌──▼────┐
+         │Admin?   │ │Admin? │ │Adm│ │Admin? │
+         │YES-ALLOW│ │YES-AL │ │in?│ │-ALLOW │
+         │         │ │       │ │AL │ │       │
+         │Instruc? │ │Instruc│ │   │ │Instruc│
+         │Own Proj?│ │Own?-AL│ │In │ │Own?-AL│
+         │-ALLOW   │ │       │ │st │ │       │
+         │         │ │Member?│ │rc │ │Assignee?
+         │Member?  │ │YES-AL │ │O? │ │-ALLOW │
+         │-ALLOW   │ │       │ │AL │ │       │
+         │         │ │DENY   │ │As │ │DENY   │
+         └────┬────┘ └──┬────┘ │sg │ └──┬────┘
+             DENY      DENY    │ee │   DENY
+                                │? │
+                                │AL│
+                                │  │
+                                └──┘
+
+6. USERPOLICY AUTHORIZATION TREE
+================================================================================
+
+                         USER POLICY
+                            │
+         ┌──────────┬────┬──┼────┬─────────────┐
+         │          │    │  │    │             │
+    ┌────▼────┐ ┌──▼───┐│  │┌───▼───┐┌───────▼──┐
+    │ VIEW    │ │VIEW  ││  ││UPDATE ││CREATE   │
+    │(resource)│ │PROF.││  ││(resrc)││(class)  │
+    └────┬────┘ └──┬───┘│  │└───┬───┘└────┬────┘
+         │         │    │  │    │         │
+    ┌────▼────┐ ┌──▼────┐│  │┌──▼─┐ ┌───▼────┐
+    │Admin?   │ │Admin? ││  ││Adm?│ │Admin?  │
+    │-ALLOW   │ │-ALLOW ││  ││YES │ │-ALLOW  │
+    │         │ │       ││  ││-AL │ │        │
+    │Viewing  │ │Self?  ││  ││    │ │DENY    │
+    │Self?    │ │-ALLOW ││  ││Own?│ │        │
+    │-ALLOW   │ │       ││  ││-AL │ │        │
+    │         │ │Instruc││  ││    │ │        │
+    │Instruc? │ │Stud?  ││  ││    │ │        │
+    │Stud in  │ │Proj?  ││  ││    │ │        │
+    │Project? │ │-ALLOW ││  ││    │ │        │
+    │-ALLOW   │ │       ││  ││    │ │        │
+    │         │ │DENY   ││  ││DENY│ │        │
+    └────┬────┘ └───┬───┘│  │└────┘ │        │
+         │           │   │  │       │        │
+        DENY        DENY  └──┘      DENY     │
+                                           DENY
+
+7. DATABASE RELATIONSHIP DIAGRAM
+================================================================================
+
+    ┌──────────┐         ┌────────┐
+    │  Users   │         │ Roles  │
+    ├──────────┤         ├────────┤
+    │ id       │◄───────►│ id     │
+    │ role_id  │         │ name   │
+    │ name     │         └────────┘
+    │ email    │
+    └──────────┘
+         │
+         │ 1:many
+         │
+    ┌────▼─────────────────┐
+    │  ProjectMembers      │
+    ├──────────────────────┤
+    │ id                   │
+    │ project_id          ◄┼──────────────────┐
+    │ user_id             │                  │
+    │ role                │                  │
+    └──────────────────────┘                  │
+                                              │
+                                  ┌───────────▼──────┐
+                                  │    Projects      │
+                                  ├──────────────────┤
+                                  │ id               │
+                                  │ instructor_id   ◄┼────────┐
+                                  │ title            │        │
+                                  └────┬─────────────┘        │
+                                       │ 1:many              │
+                                       │                     │
+                                  ┌────▼──────┐         ┌────┴─────┐
+                                  │  Boards   │         │User (as  │
+                                  ├───────────┤         │instructor)
+                                  │ id        │         └──────────┘
+                                  │ project_id│
+                                  └────┬──────┘
+                                       │ 1:many
+                                       │
+                                  ┌────▼───────┐
+                                  │  Columns   │
+                                  ├────────────┤
+                                  │ id         │
+                                  │ board_id   │
+                                  └────┬───────┘
+                                       │ 1:many
+                                       │
+                                  ┌────▼──────┐
+                                  │  Tasks    │
+                                  ├───────────┤
+                                  │ id        │
+                                  │ column_id │
+                                  │ assignee_id│
+                                  └───────────┘
+                                       │
+                                       ├──► User (assignee)
+
+8. AUTHORIZATION DECISION MATRIX
+================================================================================
+
+ACTION        │ ADMIN │ INSTRUCTOR       │ STUDENT
+──────────────┼───────┼──────────────────┼──────────────────
+View Project  │ ALL   │ Own only         │ Member only
+Create Project│ YES   │ YES              │ NO
+Update Project│ ALL   │ Own only         │ NO
+Delete Project│ ALL   │ Own only         │ NO
+──────────────┼───────┼──────────────────┼──────────────────
+View Task     │ ALL   │ Project tasks    │ Project tasks
+Create Task   │ ALL   │ Project tasks    │ Project tasks
+Update Task   │ ALL   │ Project tasks    │ Assigned only
+Delete Task   │ ALL   │ Project tasks    │ Assigned only
+──────────────┼───────┼──────────────────┼──────────────────
+View User     │ ALL   │ Assigned students│ Self only
+Create User   │ YES   │ NO               │ NO
+Update User   │ ALL   │ Self only        │ Self only
+Delete User   │ YES   │ NO               │ NO
+
+9. MIDDLEWARE APPLICATION PATTERN
+================================================================================
+
+    Route Definition
+        │
+        ├──► auth:sanctum ◄─────────────► 401 Unauthorized
+        │
+        └──► role:admin ◄─────────────┐
+                                       │
+                                    Checks
+                                    User Role
+                                       │
+                              ┌────────┴────────┐
+                              │                 │
+                         Allowed              Denied
+                              │                 │
+                         Continue         403 Forbidden
+
+10. COMPLETE REQUEST LIFECYCLE
+================================================================================
+
+    Request arrives
+         │
+         ├─────────────► Auth Check ──────┬──► Authenticated? ────┐
+         │                                 │                       │
+         │                              YES│                      NO │
+         │                                 │                        │
+         │                          Route Middleware               401
+         │                                 │
+         │              ┌──────────────────┼──────────────────┐
+         │              │                  │                  │
+         │          role:admin      role:instructor    role:student
+         │              │                  │                  │
+         │        (Optional)          (Optional)         (Optional)
+         │              │                  │                  │
+         │              └─────────┬────────┴────────┬─────────┘
+         │                        │                 │
+         │                     Match?             403
+         │                        │
+         │                      YES│
+         │                        │
+         └────────────┬───────────┘
+                      │
+                  Controller
+                      │
+         ┌────────────┴────────────┐
+         │                         │
+     $this->authorize()      No authorization
+         │                         │
+    ┌────▼─────┐              Continue
+    │  Policy  │
+    │  Check   │
+    └────┬──────┘
+         │
+    ┌────┴──────────┐
+    │               │
+  Allow          Deny
+    │               │
+ Business        403
+ Logic
+
+================================================================================
+END OF ARCHITECTURE DIAGRAMS
+================================================================================
