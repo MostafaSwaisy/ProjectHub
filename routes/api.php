@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\BoardController;
+use App\Http\Controllers\TaskController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -30,3 +31,7 @@ Route::prefix('auth')->group(function () {
 
 // Board Routes
 Route::apiResource('projects.boards', BoardController::class);
+
+// Task Routes
+Route::apiResource('tasks', TaskController::class)->middleware('auth:sanctum');
+Route::post('tasks/{task}/move', [TaskController::class, 'move'])->middleware('auth:sanctum')->name('tasks.move');
