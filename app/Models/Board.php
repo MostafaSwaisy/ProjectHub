@@ -21,6 +21,30 @@ class Board extends Model
         'updated_at' => 'datetime',
     ];
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::created(function ($board) {
+            $defaultColumns = [
+                ['title' => 'Backlog', 'position' => 1],
+                ['title' => 'To Do', 'position' => 2],
+                ['title' => 'In Progress', 'position' => 3],
+                ['title' => 'Review', 'position' => 4],
+                ['title' => 'Completed', 'position' => 5],
+            ];
+
+            foreach ($defaultColumns as $columnData) {
+                Column::create([
+                    'board_id' => $board->id,
+                    'title' => $columnData['title'],
+                    'position' => $columnData['position'],
+                    'wip_limit' => null,
+                ]);
+            }
+        });
+    }
+
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class);
