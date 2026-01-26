@@ -14,22 +14,50 @@ use Illuminate\Http\Request;
 class TaskController extends Controller
 {
     /**
-     * Display a paginated list of tasks for a column with subtasks and labels.
+     * Display a paginated list of tasks with filters (column_id, assignee_id, priority, due_date).
+     * Authorization is handled per-task through the Task policy.
      *
-     * @param Column $column
+     * @param Request $request
      * @return JsonResponse
      */
-    public function index(Column $column): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        // Get the project through the column's board
-        $project = $column->board->project;
-        $this->authorize('view', $project);
+        // Build base query
+        $query = Task::with(['assignee', 'labels', 'subtasks'])
+            ->withCount(['subtasks', 'labels']);
 
-        $tasks = $column->tasks()
-            ->with(['assignee', 'labels', 'subtasks'])
-            ->withCount(['subtasks', 'labels'])
-            ->orderBy('position')
-            ->paginate(50);
+        // Apply column filter
+        if ($request->has('column_id')) {
+            $query->where('column_id', $request->input('column_id'));
+        }
+
+        // Apply assignee filter
+        if ($request->has('assignee_id')) {
+            $query->where('assignee_id', $request->input('assignee_id'));
+        }
+
+        // Apply priority filter
+        if ($request->has('priority')) {
+            $query->where('priority', $request->input('priority'));
+        }
+
+        // Apply due_date filter (tasks due on or after given date)
+        if ($request->has('due_date')) {
+            $query->where('due_date', '>=', $request->input('due_date'));
+        }
+
+        // Apply due_date range filter
+        if ($request->has('due_date_from') && $request->has('due_date_to')) {
+            $query->whereBetween('due_date', [
+                $request->input('due_date_from'),
+                $request->input('due_date_to'),
+            ]);
+        }
+
+        // Order by position or created_at
+        $tasks = $query->orderBy('position')
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
 
         return response()->json(TaskResource::collection($tasks));
     }
@@ -37,22 +65,25 @@ class TaskController extends Controller
     /**
      * Store a newly created task in a column.
      *
-     * @param Column $column
      * @param StoreTaskRequest $request
      * @return JsonResponse
      */
-    public function store(Column $column, StoreTaskRequest $request): JsonResponse
+    public function store(StoreTaskRequest $request): JsonResponse
     {
-        // Get the project through the column's board
-        $project = $column->board->project;
+        $validated = $request->validated();
+        $columnId = $validated['column_id'];
+
+        // Get the column and authorize
+        $column = Column::findOrFail($columnId);
         $this->authorize('create', [$column]);
 
         // Get the next position
         $nextPosition = $column->tasks()->max('position') ?? 0;
         $nextPosition++;
 
-        $task = $column->tasks()->create([
-            ...$request->validated(),
+        // Create task with position
+        $task = Task::create([
+            ...$validated,
             'position' => $nextPosition,
         ]);
 

@@ -25,8 +25,11 @@ class TaskResource extends JsonResource
             'due_date' => $this->due_date,
             'position' => $this->position,
             'subtask_count' => $this->subtasks_count ?? $this->subtasks()->count(),
+            'completed_subtask_count' => $this->completed_subtask_count,
             'label_count' => $this->labels_count ?? $this->labels()->count(),
             'labels' => LabelResource::collection($this->whenLoaded('labels')),
+            'progress' => $this->progress,
+            'is_overdue' => $this->isOverdue(),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

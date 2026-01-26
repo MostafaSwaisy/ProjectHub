@@ -22,10 +22,11 @@ class StoreTaskRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'column_id' => 'required|exists:columns,id',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'assignee_id' => 'nullable|exists:users,id',
-            'priority' => 'nullable|in:low,medium,high',
+            'priority' => 'required|in:low,medium,high,critical',
             'due_date' => 'nullable|date|after:today',
         ];
     }
