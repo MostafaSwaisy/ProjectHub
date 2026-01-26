@@ -21,8 +21,8 @@ class ProjectFactory extends Factory
             'title' => fake()->sentence(3),
             'description' => fake()->paragraph(),
             'instructor_id' => User::factory(),
-            'timeline_status' => fake()->randomElement(['on_track', 'at_risk', 'delayed']),
-            'budget_status' => fake()->randomElement(['on_track', 'over_budget', 'under_budget']),
+            'timeline_status' => fake()->randomElement(['behind', 'on_track', 'ahead']),
+            'budget_status' => fake()->randomElement(['over_budget', 'on_budget', 'under_budget']),
         ];
     }
 }

@@ -39,7 +39,7 @@ class Board extends Model
                     'board_id' => $board->id,
                     'title' => $columnData['title'],
                     'position' => $columnData['position'],
-                    'wip_limit' => null,
+                    'wip_limit' => 0,
                 ]);
             }
         });

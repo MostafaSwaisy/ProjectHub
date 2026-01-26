@@ -21,7 +21,7 @@ class ColumnFactory extends Factory
             'board_id' => Board::factory(),
             'title' => fake()->word(),
             'position' => fake()->numberBetween(1, 10),
-            'wip_limit' => fake()->optional(0.5)->numberBetween(1, 20),
+            'wip_limit' => 0,
         ];
     }
 }
