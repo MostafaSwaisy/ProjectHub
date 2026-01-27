@@ -8,7 +8,8 @@
       "mcp__plugin_laravel-boost_laravel-boost__database-schema",
       "Bash(powershell -Command \".specify/scripts/powershell/check-prerequisites.ps1 -Json -RequireTasks -IncludeTasks\")",
       "mcp__plugin_laravel-boost_laravel-boost__application-info",
-      "Bash(ls -la \"d:\\\\GGProject\\\\ProjectHub\\\\resources\\\\js\"\" 2>/dev/null || echo \"Directory not found \")"
+      "Bash(ls -la \"d:\\\\GGProject\\\\ProjectHub\\\\resources\\\\js\"\" 2>/dev/null || echo \"Directory not found \")",
+      "Bash(npm install)"
     ]
   }
 }
