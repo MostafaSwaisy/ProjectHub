@@ -65,8 +65,8 @@ class TaskPolicy
 
     /**
      * Determine if the user can update the task.
-     * - Task assignee can update the task
-     * - Project admin (instructor or admin) can update the task
+     * - Any project member can update the task (including drag-and-drop moves)
+     * - Project admin (instructor or admin) can update any task
      */
     public function update(User $user, Task $task): bool
     {
@@ -83,12 +83,8 @@ class TaskPolicy
             return true;
         }
 
-        // Assignee can update the task
-        if ($task->assignee_id && $task->assignee_id === $user->id) {
-            return true;
-        }
-
-        return false;
+        // Any project member can update tasks
+        return $project->members()->where('user_id', $user->id)->exists();
     }
 
     /**

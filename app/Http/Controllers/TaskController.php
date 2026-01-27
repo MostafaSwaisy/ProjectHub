@@ -8,7 +8,6 @@ use App\Http\Requests\MoveTaskRequest;
 use App\Http\Resources\TaskResource;
 use App\Models\Task;
 use App\Models\Column;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class TaskController extends Controller
@@ -20,7 +19,7 @@ class TaskController extends Controller
      * @param Request $request
      * @return JsonResponse
      */
-    public function index(Request $request): JsonResponse
+    public function index(Request $request)
     {
         // Build base query
         $query = Task::with(['assignee', 'labels', 'subtasks'])
@@ -59,7 +58,7 @@ class TaskController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 
-        return response()->json(TaskResource::collection($tasks));
+        return TaskResource::collection($tasks);
     }
 
     /**
@@ -68,14 +67,14 @@ class TaskController extends Controller
      * @param StoreTaskRequest $request
      * @return JsonResponse
      */
-    public function store(StoreTaskRequest $request): JsonResponse
+    public function store(StoreTaskRequest $request)
     {
         $validated = $request->validated();
         $columnId = $validated['column_id'];
 
         // Get the column and authorize
         $column = Column::findOrFail($columnId);
-        $this->authorize('create', [$column]);
+        $this->authorize('create', $column);
 
         // Get the next position
         $nextPosition = $column->tasks()->max('position') ?? 0;
@@ -91,7 +90,7 @@ class TaskController extends Controller
         $task->load(['assignee', 'labels', 'subtasks']);
         $task->loadCount(['subtasks', 'labels']);
 
-        return response()->json(new TaskResource($task), 201);
+        return (new TaskResource($task))->response()->setStatusCode(201);
     }
 
     /**
@@ -100,14 +99,14 @@ class TaskController extends Controller
      * @param Task $task
      * @return JsonResponse
      */
-    public function show(Task $task): JsonResponse
+    public function show(Task $task)
     {
         $this->authorize('view', $task);
 
         $task->load(['assignee', 'labels', 'subtasks']);
         $task->loadCount(['subtasks', 'labels']);
 
-        return response()->json(new TaskResource($task));
+        return new TaskResource($task);
     }
 
     /**
@@ -117,7 +116,7 @@ class TaskController extends Controller
      * @param UpdateTaskRequest $request
      * @return JsonResponse
      */
-    public function update(Task $task, UpdateTaskRequest $request): JsonResponse
+    public function update(Task $task, UpdateTaskRequest $request)
     {
         $this->authorize('update', $task);
 
@@ -127,7 +126,7 @@ class TaskController extends Controller
         $task->load(['assignee', 'labels', 'subtasks']);
         $task->loadCount(['subtasks', 'labels']);
 
-        return response()->json(new TaskResource($task));
+        return new TaskResource($task);
     }
 
     /**
@@ -136,13 +135,13 @@ class TaskController extends Controller
      * @param Task $task
      * @return JsonResponse
      */
-    public function destroy(Task $task): JsonResponse
+    public function destroy(Task $task)
     {
         $this->authorize('delete', $task);
 
         $task->delete();
 
-        return response()->json(null, 204);
+        return response()->noContent();
     }
 
     /**
@@ -152,7 +151,7 @@ class TaskController extends Controller
      * @param MoveTaskRequest $request
      * @return JsonResponse
      */
-    public function move(Task $task, MoveTaskRequest $request): JsonResponse
+    public function move(Task $task, MoveTaskRequest $request)
     {
         $this->authorize('update', $task);
 
@@ -191,7 +190,7 @@ class TaskController extends Controller
         $task->load(['assignee', 'labels', 'subtasks']);
         $task->loadCount(['subtasks', 'labels']);
 
-        return response()->json(new TaskResource($task));
+        return new TaskResource($task);
     }
 
     /**
