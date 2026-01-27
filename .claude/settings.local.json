@@ -12,7 +12,11 @@
       "Bash(npm install)",
       "Bash(npm run build:*)",
       "Bash(ls:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(powershell:*)",
+      "Bash(git rev-parse:*)"
     ]
   }
 }

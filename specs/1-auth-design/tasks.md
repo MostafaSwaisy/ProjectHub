@@ -74,10 +74,10 @@ Initialize project structure, set up testing infrastructure, and create foundati
 
 ### Tasks
 
-- [ ] T001 Create component directory structure in `resources/js/components/auth/`
-- [ ] T002 [P] Set up Vitest and Vue Test Utils configuration in project root
-- [ ] T003 Create `AuthCard.vue` wrapper component in `resources/js/components/auth/AuthCard.vue`
-- [ ] T004 [P] Create `FormField.vue` generic input component in `resources/js/components/auth/FormField.vue`
+- [x] T001 Create component directory structure in `resources/js/components/auth/`
+- [x] T002 [P] Set up Vitest and Vue Test Utils configuration in project root
+- [x] T003 Create `AuthCard.vue` wrapper component in `resources/js/components/auth/AuthCard.vue`
+- [x] T004 [P] Create `FormField.vue` generic input component in `resources/js/components/auth/FormField.vue`
 
 ---
 
@@ -101,14 +101,14 @@ Implement streamlined login experience with modern visual design system that app
 
 ### Tasks
 
-- [ ] T005 [P] Create `PasswordInput.vue` component with show/hide toggle in `resources/js/components/auth/PasswordInput.vue`
-- [ ] T006 [P] Create `SubmitButton.vue` component with loading state in `resources/js/components/auth/SubmitButton.vue`
-- [ ] T007 [P] Create `ErrorMessage.vue` alert component in `resources/js/components/auth/ErrorMessage.vue`
-- [ ] T008 [P] Create `SuccessMessage.vue` status component in `resources/js/components/auth/SuccessMessage.vue`
-- [ ] T009 [US1] Refactor `Login.vue` to use new components in `resources/js/pages/auth/Login.vue`
-- [ ] T010 [US1] Implement form validation with error handling in Login.vue
-- [ ] T011 [US2] Define color palette and typography in Tailwind theme (if not already done)
-- [ ] T012 [US2] Update all auth page styling to match design system in `resources/js/pages/auth/*.vue`
+- [x] T005 [P] Create `PasswordInput.vue` component with show/hide toggle in `resources/js/components/auth/PasswordInput.vue`
+- [x] T006 [P] Create `SubmitButton.vue` component with loading state in `resources/js/components/auth/SubmitButton.vue`
+- [x] T007 [P] Create `ErrorMessage.vue` alert component in `resources/js/components/auth/ErrorMessage.vue`
+- [x] T008 [P] Create `SuccessMessage.vue` status component in `resources/js/components/auth/SuccessMessage.vue`
+- [x] T009 [US1] Refactor `Login.vue` to use new components in `resources/js/pages/auth/Login.vue`
+- [x] T010 [US1] Implement form validation with error handling in Login.vue
+- [x] T011 [US2] Define color palette and typography in Tailwind theme (if not already done)
+- [x] T012 [US2] Update all auth page styling to match design system in `resources/js/pages/auth/*.vue`
 
 ---
 
@@ -132,14 +132,14 @@ Implement intuitive registration with clear role selection and field requirement
 
 ### Tasks
 
-- [ ] T013 Create `FormSelect.vue` dropdown component in `resources/js/components/auth/FormSelect.vue`
-- [ ] T014 Create `useFormValidation.js` composable in `resources/js/composables/useFormValidation.js`
-- [ ] T015 [US3] Refactor `Register.vue` to use new components in `resources/js/pages/auth/Register.vue`
-- [ ] T016 [US3] Implement password validation with requirements display in Register.vue
-- [ ] T017 [US3] Implement password confirmation validation in Register.vue
-- [ ] T018 [US3] Add role selection with descriptions in Register.vue
-- [ ] T019 [US3] Implement form submission and error handling in Register.vue
-- [ ] T020 [US3] Add success message and dashboard navigation on registration in Register.vue
+- [x] T013 Create `FormSelect.vue` dropdown component in `resources/js/components/auth/FormSelect.vue`
+- [x] T014 Create `useFormValidation.js` composable in `resources/js/composables/useFormValidation.js`
+- [x] T015 [US3] Refactor `Register.vue` to use new components in `resources/js/pages/auth/Register.vue`
+- [x] T016 [US3] Implement password validation with requirements display in Register.vue
+- [x] T017 [US3] Implement password confirmation validation in Register.vue
+- [x] T018 [US3] Add role selection with descriptions in Register.vue
+- [x] T019 [US3] Implement form submission and error handling in Register.vue
+- [x] T020 [US3] Add success message and dashboard navigation on registration in Register.vue
 
 ---
 
@@ -163,12 +163,12 @@ Implement password recovery flow with clear instructions for both Forgot Passwor
 
 ### Tasks
 
-- [ ] T021 [P] [US4] Refactor `ForgotPassword.vue` to use AuthCard and FormField in `resources/js/pages/auth/ForgotPassword.vue`
-- [ ] T022 [P] [US4] Refactor `ResetPassword.vue` to use new components in `resources/js/pages/auth/ResetPassword.vue`
-- [ ] T023 [P] [US4] Implement email submission and success message in ForgotPassword.vue
-- [ ] T024 [P] [US4] Implement token/email extraction from URL query params in ResetPassword.vue
-- [ ] T025 [US4] Implement password validation with requirements display in ResetPassword.vue
-- [ ] T026 [US4] Implement form submission and error handling in ResetPassword.vue
+- [x] T021 [P] [US4] Refactor `ForgotPassword.vue` to use AuthCard and FormField in `resources/js/pages/auth/ForgotPassword.vue`
+- [x] T022 [P] [US4] Refactor `ResetPassword.vue` to use new components in `resources/js/pages/auth/ResetPassword.vue`
+- [x] T023 [P] [US4] Implement email submission and success message in ForgotPassword.vue
+- [x] T024 [P] [US4] Implement token/email extraction from URL query params in ResetPassword.vue
+- [x] T025 [US4] Implement password validation with requirements display in ResetPassword.vue
+- [x] T026 [US4] Implement form submission and error handling in ResetPassword.vue
 
 ---
 
