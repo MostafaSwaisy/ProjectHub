@@ -2,9 +2,11 @@
 
 namespace App\Providers;
 
+use App\Models\Column;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\User;
+use App\Policies\ColumnPolicy;
 use App\Policies\ProjectPolicy;
 use App\Policies\TaskPolicy;
 use App\Policies\UserPolicy;
@@ -18,6 +20,7 @@ class AuthServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     protected $policies = [
+        Column::class => ColumnPolicy::class,
         Project::class => ProjectPolicy::class,
         Task::class => TaskPolicy::class,
         User::class => UserPolicy::class,

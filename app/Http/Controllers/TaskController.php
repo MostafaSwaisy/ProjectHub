@@ -164,10 +164,10 @@ class TaskController extends Controller
 
         // Check if the task is moving to a different column
         if ($task->column_id !== $newColumnId) {
-            // Check WIP limit on target column
+            // Check WIP limit on target column (0 means unlimited)
             $currentTaskCount = $newColumn->tasks()->count();
 
-            if ($newColumn->wip_limit !== null && $currentTaskCount >= $newColumn->wip_limit) {
+            if ($newColumn->wip_limit > 0 && $currentTaskCount >= $newColumn->wip_limit) {
                 return response()->json([
                     'message' => 'Column WIP limit exceeded',
                     'wip_limit' => $newColumn->wip_limit,
