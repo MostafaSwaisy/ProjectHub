@@ -124,12 +124,12 @@ const successMessage = ref('')
 
 const roleOptions = [
   {
-    value: 'student',
+    value: '3',
     label: 'Student',
     description: 'I am taking courses on ProjectHub',
   },
   {
-    value: 'instructor',
+    value: '2',
     label: 'Instructor',
     description: 'I am teaching courses on ProjectHub',
   },
