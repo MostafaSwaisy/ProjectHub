@@ -4,7 +4,22 @@
       "Bash(powershell -ExecutionPolicy Bypass -File:*)",
       "Bash(composer require:*)",
       "Bash(php artisan:*)",
-      "Bash(php -l:*)"
+      "Bash(php -l:*)",
+      "mcp__plugin_laravel-boost_laravel-boost__database-schema",
+      "Bash(powershell -Command \".specify/scripts/powershell/check-prerequisites.ps1 -Json -RequireTasks -IncludeTasks\")",
+      "mcp__plugin_laravel-boost_laravel-boost__application-info",
+      "Bash(ls -la \"d:\\\\GGProject\\\\ProjectHub\\\\resources\\\\js\"\" 2>/dev/null || echo \"Directory not found \")",
+      "Bash(npm install)",
+      "Bash(npm run build:*)",
+      "Bash(ls:*)",
+      "Bash(git checkout:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(powershell:*)",
+      "Bash(git rev-parse:*)",
+      "mcp__plugin_laravel-boost_laravel-boost__browser-logs",
+      "mcp__plugin_laravel-boost_laravel-boost__database-query",
+      "Bash(git fetch:*)"
     ]
   }
 }

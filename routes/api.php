@@ -30,7 +30,7 @@ Route::prefix('auth')->group(function () {
 });
 
 // Board Routes
-Route::apiResource('projects.boards', BoardController::class);
+Route::apiResource('projects.boards', BoardController::class)->middleware('auth:sanctum');
 
 // Task Routes
 Route::apiResource('tasks', TaskController::class)->middleware('auth:sanctum');

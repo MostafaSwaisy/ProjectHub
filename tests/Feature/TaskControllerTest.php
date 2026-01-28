@@ -47,6 +47,17 @@ class TaskControllerTest extends TestCase
         $this->column = Column::factory()->create(['board_id' => $this->board->id]);
     }
 
+    /**
+     * Helper method to authenticate API requests with Sanctum token
+     */
+    private function actingAsWithToken(User $user)
+    {
+        // Create a Sanctum token for the user
+        $token = $user->createToken('test-token')->plainTextToken;
+        // Return test builder with token in Authorization header
+        return $this->withHeader('Authorization', "Bearer {$token}");
+    }
+
     // ============ INDEX TESTS ============
 
     public function test_list_tasks_without_authentication(): void
@@ -59,7 +70,8 @@ class TaskControllerTest extends TestCase
     {
         Task::factory(25)->create(['column_id' => $this->column->id]);
 
-        $response = $this->actingAs($this->student)
+        $token = $this->student->createToken('test-token')->plainTextToken;
+        $response = $this->withHeader('Authorization', "Bearer $token")
             ->getJson('/api/tasks');
 
         $response->assertStatus(200);
@@ -77,7 +89,7 @@ class TaskControllerTest extends TestCase
         Task::factory(5)->create(['column_id' => $this->column->id]);
         Task::factory(3)->create(['column_id' => $column2->id]);
 
-        $response = $this->actingAs($this->student)
+        $response = $this->actingAsWithToken($this->student)
             ->getJson("/api/tasks?column_id={$this->column->id}");
 
         $response->assertStatus(200);
@@ -89,7 +101,7 @@ class TaskControllerTest extends TestCase
         Task::factory(3)->create(['column_id' => $this->column->id, 'priority' => 'high']);
         Task::factory(2)->create(['column_id' => $this->column->id, 'priority' => 'low']);
 
-        $response = $this->actingAs($this->student)
+        $response = $this->actingAsWithToken($this->student)
             ->getJson('/api/tasks?priority=high');
 
         $response->assertStatus(200);
@@ -107,7 +119,7 @@ class TaskControllerTest extends TestCase
             'assignee_id' => $this->instructor->id,
         ]);
 
-        $response = $this->actingAs($this->student)
+        $response = $this->actingAsWithToken($this->student)
             ->getJson("/api/tasks?assignee_id={$this->student->id}");
 
         $response->assertStatus(200);
@@ -129,7 +141,7 @@ class TaskControllerTest extends TestCase
 
     public function test_create_task_with_valid_data(): void
     {
-        $response = $this->actingAs($this->student)
+        $response = $this->actingAsWithToken($this->student)
             ->postJson('/api/tasks', [
                 'column_id' => $this->column->id,
                 'title' => 'New Task',
@@ -158,7 +170,7 @@ class TaskControllerTest extends TestCase
 
     public function test_create_task_missing_required_fields(): void
     {
-        $response = $this->actingAs($this->student)
+        $response = $this->actingAsWithToken($this->student)
             ->postJson('/api/tasks', [
                 'title' => 'New Task',
             ]);
@@ -169,7 +181,7 @@ class TaskControllerTest extends TestCase
 
     public function test_create_task_invalid_priority(): void
     {
-        $response = $this->actingAs($this->student)
+        $response = $this->actingAsWithToken($this->student)
             ->postJson('/api/tasks', [
                 'column_id' => $this->column->id,
                 'title' => 'New Task',
@@ -182,7 +194,7 @@ class TaskControllerTest extends TestCase
 
     public function test_create_task_invalid_column(): void
     {
-        $response = $this->actingAs($this->student)
+        $response = $this->actingAsWithToken($this->student)
             ->postJson('/api/tasks', [
                 'column_id' => 999,
                 'title' => 'New Task',
@@ -213,7 +225,7 @@ class TaskControllerTest extends TestCase
                 'assignee_id' => $this->student->id,
             ]);
 
-        $response = $this->actingAs($this->student)
+        $response = $this->actingAsWithToken($this->student)
             ->getJson("/api/tasks/{$task->id}");
 
         $response->assertStatus(200);
@@ -234,7 +246,7 @@ class TaskControllerTest extends TestCase
 
     public function test_show_task_not_found(): void
     {
-        $response = $this->actingAs($this->student)
+        $response = $this->actingAsWithToken($this->student)
             ->getJson('/api/tasks/999');
 
         $response->assertStatus(404);
@@ -261,7 +273,7 @@ class TaskControllerTest extends TestCase
             'title' => 'Original Title',
         ]);
 
-        $response = $this->actingAs($this->student)
+        $response = $this->actingAsWithToken($this->student)
             ->patchJson("/api/tasks/{$task->id}", [
                 'title' => 'Updated Title',
             ]);
@@ -280,7 +292,7 @@ class TaskControllerTest extends TestCase
             'title' => 'Original Title',
         ]);
 
-        $response = $this->actingAs($this->instructor)
+        $response = $this->actingAsWithToken($this->instructor)
             ->patchJson("/api/tasks/{$task->id}", [
                 'title' => 'Updated Title',
             ]);
@@ -290,12 +302,15 @@ class TaskControllerTest extends TestCase
 
     public function test_update_task_unauthorized_student(): void
     {
+        // Create a student who is NOT a member of the project
+        $nonMemberStudent = User::factory()->create(['role_id' => Role::where('name', 'student')->first()->id]);
+
         $task = Task::factory()->create([
             'column_id' => $this->column->id,
             'assignee_id' => $this->instructor->id,
         ]);
 
-        $response = $this->actingAs($this->student)
+        $response = $this->actingAsWithToken($nonMemberStudent)
             ->patchJson("/api/tasks/{$task->id}", [
                 'title' => 'Updated Title',
             ]);
@@ -310,7 +325,7 @@ class TaskControllerTest extends TestCase
             'assignee_id' => $this->student->id,
         ]);
 
-        $response = $this->actingAs($this->student)
+        $response = $this->actingAsWithToken($this->student)
             ->patchJson("/api/tasks/{$task->id}", [
                 'priority' => 'invalid',
             ]);
@@ -336,7 +351,7 @@ class TaskControllerTest extends TestCase
             'assignee_id' => $this->student->id,
         ]);
 
-        $response = $this->actingAs($this->student)
+        $response = $this->actingAsWithToken($this->student)
             ->deleteJson("/api/tasks/{$task->id}");
 
         $response->assertStatus(204);
@@ -349,7 +364,7 @@ class TaskControllerTest extends TestCase
             'column_id' => $this->column->id,
         ]);
 
-        $response = $this->actingAs($this->instructor)
+        $response = $this->actingAsWithToken($this->instructor)
             ->deleteJson("/api/tasks/{$task->id}");
 
         $response->assertStatus(204);
@@ -362,7 +377,7 @@ class TaskControllerTest extends TestCase
             'assignee_id' => $this->instructor->id,
         ]);
 
-        $response = $this->actingAs($this->student)
+        $response = $this->actingAsWithToken($this->student)
             ->deleteJson("/api/tasks/{$task->id}");
 
         $response->assertStatus(403);
@@ -378,7 +393,7 @@ class TaskControllerTest extends TestCase
             'position' => 0,
         ]);
 
-        $response = $this->actingAs($this->student)
+        $response = $this->actingAsWithToken($this->student)
             ->postJson("/api/tasks/{$task->id}/move", [
                 'column_id' => $column2->id,
                 'position' => 0,
@@ -400,7 +415,7 @@ class TaskControllerTest extends TestCase
         Task::factory()->create(['column_id' => $column2->id]);
         $task = Task::factory()->create(['column_id' => $this->column->id]);
 
-        $response = $this->actingAs($this->student)
+        $response = $this->actingAsWithToken($this->student)
             ->postJson("/api/tasks/{$task->id}/move", [
                 'column_id' => $column2->id,
                 'position' => 1,
@@ -413,7 +428,7 @@ class TaskControllerTest extends TestCase
     {
         $task = Task::factory()->create(['column_id' => $this->column->id]);
 
-        $response = $this->actingAs($this->student)
+        $response = $this->actingAsWithToken($this->student)
             ->postJson("/api/tasks/{$task->id}/move", [
                 'column_id' => 999,
                 'position' => 0,
