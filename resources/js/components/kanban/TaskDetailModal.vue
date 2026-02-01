@@ -107,7 +107,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 
 const props = defineProps({
     task: {
@@ -117,8 +117,6 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['close', 'edit', 'delete']);
-
-const showDeleteConfirm = ref(false);
 
 // Computed
 const completedSubtasks = computed(() => {

@@ -23,7 +23,7 @@
                     v-for="task in tasks"
                     :key="task.id"
                     :task="task"
-                    @drag-start="handleTaskDragStart"
+                    @drag-start="handleTaskDragStart($event, task)"
                     @drag-end="handleTaskDragEnd"
                     @edit="$emit('edit-task', task.id)"
                     @duplicate="$emit('duplicate-task', task.id)"
@@ -49,7 +49,6 @@
 import { computed } from 'vue';
 import TaskCard from './TaskCard.vue';
 import { useKanbanStore } from '../../stores/kanban';
-import { useDragDrop } from '../../composables/useDragDrop';
 
 const props = defineProps({
     column: {
@@ -73,7 +72,6 @@ const emit = defineEmits([
 ]);
 
 const kanbanStore = useKanbanStore();
-const { handleDragOver: dragOverHandler, setDragOverColumn } = useDragDrop();
 
 // Computed: Check if this column is the drag target
 const isDragTarget = computed(() => {
@@ -84,13 +82,13 @@ const isDragTarget = computed(() => {
 const handleDragOver = (event) => {
     event.preventDefault();
     event.dataTransfer.dropEffect = 'move';
-    setDragOverColumn(props.column.id);
+    kanbanStore.setDragOverColumn(props.column.id);
 };
 
 const handleDragLeave = (event) => {
     // Only clear if leaving the column itself
     if (event.target.classList?.contains('kanban-column')) {
-        setDragOverColumn(null);
+        kanbanStore.setDragOverColumn(null);
     }
 };
 
@@ -101,15 +99,22 @@ const handleDrop = (event) => {
         toColumn: props.column.id,
         taskId: kanbanStore.draggedTaskId,
     });
-    setDragOverColumn(null);
+    kanbanStore.setDragOverColumn(null);
 };
 
-const handleTaskDragStart = (event) => {
-    // Drag start is handled by TaskCard component
+const handleTaskDragStart = (event, task) => {
+    // Set up drag state in kanban store
+    kanbanStore.startDrag(task.id, props.column.id);
+    // Set drag data for native browser drag-drop
+    if (event.dataTransfer) {
+        event.dataTransfer.effectAllowed = 'move';
+        event.dataTransfer.setData('text/plain', task.id.toString());
+    }
 };
 
-const handleTaskDragEnd = (event) => {
-    // Drag end is handled by TaskCard component
+const handleTaskDragEnd = () => {
+    // Clear drag state when drag ends
+    kanbanStore.clearDrag();
 };
 
 // T093: Handle "Move to..." menu selection from mobile

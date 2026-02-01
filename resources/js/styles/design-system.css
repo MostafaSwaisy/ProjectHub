@@ -38,6 +38,8 @@
   --purple-primary: #8B5CF6;
   --purple-glow: rgba(139, 92, 246, 0.4);
   --gray-primary: #6B7280;
+  --gray-400: #9CA3AF;
+  --gray-500: #6B7280;
 
   /* ========================================
      GRADIENTS
@@ -81,7 +83,10 @@
      ======================================== */
 
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --line-height-tight: 1.25;
+  --line-height-snug: 1.375;
   --line-height-base: 1.6;
+  --line-height-relaxed: 1.75;
   --letter-spacing-tight: -0.02em;
   --letter-spacing-normal: 0;
   --letter-spacing-wide: 0.02em;

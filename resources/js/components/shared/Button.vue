@@ -4,7 +4,7 @@
       'button',
       `button-${variant}`,
       `button-${size}`,
-      { 'button-loading': loading, 'button-disabled': disabled || loading }
+      { 'button-loading': loading, 'button-disabled': disabled || loading, 'full-width': fullWidth }
     ]"
     :disabled="disabled || loading"
     :type="type"
