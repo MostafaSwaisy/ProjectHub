@@ -13,7 +13,7 @@ const ProjectBoard = () => import('../pages/projects/Board.vue');
 const NotFound = () => import('../pages/NotFound.vue');
 
 const routes = [
-    // Auth Routes (public)
+    // Auth Routes (public) - T033: Page transition animations
     {
         path: '/auth/login',
         name: 'login',
@@ -21,6 +21,8 @@ const routes = [
         meta: {
             public: true,
             layout: 'auth',
+            transition: 'fade',
+            duration: 300,
         },
     },
     {
@@ -30,6 +32,8 @@ const routes = [
         meta: {
             public: true,
             layout: 'auth',
+            transition: 'fade',
+            duration: 300,
         },
     },
     {
@@ -39,6 +43,8 @@ const routes = [
         meta: {
             public: true,
             layout: 'auth',
+            transition: 'fade',
+            duration: 300,
         },
     },
     {
@@ -48,6 +54,8 @@ const routes = [
         meta: {
             public: true,
             layout: 'auth',
+            transition: 'fade',
+            duration: 300,
         },
     },
 

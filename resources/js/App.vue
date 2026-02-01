@@ -1,13 +1,22 @@
 <template>
     <div id="app">
-        <router-view />
+        <!-- T033: Page transition animations with route metadata -->
+        <Transition
+            :name="route.meta.transition || 'fade'"
+            :duration="route.meta.duration || 300"
+            mode="out-in"
+        >
+            <router-view :key="route.fullPath" />
+        </Transition>
     </div>
 </template>
 
 <script setup>
 import { onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 import { useAuth } from './composables/useAuth';
 
+const route = useRoute();
 const { fetchCurrentUser, token } = useAuth();
 
 // Try to restore user session on mount
@@ -53,5 +62,29 @@ body {
 #app {
     display: flex;
     flex-direction: column;
+}
+
+/* T033: Page transition animations */
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity var(--transition-normal);
+}
+
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
+}
+
+.fade-enter-to,
+.fade-leave-from {
+    opacity: 1;
+}
+
+/* Respect prefers-reduced-motion for transitions */
+@media (prefers-reduced-motion: reduce) {
+    .fade-enter-active,
+    .fade-leave-active {
+        transition: none;
+    }
 }
 </style>

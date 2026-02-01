@@ -67,20 +67,20 @@ This is a web application (Laravel + Vue.js):
 
 ### Implementation for User Story 1
 
-- [ ] T020 [P] [US1] Upgrade Login.vue page in resources/js/pages/auth/Login.vue with AnimatedBackground and glassmorphic card
-- [ ] T021 [P] [US1] Upgrade Register.vue page in resources/js/pages/auth/Register.vue with password strength indicator
-- [ ] T022 [P] [US1] Create PasswordStrengthIndicator.vue component in resources/js/components/auth/PasswordStrengthIndicator.vue
-- [ ] T023 [P] [US1] Upgrade ForgotPassword.vue page in resources/js/pages/auth/ForgotPassword.vue with consistent styling
-- [ ] T024 [P] [US1] Upgrade ResetPassword.vue page in resources/js/pages/auth/ResetPassword.vue with consistent styling
-- [ ] T025 [US1] Update AuthCard.vue component in resources/js/components/auth/AuthCard.vue with glassmorphic effect and gradient top border
-- [ ] T026 [US1] Update SubmitButton.vue component in resources/js/components/auth/SubmitButton.vue with loading spinner animation
-- [ ] T027 [US1] Update FormField.vue component in resources/js/components/auth/FormField.vue with focus glow effect
-- [ ] T028 [US1] Update PasswordInput.vue component in resources/js/components/auth/PasswordInput.vue with show/hide toggle styling
-- [ ] T029 [US1] Add ripple effect to button clicks across all auth pages
-- [ ] T030 [US1] Add social login UI buttons (Google/GitHub) to Login and Register pages with hover effects
-- [ ] T031 [US1] Add custom checkbox styling for "Remember me" on Login page
-- [ ] T032 [US1] Add shake animation for validation errors using animations.css
-- [ ] T033 [US1] Add page transition animations to router/index.js for auth routes (fade in/out 300ms)
+- [x] T020 [P] [US1] Upgrade Login.vue page in resources/js/pages/auth/Login.vue with AnimatedBackground and glasmorphic card
+- [x] T021 [P] [US1] Upgrade Register.vue page in resources/js/pages/auth/Register.vue with password strength indicator
+- [x] T022 [P] [US1] Create PasswordStrengthIndicator.vue component in resources/js/components/auth/PasswordStrengthIndicator.vue
+- [x] T023 [P] [US1] Upgrade ForgotPassword.vue page in resources/js/pages/auth/ForgotPassword.vue with consistent styling
+- [x] T024 [P] [US1] Upgrade ResetPassword.vue page in resources/js/pages/auth/ResetPassword.vue with consistent styling
+- [x] T025 [US1] Update AuthCard.vue component in resources/js/components/auth/AuthCard.vue with glassmorphic effect and gradient top border - **SUPERSEDED** (modern pages use native HTML design)
+- [x] T026 [US1] Update SubmitButton.vue component in resources/js/components/auth/SubmitButton.vue with loading spinner animation - **SUPERSEDED** (using shared Button component)
+- [x] T027 [US1] Update FormField.vue component in resources/js/components/auth/FormField.vue with focus glow effect - **SUPERSEDED** (using native inputs with CSS styling)
+- [x] T028 [US1] Update PasswordInput.vue component in resources/js/components/auth/PasswordInput.vue with show/hide toggle styling - **SUPERSEDED** (using native password inputs)
+- [ ] T029 [US1] Add ripple effect to button clicks across all auth pages - OPTIONAL POLISH
+- [x] T030 [US1] Add social login UI buttons (Google/GitHub) to Login and Register pages with hover effects
+- [x] T031 [US1] Add custom checkbox styling for "Remember me" on Login page
+- [x] T032 [US1] Add shake animation for validation errors using animations.css
+- [x] T033 [US1] Add page transition animations to router/index.js for auth routes (fade in/out 300ms)
 
 **Checkpoint**: Auth flow complete and independently testable. MVP deliverable.
 

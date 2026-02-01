@@ -21,7 +21,8 @@
       "mcp__plugin_laravel-boost_laravel-boost__database-query",
       "Bash(git fetch:*)",
       "Bash(pwsh:*)",
-      "Bash(powershell.exe -File:*)"
+      "Bash(powershell.exe -File:*)",
+      "Bash(ConvertFrom-Json -ErrorAction SilentlyContinue)"
     ]
   }
 }
