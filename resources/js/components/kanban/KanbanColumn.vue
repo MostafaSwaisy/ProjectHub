@@ -30,6 +30,7 @@
                     @archive="$emit('archive-task', task.id)"
                     @delete="$emit('delete-task', task.id)"
                     @details="$emit('open-details', task.id)"
+                    @move-to="handleMoveTask(task.id, $event)"
                 />
             </div>
 
@@ -68,6 +69,7 @@ const emit = defineEmits([
     'delete-task',
     'open-details',
     'tasks-dropped',
+    'move-to-task',
 ]);
 
 const kanbanStore = useKanbanStore();
@@ -108,6 +110,14 @@ const handleTaskDragStart = (event) => {
 
 const handleTaskDragEnd = (event) => {
     // Drag end is handled by TaskCard component
+};
+
+// T093: Handle "Move to..." menu selection from mobile
+const handleMoveTask = (taskId, toColumn) => {
+    emit('move-to-task', {
+        taskId,
+        toColumn,
+    });
 };
 </script>
 

@@ -33,6 +33,7 @@
                         @delete-task="deleteTask"
                         @open-details="openTaskDetails"
                         @tasks-dropped="onTaskDropped"
+                        @move-to-task="onMoveToTask"
                     />
                 </div>
 
@@ -206,6 +207,18 @@ const onTaskDropped = async (event) => {
     } catch (error) {
         console.error('Failed to move task:', error);
         // Error handling is done in the store
+    }
+};
+
+// T093: Handle "Move to..." menu selection from mobile
+const onMoveToTask = async (event) => {
+    const { taskId, toColumn } = event;
+
+    try {
+        // Update task status (same as drag-drop, but initiated by mobile menu)
+        await tasksStore.changeTaskStatus(props.projectId, taskId, toColumn);
+    } catch (error) {
+        console.error('Failed to move task:', error);
     }
 };
 

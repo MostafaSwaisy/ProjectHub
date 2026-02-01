@@ -36,6 +36,27 @@
         <div v-if="showMenu" class="task-menu">
             <button class="menu-item" @click.stop="$emit('edit')">Edit</button>
             <button class="menu-item" @click.stop="$emit('duplicate')">Duplicate</button>
+
+            <!-- Mobile: "Move to..." option for task relocation -->
+            <button class="menu-item move-to-btn" @click.stop="toggleMoveToMenu">
+                Move to...
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" :class="{ 'rotate': showMoveToMenu }">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+            </button>
+
+            <div v-if="showMoveToMenu" class="submenu">
+                <button
+                    v-for="column in availableColumns"
+                    :key="column.id"
+                    :disabled="column.id === task.status"
+                    class="submenu-item"
+                    @click.stop="moveTaskToColumn(column.id)"
+                >
+                    {{ column.title }}
+                </button>
+            </div>
+
             <button class="menu-item" @click.stop="$emit('archive')">Archive</button>
             <button class="menu-item menu-item-danger" @click.stop="$emit('delete')">Delete</button>
         </div>
@@ -109,10 +130,11 @@ const props = defineProps({
     },
 });
 
-const emit = defineEmits(['drag-start', 'drag-end', 'edit', 'duplicate', 'archive', 'delete', 'details']);
+const emit = defineEmits(['drag-start', 'drag-end', 'edit', 'duplicate', 'archive', 'delete', 'details', 'move-to']);
 
 // Local state
 const showMenu = ref(false);
+const showMoveToMenu = ref(false);
 
 // Check if task is overdue or due soon
 const isOverdue = computed(() => {
@@ -147,9 +169,34 @@ const subtaskProgressPercent = computed(() => {
     return Math.round((completedSubtasks.value / total) * 100);
 });
 
+// T093: Available columns for "Move to..." mobile menu
+const availableColumns = computed(() => {
+    return [
+        { id: 'todo', title: 'To Do' },
+        { id: 'in_progress', title: 'In Progress' },
+        { id: 'in_review', title: 'In Review' },
+        { id: 'done', title: 'Done' },
+    ];
+});
+
 // Methods
 const toggleMenu = () => {
     showMenu.value = !showMenu.value;
+    showMoveToMenu.value = false;
+};
+
+// T093: Toggle "Move to..." submenu
+const toggleMoveToMenu = () => {
+    showMoveToMenu.value = !showMoveToMenu.value;
+};
+
+// T093: Move task to column (mobile alternative to drag-drop)
+const moveTaskToColumn = (columnId) => {
+    if (columnId !== props.task.status) {
+        emit('move-to', columnId);
+        showMenu.value = false;
+        showMoveToMenu.value = false;
+    }
 };
 
 const openTaskDetails = () => {
@@ -352,6 +399,53 @@ const getInitials = (name) => {
 .menu-item-danger:hover {
     background: rgba(239, 68, 68, 0.2);
     color: var(--red-primary);
+}
+
+/* T093: Move to submenu */
+.move-to-btn {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.move-to-btn svg {
+    transition: transform var(--transition-normal);
+}
+
+.move-to-btn svg.rotate {
+    transform: rotate(180deg);
+}
+
+.submenu {
+    background: rgba(255, 255, 255, 0.05);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    animation: dropdownIn var(--transition-normal) ease-out;
+}
+
+.submenu-item {
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    text-align: left;
+    cursor: pointer;
+    font-size: var(--text-sm);
+    transition: all var(--transition-normal);
+    padding-left: calc(var(--spacing-md) + var(--spacing-md));
+}
+
+.submenu-item:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--orange-primary);
+}
+
+.submenu-item:disabled {
+    background: rgba(255, 107, 53, 0.1);
+    color: var(--orange-primary);
+    font-weight: var(--font-medium);
+    cursor: default;
 }
 
 /* Task Description */

@@ -193,18 +193,18 @@ This is a web application (Laravel + Vue.js):
 
 ### Implementation for User Story 3
 
-- [ ] T086 [P] [US3] Add mobile breakpoint styles to responsive.css for auth pages (single column, centered cards)
-- [ ] T087 [P] [US3] Add mobile breakpoint styles to responsive.css for kanban board (horizontal scroll)
-- [ ] T088 [P] [US3] Add tablet breakpoint styles to responsive.css for kanban board (2-3 columns visible)
-- [ ] T089 [P] [US3] Update Modal component to go full-screen on mobile devices
-- [ ] T090 [P] [US3] Ensure touch targets are minimum 44x44px across all interactive elements
-- [ ] T091 [US3] Add touch feedback styles for buttons and cards (active/tap states instead of hover)
-- [ ] T092 [US3] Implement long-press to initiate drag on mobile in useDragDrop composable
-- [ ] T093 [US3] Add "Move to..." menu alternative for mobile task relocation (no drag required)
-- [ ] T094 [US3] Test and adjust spacing/padding for mobile keyboards on modals
-- [ ] T095 [US3] Add horizontal scroll indicators for kanban columns on mobile
-- [ ] T096 [US3] Optimize touch scrolling performance for task lists
-- [ ] T097 [US3] Add minimum screen width check (320px) with informative message if below
+- [x] T086 [P] [US3] Add mobile breakpoint styles to responsive.css for auth pages (single column, centered cards)
+- [x] T087 [P] [US3] Add mobile breakpoint styles to responsive.css for kanban board (horizontal scroll)
+- [x] T088 [P] [US3] Add tablet breakpoint styles to responsive.css for kanban board (2-3 columns visible)
+- [x] T089 [P] [US3] Update Modal component to go full-screen on mobile devices
+- [x] T090 [P] [US3] Ensure touch targets are minimum 44x44px across all interactive elements
+- [x] T091 [US3] Add touch feedback styles for buttons and cards (active/tap states instead of hover)
+- [x] T092 [US3] Implement long-press to initiate drag on mobile in useDragDrop composable
+- [x] T093 [US3] Add "Move to..." menu alternative for mobile task relocation (no drag required)
+- [x] T094 [US3] Test and adjust spacing/padding for mobile keyboards on modals
+- [x] T095 [US3] Add horizontal scroll indicators for kanban columns on mobile
+- [x] T096 [US3] Optimize touch scrolling performance for task lists
+- [x] T097 [US3] Add minimum screen width check (320px) with informative message if below
 
 **Checkpoint**: Application fully responsive and mobile-friendly.
 
