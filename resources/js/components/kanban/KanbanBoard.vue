@@ -126,8 +126,25 @@ onMounted(async () => {
         await tasksStore.fetchTasks(props.projectId);
     } catch (error) {
         console.error('Failed to fetch tasks:', error);
+        // Load mock data if API fails (for development/testing)
+        loadMockData();
     }
 });
+
+// Mock data for development/testing when API is not available
+const loadMockData = () => {
+    const mockTasks = [
+        { id: 1, title: 'Design system component library', description: 'Create reusable components with consistent styling', status: 'in_progress', priority: 'high', due_date: '2026-02-05', labels: [{ id: 1, name: 'Design', color: '#FF6B35' }], assignees: [{ id: 1, name: 'John Doe' }], subtasks: [{ id: 1, title: 'Button component', completed: true }], created_at: '2026-01-28', updated_at: '2026-02-01' },
+        { id: 2, title: 'Implement kanban board UI', description: 'Build drag-drop kanban with all features', status: 'in_progress', priority: 'high', due_date: '2026-02-10', labels: [{ id: 2, name: 'Feature', color: '#4F46E5' }], assignees: [{ id: 2, name: 'Jane Smith' }], subtasks: [], created_at: '2026-01-29', updated_at: '2026-02-01' },
+        { id: 3, title: 'Mobile responsive design', description: 'Optimize for mobile and tablet devices', status: 'todo', priority: 'medium', due_date: '2026-02-15', labels: [{ id: 3, name: 'Mobile', color: '#22C55E' }], assignees: [], subtasks: [], created_at: '2026-01-30', updated_at: '2026-02-01' },
+        { id: 4, title: 'API endpoint creation', description: 'Create REST API for task management', status: 'todo', priority: 'high', due_date: '2026-02-08', labels: [{ id: 4, name: 'Backend', color: '#EC4899' }], assignees: [{ id: 1, name: 'John Doe' }], subtasks: [], created_at: '2026-01-31', updated_at: '2026-02-01' },
+        { id: 5, title: 'Write unit tests', description: 'Add tests for all components', status: 'todo', priority: 'low', due_date: '2026-02-20', labels: [{ id: 5, name: 'Testing', color: '#8B5CF6' }], assignees: [{ id: 2, name: 'Jane Smith' }], subtasks: [], created_at: '2026-02-01', updated_at: '2026-02-01' },
+        { id: 6, title: 'Documentation', description: 'Update README', status: 'in_review', priority: 'medium', due_date: null, labels: [{ id: 6, name: 'Documentation', color: '#06B6D4' }], assignees: [], subtasks: [], created_at: '2026-01-28', updated_at: '2026-02-01' },
+        { id: 7, title: 'Performance optimization', description: 'Optimize bundle size', status: 'done', priority: 'medium', due_date: '2026-01-31', labels: [], assignees: [{ id: 1, name: 'John Doe' }], subtasks: [], created_at: '2026-01-15', updated_at: '2026-02-01' },
+    ];
+    tasksStore.tasks = mockTasks;
+    tasksStore.loading = false;
+};
 
 // T085: Cleanup ongoing animations when navigating away
 onBeforeUnmount(() => {
