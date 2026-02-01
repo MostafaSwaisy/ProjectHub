@@ -175,11 +175,11 @@ This is a web application (Laravel + Vue.js):
 
 ### Edge Cases for User Story 2
 
-- [ ] T081 [US2] Handle long task titles (100+ chars) with ellipsis truncation after 2 lines
-- [ ] T082 [US2] Handle 50+ tasks in single column with max height and smooth scrolling
-- [ ] T083 [US2] Handle drag outside board area with cancel animation returning card to origin
-- [ ] T084 [US2] Handle label overflow (show first 3 labels + "+N more" indicator)
-- [ ] T085 [US2] Add cleanup for ongoing animations when user navigates away
+- [x] T081 [US2] Handle long task titles (100+ chars) with ellipsis truncation after 2 lines
+- [x] T082 [US2] Handle 50+ tasks in single column with max height and smooth scrolling
+- [x] T083 [US2] Handle drag outside board area with cancel animation returning card to origin
+- [x] T084 [US2] Handle label overflow (show first 3 labels + "+N more" indicator)
+- [x] T085 [US2] Add cleanup for ongoing animations when user navigates away
 
 **Checkpoint**: Kanban board fully functional and independently testable.
 

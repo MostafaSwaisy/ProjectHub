@@ -81,7 +81,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { useTasksStore } from '../../stores/tasks';
 import { useKanbanStore } from '../../stores/kanban';
 import { useTaskFiltering } from '../../composables/useTaskFiltering';
@@ -125,6 +125,24 @@ onMounted(async () => {
         await tasksStore.fetchTasks(props.projectId);
     } catch (error) {
         console.error('Failed to fetch tasks:', error);
+    }
+});
+
+// T085: Cleanup ongoing animations when navigating away
+onBeforeUnmount(() => {
+    // Clear any ongoing drag operations
+    kanbanStore.clearDrag();
+
+    // Close any open modals
+    kanbanStore.closeTaskModal();
+    kanbanStore.closeTaskDetails();
+
+    // Reset board state to initial
+    kanbanStore.resetBoardState();
+
+    // Cancel any pending API requests by clearing loading state
+    if (tasksStore.loading) {
+        tasksStore.loading = false;
     }
 });
 
