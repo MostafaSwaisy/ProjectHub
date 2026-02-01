@@ -117,61 +117,61 @@ This is a web application (Laravel + Vue.js):
 
 ### Stores for User Story 2
 
-- [ ] T044 [P] [US2] Create tasks.js Pinia store in resources/js/stores/tasks.js with CRUD actions
-- [ ] T045 [P] [US2] Create kanban.js Pinia store in resources/js/stores/kanban.js with board state management
+- [x] T044 [P] [US2] Create tasks.js Pinia store in resources/js/stores/tasks.js with CRUD actions
+- [x] T045 [P] [US2] Create kanban.js Pinia store in resources/js/stores/kanban.js with board state management
 
 ### Composables for User Story 2
 
-- [ ] T046 [P] [US2] Create useDragDrop.js composable in resources/js/composables/useDragDrop.js using HTML5 drag API
-- [ ] T047 [P] [US2] Create useTaskFiltering.js composable in resources/js/composables/useTaskFiltering.js for search functionality
+- [x] T046 [P] [US2] Create useDragDrop.js composable in resources/js/composables/useDragDrop.js using HTML5 drag API
+- [x] T047 [P] [US2] Create useTaskFiltering.js composable in resources/js/composables/useTaskFiltering.js for search functionality
 
 ### Core Kanban Components for User Story 2
 
-- [ ] T048 [P] [US2] Create TaskCard.vue component in resources/js/components/kanban/TaskCard.vue with priority borders and hover effects
-- [ ] T049 [P] [US2] Create KanbanColumn.vue component in resources/js/components/kanban/KanbanColumn.vue with colored status indicators
-- [ ] T050 [P] [US2] Create BoardStats.vue component in resources/js/components/kanban/BoardStats.vue with task counts
-- [ ] T051 [P] [US2] Create BoardHeader.vue component in resources/js/components/kanban/BoardHeader.vue with search box and "+ Add Task" button
-- [ ] T052 [US2] Create KanbanBoard.vue container component in resources/js/components/kanban/KanbanBoard.vue integrating all board elements
+- [x] T048 [P] [US2] Create TaskCard.vue component in resources/js/components/kanban/TaskCard.vue with priority borders and hover effects
+- [x] T049 [P] [US2] Create KanbanColumn.vue component in resources/js/components/kanban/KanbanColumn.vue with colored status indicators
+- [x] T050 [P] [US2] Create BoardStats.vue component in resources/js/components/kanban/BoardStats.vue with task counts
+- [x] T051 [P] [US2] Create BoardHeader.vue component in resources/js/components/kanban/BoardHeader.vue with search box and "+ Add Task" button
+- [x] T052 [US2] Create KanbanBoard.vue container component in resources/js/components/kanban/KanbanBoard.vue integrating all board elements
 
 ### Task Modal Components for User Story 2
 
-- [ ] T053 [P] [US2] Create TaskModal.vue component in resources/js/components/kanban/TaskModal.vue for create/edit with glassmorphic styling
-- [ ] T054 [P] [US2] Create TaskDetailModal.vue component in resources/js/components/kanban/TaskDetailModal.vue for viewing task details
-- [ ] T055 [P] [US2] Create LabelSelector.vue component in resources/js/components/kanban/LabelSelector.vue with color picker
-- [ ] T056 [US2] Integrate TaskModal with form validation and label selection
+- [x] T053 [P] [US2] Create TaskModal.vue component in resources/js/components/kanban/TaskModal.vue for create/edit with glassmorphic styling
+- [x] T054 [P] [US2] Create TaskDetailModal.vue component in resources/js/components/kanban/TaskDetailModal.vue for viewing task details
+- [x] T055 [P] [US2] Create LabelSelector.vue component in resources/js/components/kanban/LabelSelector.vue with color picker
+- [x] T056 [US2] Integrate TaskModal with form validation and label selection
 
 ### Task Card Features for User Story 2
 
-- [ ] T057 [US2] Add priority indicator (colored left border) to TaskCard based on priority level
-- [ ] T058 [US2] Add pulse animation to urgent priority tasks in TaskCard
-- [ ] T059 [US2] Add label badges display (max 3 with "+N more") to TaskCard
-- [ ] T060 [US2] Add due date display with relative formatting (Today/Tomorrow/X days ago) to TaskCard
-- [ ] T061 [US2] Add overdue/due-soon highlighting (red/orange) to TaskCard
-- [ ] T062 [US2] Add assignee avatar and name display to TaskCard
-- [ ] T063 [US2] Add three-dot menu with dropdown options (Edit, Duplicate, Archive, Delete) to TaskCard
-- [ ] T064 [US2] Add task ID display in monospace font to TaskCard
-- [ ] T065 [US2] Add subtask progress bar to TaskCard when subtasks exist
+- [x] T057 [US2] Add priority indicator (colored left border) to TaskCard based on priority level
+- [x] T058 [US2] Add pulse animation to urgent priority tasks in TaskCard
+- [x] T059 [US2] Add label badges display (max 3 with "+N more") to TaskCard
+- [x] T060 [US2] Add due date display with relative formatting (Today/Tomorrow/X days ago) to TaskCard
+- [x] T061 [US2] Add overdue/due-soon highlighting (red/orange) to TaskCard
+- [x] T062 [US2] Add assignee avatar and name display to TaskCard
+- [x] T063 [US2] Add three-dot menu with dropdown options (Edit, Duplicate, Archive, Delete) to TaskCard
+- [x] T064 [US2] Add task ID display in monospace font to TaskCard
+- [x] T065 [US2] Add subtask progress bar to TaskCard when subtasks exist
 
 ### Kanban Board Integration for User Story 2
 
-- [ ] T066 [US2] Implement drag-drop functionality between columns using useDragDrop composable
-- [ ] T067 [US2] Implement search/filter functionality in BoardHeader using useTaskFiltering composable
-- [ ] T068 [US2] Implement board statistics calculation in BoardStats (total, completed, in progress, overdue)
-- [ ] T069 [US2] Connect KanbanBoard to tasks store for data fetching and updates
-- [ ] T070 [US2] Handle task creation via "+ Add Task" button opening TaskModal
-- [ ] T071 [US2] Handle task editing via TaskCard menu "Edit" option
-- [ ] T072 [US2] Handle task deletion via TaskCard menu "Delete" option with confirmation
-- [ ] T073 [US2] Handle task duplication via TaskCard menu "Duplicate" option
-- [ ] T074 [US2] Handle task archiving via TaskCard menu "Archive" option
-- [ ] T075 [US2] Handle "Move to Top" functionality in TaskCard menu
-- [ ] T076 [US2] Add smooth transitions when tasks move between columns
-- [ ] T077 [US2] Add smooth transitions when filtering tasks via search
+- [x] T066 [US2] Implement drag-drop functionality between columns using useDragDrop composable
+- [x] T067 [US2] Implement search/filter functionality in BoardHeader using useTaskFiltering composable
+- [x] T068 [US2] Implement board statistics calculation in BoardStats (total, completed, in progress, overdue)
+- [x] T069 [US2] Connect KanbanBoard to tasks store for data fetching and updates
+- [x] T070 [US2] Handle task creation via "+ Add Task" button opening TaskModal
+- [x] T071 [US2] Handle task editing via TaskCard menu "Edit" option
+- [x] T072 [US2] Handle task deletion via TaskCard menu "Delete" option with confirmation
+- [x] T073 [US2] Handle task duplication via TaskCard menu "Duplicate" option
+- [x] T074 [US2] Handle task archiving via TaskCard menu "Archive" option
+- [x] T075 [US2] Handle "Move to Top" functionality in TaskCard menu
+- [x] T076 [US2] Add smooth transitions when tasks move between columns
+- [x] T077 [US2] Add smooth transitions when filtering tasks via search
 
 ### Page Integration for User Story 2
 
-- [ ] T078 [US2] Create KanbanView.vue page in resources/js/pages/projects/KanbanView.vue
-- [ ] T079 [US2] Add kanban route to resources/js/router/index.js for /projects/:id/kanban
-- [ ] T080 [US2] Integrate KanbanBoard component into KanbanView page with project data
+- [x] T078 [US2] Create KanbanView.vue page in resources/js/pages/projects/KanbanView.vue
+- [x] T079 [US2] Add kanban route to resources/js/router/index.js for /projects/:id/kanban
+- [x] T080 [US2] Integrate KanbanBoard component into KanbanView page with project data
 
 ### Edge Cases for User Story 2
 

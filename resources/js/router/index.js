@@ -10,6 +10,7 @@ const ResetPassword = () => import('../pages/auth/ResetPassword.vue');
 // Placeholder components (to be implemented)
 const Dashboard = () => import('../pages/Dashboard.vue');
 const ProjectBoard = () => import('../pages/projects/Board.vue');
+const KanbanView = () => import('../pages/projects/KanbanView.vue');
 const NotFound = () => import('../pages/NotFound.vue');
 
 const routes = [
@@ -73,6 +74,15 @@ const routes = [
         path: '/projects/:id/board',
         name: 'project-board',
         component: ProjectBoard,
+        meta: {
+            requiresAuth: true,
+            layout: 'app',
+        },
+    },
+    {
+        path: '/projects/:id/kanban',
+        name: 'project-kanban',
+        component: KanbanView,
         meta: {
             requiresAuth: true,
             layout: 'app',
