@@ -94,16 +94,16 @@ This is a web application (Laravel + Vue.js):
 
 ### Implementation for User Story 4
 
-- [ ] T034 [P] [US4] Apply design system colors to all existing components in resources/js/components/
-- [ ] T035 [P] [US4] Update button styles across all existing pages to use shared Button component
-- [ ] T036 [P] [US4] Update input styles across all existing forms to use shared Input component
-- [ ] T037 [P] [US4] Apply consistent typography scale (font sizes, weights, line heights) globally
-- [ ] T038 [P] [US4] Apply consistent spacing scale (padding, margins) globally
-- [ ] T039 [US4] Ensure all modals use shared Modal component with glassmorphic styling
-- [ ] T040 [US4] Ensure all dropdowns use shared Dropdown component with fade animations
-- [ ] T041 [US4] Add page transition animations to all route changes in router/index.js
-- [ ] T042 [US4] Apply hover states (elevation + glow) to all interactive elements
-- [ ] T043 [US4] Verify dark theme background applied to all pages consistently
+- [x] T034 [P] [US4] Apply design system colors to all existing components in resources/js/components/
+- [x] T035 [P] [US4] Update button styles across all existing pages to use shared Button component
+- [x] T036 [P] [US4] Update input styles across all existing forms to use shared Input component
+- [x] T037 [P] [US4] Apply consistent typography scale (font sizes, weights, line heights) globally
+- [x] T038 [P] [US4] Apply consistent spacing scale (padding, margins) globally
+- [x] T039 [US4] Ensure all modals use shared Modal component with glassmorphic styling
+- [x] T040 [US4] Ensure all dropdowns use shared Dropdown component with fade animations
+- [x] T041 [US4] Add page transition animations to all route changes in router/index.js
+- [x] T042 [US4] Apply hover states (elevation + glow) to all interactive elements
+- [x] T043 [US4] Verify dark theme background applied to all pages consistently
 
 **Checkpoint**: Design system fully integrated across application.
 
