@@ -7,7 +7,32 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Primary brand color
+        // T019: Design system colors from design-system.css
+        // Orange - Primary action color
+        orange: {
+          primary: '#FF6B35',
+          light: '#FF8C5A',
+          dark: '#E55A2B',
+          glow: 'rgba(255, 107, 53, 0.4)',
+          DEFAULT: '#FF6B35',
+        },
+        // Blue - Secondary action color
+        blue: {
+          primary: '#2563EB',
+          light: '#3B82F6',
+          dark: '#1D4ED8',
+          glow: 'rgba(37, 99, 235, 0.4)',
+          DEFAULT: '#2563EB',
+        },
+        // Dark theme colors
+        dark: {
+          primary: '#0A0A0A',
+          secondary: '#1A1A1A',
+          tertiary: '#2A2A2A',
+          card: '#151515',
+        },
+        // Keep existing colors for backward compatibility
+        // Primary brand color (indigo)
         primary: {
           50: '#f0f4ff',
           100: '#e0e7ff',

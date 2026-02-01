@@ -23,16 +23,35 @@ onMounted(async () => {
 </script>
 
 <style>
+/* T018: Global styles with dark theme from design system */
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-html, body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-        'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+html,
+body,
+#app {
+    width: 100%;
+    height: 100%;
+    background-color: var(--black-primary);
+    color: var(--text-primary);
+    font-family: var(--font-family);
+    font-size: var(--text-base);
+    line-height: var(--line-height-base);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    overflow-x: hidden;
+}
+
+/* Ensure app container fills viewport */
+#app {
+    display: flex;
+    flex-direction: column;
 }
 </style>
