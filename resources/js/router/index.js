@@ -154,15 +154,19 @@ const router = createRouter({
 });
 
 // Global navigation guards
-router.beforeEach((to, from, next) => {
-    const { isAuthenticated, fetchCurrentUser } = useAuth();
+router.beforeEach(async (to, from, next) => {
+    const { isAuthenticated, fetchCurrentUser, user } = useAuth();
 
     // Try to fetch current user if we have a token but no user data
-    if (isAuthenticated.value && !useAuth().user.value) {
-        fetchCurrentUser().catch(() => {
+    if (isAuthenticated.value && !user.value) {
+        try {
+            await fetchCurrentUser();
+        } catch (err) {
             // Token is invalid, redirect to login
+            console.error('Failed to fetch user:', err);
             next('/auth/login');
-        });
+            return;
+        }
     }
 
     // Check if route requires authentication
@@ -192,12 +196,6 @@ router.afterEach((to) => {
     // Sync current route with layout store for active nav highlighting
     const layoutStore = useLayoutStore();
     layoutStore.setCurrentRoute(to.path);
-});
-
-// Navigation error handling
-router.afterEach((to) => {
-    // Update page title based on route
-    document.title = to.meta.title || 'ProjectHub';
 });
 
 export default router;
