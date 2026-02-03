@@ -88,6 +88,15 @@ const isAlert = computed(() => {
   color: var(--orange-primary);
   font-size: 20px;
   line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-card__icon :deep(svg) {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
 }
 
 .stat-card--alert .stat-card__icon {
