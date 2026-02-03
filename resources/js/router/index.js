@@ -71,7 +71,7 @@ const routes = [
         name: 'dashboard',
         component: Dashboard,
         meta: {
-            requiresAuth: false,
+            requiresAuth: true,
             layout: 'app',
         },
     },
