@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { useAuth } from '../composables/useAuth';
+import { useLayoutStore } from '../stores/layout';
 
 // Lazy load page components
 const Login = () => import('../pages/auth/Login.vue');
@@ -11,6 +12,10 @@ const ResetPassword = () => import('../pages/auth/ResetPassword.vue');
 const Dashboard = () => import('../pages/Dashboard.vue');
 const ProjectBoard = () => import('../pages/projects/Board.vue');
 const KanbanView = () => import('../pages/projects/KanbanView.vue');
+const ProjectsList = () => import('../pages/projects/ProjectsList.vue');
+const MyTasks = () => import('../pages/MyTasks.vue');
+const Team = () => import('../pages/Team.vue');
+const Settings = () => import('../pages/Settings.vue');
 const NotFound = () => import('../pages/NotFound.vue');
 
 const routes = [
@@ -66,6 +71,16 @@ const routes = [
         name: 'dashboard',
         component: Dashboard,
         meta: {
+            requiresAuth: false,
+            layout: 'app',
+        },
+    },
+    // T012: Placeholder routes for Projects, Tasks, Team, Settings
+    {
+        path: '/projects',
+        name: 'projects',
+        component: ProjectsList,
+        meta: {
             requiresAuth: true,
             layout: 'app',
         },
@@ -83,6 +98,33 @@ const routes = [
         path: '/projects/:id/kanban',
         name: 'project-kanban',
         component: KanbanView,
+        meta: {
+            requiresAuth: true,
+            layout: 'app',
+        },
+    },
+    {
+        path: '/tasks',
+        name: 'tasks',
+        component: MyTasks,
+        meta: {
+            requiresAuth: true,
+            layout: 'app',
+        },
+    },
+    {
+        path: '/team',
+        name: 'team',
+        component: Team,
+        meta: {
+            requiresAuth: true,
+            layout: 'app',
+        },
+    },
+    {
+        path: '/settings',
+        name: 'settings',
+        component: Settings,
         meta: {
             requiresAuth: true,
             layout: 'app',
@@ -140,6 +182,16 @@ router.beforeEach((to, from, next) => {
     }
 
     next();
+});
+
+// T024: Sync currentRoute with layout store after each navigation
+router.afterEach((to) => {
+    // Update page title based on route
+    document.title = to.meta.title || 'ProjectHub';
+
+    // Sync current route with layout store for active nav highlighting
+    const layoutStore = useLayoutStore();
+    layoutStore.setCurrentRoute(to.path);
 });
 
 // Navigation error handling

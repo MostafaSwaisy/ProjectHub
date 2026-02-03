@@ -1,51 +1,51 @@
 <template>
-    <!-- T034: Dashboard with design system colors and dark theme -->
-    <div class="dashboard-container">
-        <div class="dashboard-header">
-            <h1 class="dashboard-title">Dashboard</h1>
-            <p class="dashboard-subtitle">Welcome to ProjectHub Analytics</p>
+    <!-- T022: Dashboard with AppLayout wrapper -->
+    <AppLayout>
+        <div class="dashboard-container">
+            <div class="dashboard-header">
+                <h1 class="dashboard-title">Dashboard</h1>
+                <p class="dashboard-subtitle">Welcome to ProjectHub Analytics</p>
+            </div>
+
+            <div class="stats-grid">
+                <!-- Total Projects Card -->
+                <div class="stat-card">
+                    <p class="stat-label">Total Projects</p>
+                    <p class="stat-value">--</p>
+                </div>
+
+                <!-- Active Tasks Card -->
+                <div class="stat-card">
+                    <p class="stat-label">Active Tasks</p>
+                    <p class="stat-value">--</p>
+                </div>
+
+                <!-- Team Members Card -->
+                <div class="stat-card">
+                    <p class="stat-label">Team Members</p>
+                    <p class="stat-value">--</p>
+                </div>
+
+                <!-- Overdue Tasks Card -->
+                <div class="stat-card stat-card-alert">
+                    <p class="stat-label">Overdue Tasks</p>
+                    <p class="stat-value stat-value-alert">--</p>
+                </div>
+            </div>
         </div>
-
-        <div class="stats-grid">
-            <!-- Total Projects Card -->
-            <div class="stat-card">
-                <p class="stat-label">Total Projects</p>
-                <p class="stat-value">--</p>
-            </div>
-
-            <!-- Active Tasks Card -->
-            <div class="stat-card">
-                <p class="stat-label">Active Tasks</p>
-                <p class="stat-value">--</p>
-            </div>
-
-            <!-- Team Members Card -->
-            <div class="stat-card">
-                <p class="stat-label">Team Members</p>
-                <p class="stat-value">--</p>
-            </div>
-
-            <!-- Overdue Tasks Card -->
-            <div class="stat-card stat-card-alert">
-                <p class="stat-label">Overdue Tasks</p>
-                <p class="stat-value stat-value-alert">--</p>
-            </div>
-        </div>
-    </div>
+    </AppLayout>
 </template>
 
 <script setup>
-// Dashboard component - to be implemented
+// T022: Dashboard component with AppLayout wrapper
+import AppLayout from '../layouts/AppLayout.vue'
 </script>
 
 <style scoped>
 /* T034: Design system consistency - Dashboard */
 
 .dashboard-container {
-    min-height: 100vh;
-    background-color: var(--black-primary);
     color: var(--text-primary);
-    padding: var(--spacing-lg);
 }
 
 .dashboard-header {
