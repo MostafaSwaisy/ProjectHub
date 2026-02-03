@@ -155,10 +155,11 @@ const router = createRouter({
 
 // Global navigation guards
 router.beforeEach(async (to, from, next) => {
-    const { isAuthenticated, fetchCurrentUser, user } = useAuth();
+    const { isAuthenticated, fetchCurrentUser, user, token } = useAuth();
 
     // Try to fetch current user if we have a token but no user data
-    if (isAuthenticated.value && !user.value) {
+    // FIX: Check token.value instead of isAuthenticated.value
+    if (token.value && !user.value) {
         try {
             await fetchCurrentUser();
         } catch (err) {
