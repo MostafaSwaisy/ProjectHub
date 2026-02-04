@@ -1,4 +1,16 @@
 <template>
+    <!-- Confirm Dialog for Unsaved Changes -->
+    <ConfirmDialog
+        :is-open="showConfirmDialog"
+        title="Unsaved Changes"
+        message="You have unsaved changes. Are you sure you want to close without saving?"
+        confirm-text="Discard Changes"
+        cancel-text="Keep Editing"
+        danger
+        @confirm="forceClose"
+        @cancel="showConfirmDialog = false"
+    />
+
     <Modal
         :is-open="isOpen"
         :title="isEditMode ? 'Edit Project' : 'Create New Project'"
@@ -114,6 +126,7 @@
 <script setup>
 import { ref, computed, watch } from 'vue';
 import Modal from '../shared/Modal.vue';
+import ConfirmDialog from '../shared/ConfirmDialog.vue';
 
 const props = defineProps({
     isOpen: {
@@ -142,6 +155,7 @@ const formData = ref({
 
 const errors = ref({});
 const initialFormData = ref(null);
+const showConfirmDialog = ref(false);
 
 // Check if in edit mode
 const isEditMode = computed(() => !!props.project);
@@ -225,12 +239,18 @@ const handleSubmit = () => {
 // Handle modal close
 const handleClose = () => {
     if (hasUnsavedChanges.value) {
-        // T028: Will implement unsaved changes confirmation dialog
-        const confirmed = confirm('You have unsaved changes. Are you sure you want to close?');
-        if (!confirmed) return;
+        // Show confirmation dialog
+        showConfirmDialog.value = true;
+        return;
     }
 
+    forceClose();
+};
+
+// Force close without confirmation
+const forceClose = () => {
     errors.value = {};
+    showConfirmDialog.value = false;
     emit('close');
 };
 </script>
