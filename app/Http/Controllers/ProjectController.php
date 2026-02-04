@@ -142,10 +142,21 @@ class ProjectController extends Controller
 
     /**
      * Display the specified resource.
+     *
+     * @param Project $project
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function show(string $id)
+    public function show(Project $project)
     {
-        //
+        // Authorize the action
+        $this->authorize('view', $project);
+
+        // Load relationships
+        $project->load(['instructor', 'members']);
+
+        return response()->json([
+            'data' => new ProjectResource($project),
+        ]);
     }
 
     /**
