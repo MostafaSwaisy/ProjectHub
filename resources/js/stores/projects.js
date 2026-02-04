@@ -64,7 +64,28 @@ export const useProjectsStore = defineStore('projects', {
         },
 
         async createProject(data) {
-            // T024: Implement createProject
+            this.loading = true;
+            this.error = null;
+
+            try {
+                const response = await axios.post('/api/projects', data);
+
+                // Add the new project to the list
+                this.projects.unshift(response.data.data);
+
+                // Update pagination total count
+                if (this.pagination) {
+                    this.pagination.total += 1;
+                }
+
+                return response.data.data;
+            } catch (error) {
+                this.error = error.response?.data?.message || 'Failed to create project';
+                console.error('Error creating project:', error);
+                throw error;
+            } finally {
+                this.loading = false;
+            }
         },
 
         async updateProject(id, data) {
