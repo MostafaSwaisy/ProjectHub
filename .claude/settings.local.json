@@ -19,7 +19,17 @@
       "Bash(git rev-parse:*)",
       "mcp__plugin_laravel-boost_laravel-boost__browser-logs",
       "mcp__plugin_laravel-boost_laravel-boost__database-query",
-      "Bash(git fetch:*)"
+      "Bash(git fetch:*)",
+      "Bash(pwsh:*)",
+      "Bash(powershell.exe -File:*)",
+      "Bash(ConvertFrom-Json -ErrorAction SilentlyContinue)",
+      "mcp__plugin_laravel-boost_laravel-boost__last-error",
+      "Bash(node --version:*)",
+      "Bash(npm --version:*)",
+      "Bash(npm run dev:*)",
+      "Bash(curl:*)",
+      "mcp__plugin_laravel-boost_laravel-boost__tinker",
+      "Bash(python -m json.tool:*)"
     ]
   }
 }

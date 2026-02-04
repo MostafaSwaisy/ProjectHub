@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { useAuth } from '../composables/useAuth';
+import { useLayoutStore } from '../stores/layout';
 
 // Lazy load page components
 const Login = () => import('../pages/auth/Login.vue');
@@ -10,10 +11,15 @@ const ResetPassword = () => import('../pages/auth/ResetPassword.vue');
 // Placeholder components (to be implemented)
 const Dashboard = () => import('../pages/Dashboard.vue');
 const ProjectBoard = () => import('../pages/projects/Board.vue');
+const KanbanView = () => import('../pages/projects/KanbanView.vue');
+const ProjectsList = () => import('../pages/projects/ProjectsList.vue');
+const MyTasks = () => import('../pages/MyTasks.vue');
+const Team = () => import('../pages/Team.vue');
+const Settings = () => import('../pages/Settings.vue');
 const NotFound = () => import('../pages/NotFound.vue');
 
 const routes = [
-    // Auth Routes (public)
+    // Auth Routes (public) - T033: Page transition animations
     {
         path: '/auth/login',
         name: 'login',
@@ -21,6 +27,8 @@ const routes = [
         meta: {
             public: true,
             layout: 'auth',
+            transition: 'fade',
+            duration: 300,
         },
     },
     {
@@ -30,6 +38,8 @@ const routes = [
         meta: {
             public: true,
             layout: 'auth',
+            transition: 'fade',
+            duration: 300,
         },
     },
     {
@@ -39,6 +49,8 @@ const routes = [
         meta: {
             public: true,
             layout: 'auth',
+            transition: 'fade',
+            duration: 300,
         },
     },
     {
@@ -48,6 +60,8 @@ const routes = [
         meta: {
             public: true,
             layout: 'auth',
+            transition: 'fade',
+            duration: 300,
         },
     },
 
@@ -61,10 +75,56 @@ const routes = [
             layout: 'app',
         },
     },
+    // T012: Placeholder routes for Projects, Tasks, Team, Settings
+    {
+        path: '/projects',
+        name: 'projects',
+        component: ProjectsList,
+        meta: {
+            requiresAuth: true,
+            layout: 'app',
+        },
+    },
     {
         path: '/projects/:id/board',
         name: 'project-board',
         component: ProjectBoard,
+        meta: {
+            requiresAuth: true,
+            layout: 'app',
+        },
+    },
+    {
+        path: '/projects/:id/kanban',
+        name: 'project-kanban',
+        component: KanbanView,
+        meta: {
+            requiresAuth: true,
+            layout: 'app',
+        },
+    },
+    {
+        path: '/tasks',
+        name: 'tasks',
+        component: MyTasks,
+        meta: {
+            requiresAuth: true,
+            layout: 'app',
+        },
+    },
+    {
+        path: '/team',
+        name: 'team',
+        component: Team,
+        meta: {
+            requiresAuth: true,
+            layout: 'app',
+        },
+    },
+    {
+        path: '/settings',
+        name: 'settings',
+        component: Settings,
         meta: {
             requiresAuth: true,
             layout: 'app',
@@ -94,15 +154,20 @@ const router = createRouter({
 });
 
 // Global navigation guards
-router.beforeEach((to, from, next) => {
-    const { isAuthenticated, fetchCurrentUser } = useAuth();
+router.beforeEach(async (to, from, next) => {
+    const { isAuthenticated, fetchCurrentUser, user, token } = useAuth();
 
     // Try to fetch current user if we have a token but no user data
-    if (isAuthenticated.value && !useAuth().user.value) {
-        fetchCurrentUser().catch(() => {
+    // FIX: Check token.value instead of isAuthenticated.value
+    if (token.value && !user.value) {
+        try {
+            await fetchCurrentUser();
+        } catch (err) {
             // Token is invalid, redirect to login
+            console.error('Failed to fetch user:', err);
             next('/auth/login');
-        });
+            return;
+        }
     }
 
     // Check if route requires authentication
@@ -124,10 +189,14 @@ router.beforeEach((to, from, next) => {
     next();
 });
 
-// Navigation error handling
+// T024: Sync currentRoute with layout store after each navigation
 router.afterEach((to) => {
     // Update page title based on route
     document.title = to.meta.title || 'ProjectHub';
+
+    // Sync current route with layout store for active nav highlighting
+    const layoutStore = useLayoutStore();
+    layoutStore.setCurrentRoute(to.path);
 });
 
 export default router;

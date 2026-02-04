@@ -1,33 +1,58 @@
 <template>
-    <div class="min-h-screen bg-gray-50 p-6">
-        <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p class="text-gray-600 mt-2">Welcome to ProjectHub Analytics</p>
-
-        <div class="mt-8 grid grid-cols-1 md:grid-cols-4 gap-6">
-            <!-- Stat card placeholder -->
-            <div class="bg-white rounded-lg shadow p-6">
-                <p class="text-gray-600 text-sm font-medium">Total Projects</p>
-                <p class="text-3xl font-bold text-gray-900 mt-2">--</p>
+    <!-- T037: Dashboard with DashboardStats component -->
+    <AppLayout>
+        <div class="dashboard-container">
+            <div class="dashboard-header">
+                <h1 class="dashboard-title">Dashboard</h1>
+                <p class="dashboard-subtitle">Welcome to ProjectHub Analytics</p>
             </div>
 
-            <div class="bg-white rounded-lg shadow p-6">
-                <p class="text-gray-600 text-sm font-medium">Active Tasks</p>
-                <p class="text-3xl font-bold text-gray-900 mt-2">--</p>
-            </div>
-
-            <div class="bg-white rounded-lg shadow p-6">
-                <p class="text-gray-600 text-sm font-medium">Team Members</p>
-                <p class="text-3xl font-bold text-gray-900 mt-2">--</p>
-            </div>
-
-            <div class="bg-white rounded-lg shadow p-6">
-                <p class="text-gray-600 text-sm font-medium">Overdue Tasks</p>
-                <p class="text-3xl font-bold text-red-600 mt-2">--</p>
-            </div>
+            <!-- T036-T040: Real-time dashboard statistics -->
+            <DashboardStats />
         </div>
-    </div>
+    </AppLayout>
 </template>
 
 <script setup>
-// Dashboard component - to be implemented
+import AppLayout from '../layouts/AppLayout.vue';
+import DashboardStats from '../components/dashboard/DashboardStats.vue';
 </script>
+
+<style scoped>
+.dashboard-container {
+    color: var(--text-primary);
+    padding: 32px;
+}
+
+.dashboard-header {
+    margin-bottom: 32px;
+}
+
+.dashboard-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 8px 0;
+}
+
+.dashboard-subtitle {
+    font-size: 16px;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .dashboard-container {
+        padding: 20px;
+    }
+
+    .dashboard-title {
+        font-size: 24px;
+    }
+
+    .dashboard-subtitle {
+        font-size: 14px;
+    }
+}
+</style>
