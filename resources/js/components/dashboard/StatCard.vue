@@ -53,12 +53,16 @@ const isAlert = computed(() => {
   border-radius: 16px;
   padding: 24px;
   backdrop-filter: blur(10px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2),
+              inset 0 1px 0 rgba(255, 255, 255, 0.1);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .stat-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3),
+              0 0 20px rgba(255, 107, 53, 0.1),
+              inset 0 1px 0 rgba(255, 255, 255, 0.15);
   border-color: var(--glass-border-hover);
 }
 
