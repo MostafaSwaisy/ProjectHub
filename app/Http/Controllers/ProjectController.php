@@ -205,10 +205,25 @@ class ProjectController extends Controller
 
     /**
      * Remove the specified resource from storage.
+     *
+     * @param Project $project
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(string $id)
+    public function destroy(Project $project)
     {
-        // Will be implemented in T040
+        // Authorize the action
+        $this->authorize('delete', $project);
+
+        // T041: Get task count for confirmation requirement
+        $taskCount = $project->tasks()->count();
+
+        // Delete the project (cascade will handle related records via DB foreign keys)
+        $project->delete();
+
+        return response()->json([
+            'message' => 'Project deleted successfully',
+            'task_count' => $taskCount,
+        ]);
     }
 
     /**
