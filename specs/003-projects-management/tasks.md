@@ -40,13 +40,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T006 Update Project model with is_archived fillable, scopes (active, archived, forUser) in `app/Models/Project.php`
-- [ ] T007 [P] Create StoreProjectRequest validation in `app/Http/Requests/StoreProjectRequest.php`
-- [ ] T008 [P] Create UpdateProjectRequest validation in `app/Http/Requests/UpdateProjectRequest.php`
-- [ ] T009 Create ProjectController with constructor and base structure in `app/Http/Controllers/ProjectController.php`
-- [ ] T010 Update ProjectPolicy with edit, archive, manageMembers methods in `app/Policies/ProjectPolicy.php`
-- [ ] T011 Register project API routes (apiResource + custom actions) in `routes/api.php`
-- [ ] T012 Update ProjectResource with is_archived, permissions, task counts in `app/Http/Resources/ProjectResource.php`
+- [x] T006 Update Project model with is_archived fillable, scopes (active, archived, forUser) in `app/Models/Project.php`
+- [x] T007 [P] Create StoreProjectRequest validation in `app/Http/Requests/StoreProjectRequest.php`
+- [x] T008 [P] Create UpdateProjectRequest validation in `app/Http/Requests/UpdateProjectRequest.php`
+- [x] T009 Create ProjectController with constructor and base structure in `app/Http/Controllers/ProjectController.php`
+- [x] T010 Update ProjectPolicy with edit, archive, manageMembers methods in `app/Policies/ProjectPolicy.php`
+- [x] T011 Register project API routes (apiResource + custom actions) in `routes/api.php`
+- [x] T012 Update ProjectResource with is_archived, permissions, task counts in `app/Http/Resources/ProjectResource.php`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -60,15 +60,15 @@
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Implement ProjectController@index with filters, pagination, sorting in `app/Http/Controllers/ProjectController.php`
-- [ ] T014 [P] [US1] Create ProjectCard.vue component with status badges, progress bar, avatars in `resources/js/components/projects/ProjectCard.vue`
-- [ ] T015 [P] [US1] Create ProjectRow.vue component for list view in `resources/js/components/projects/ProjectRow.vue`
-- [ ] T016 [P] [US1] Create EmptyState.vue component with CTA in `resources/js/components/projects/EmptyState.vue`
-- [ ] T017 [US1] Implement fetchProjects action in projects store in `resources/js/stores/projects.js`
-- [ ] T018 [US1] Implement ProjectsList.vue page with grid/list toggle, project count header in `resources/js/pages/projects/ProjectsList.vue`
-- [ ] T019 [US1] Add view preference persistence (localStorage) in ProjectsList.vue
-- [ ] T020 [US1] Implement hover state with quick action buttons on ProjectCard.vue
-- [ ] T021 [US1] Wire project card click to navigate to kanban board route
+- [x] T013 [US1] Implement ProjectController@index with filters, pagination, sorting in `app/Http/Controllers/ProjectController.php`
+- [x] T014 [P] [US1] Create ProjectCard.vue component with status badges, progress bar, avatars in `resources/js/components/projects/ProjectCard.vue`
+- [x] T015 [P] [US1] Create ProjectRow.vue component for list view in `resources/js/components/projects/ProjectRow.vue`
+- [x] T016 [P] [US1] Create EmptyState.vue component with CTA in `resources/js/components/projects/EmptyState.vue`
+- [x] T017 [US1] Implement fetchProjects action in projects store in `resources/js/stores/projects.js`
+- [x] T018 [US1] Implement ProjectsList.vue page with grid/list toggle, project count header in `resources/js/pages/projects/ProjectsList.vue`
+- [x] T019 [US1] Add view preference persistence (localStorage) in ProjectsList.vue
+- [x] T020 [US1] Implement hover state with quick action buttons on ProjectCard.vue
+- [x] T021 [US1] Wire project card click to navigate to kanban board route
 
 **Checkpoint**: User Story 1 complete - projects list view fully functional
 
@@ -82,15 +82,15 @@
 
 ### Implementation for User Story 2
 
-- [ ] T022 [US2] Implement ProjectController@store with default board creation in `app/Http/Controllers/ProjectController.php`
-- [ ] T023 [P] [US2] Create ProjectModal.vue component with form fields in `resources/js/components/projects/ProjectModal.vue`
-- [ ] T024 [US2] Implement createProject action in projects store in `resources/js/stores/projects.js`
-- [ ] T025 [US2] Add form validation (title required, max lengths) in ProjectModal.vue
-- [ ] T026 [US2] Implement loading state and disabled button during submission
-- [ ] T027 [US2] Add success notification after project creation
-- [ ] T028 [US2] Implement unsaved changes confirmation dialog on modal close
-- [ ] T029 [US2] Add "New Project" button to ProjectsList.vue toolbar
-- [ ] T030 [US2] Optimistically add new project to list without page refresh
+- [x] T022 [US2] Implement ProjectController@store with default board creation in `app/Http/Controllers/ProjectController.php`
+- [x] T023 [P] [US2] Create ProjectModal.vue component with form fields in `resources/js/components/projects/ProjectModal.vue`
+- [x] T024 [US2] Implement createProject action in projects store in `resources/js/stores/projects.js`
+- [x] T025 [US2] Add form validation (title required, max lengths) in ProjectModal.vue
+- [x] T026 [US2] Implement loading state and disabled button during submission
+- [x] T027 [US2] Add success notification after project creation
+- [x] T028 [US2] Implement unsaved changes confirmation dialog on modal close
+- [x] T029 [US2] Add "New Project" button to ProjectsList.vue toolbar
+- [x] T030 [US2] Optimistically add new project to list without page refresh
 
 **Checkpoint**: User Story 2 complete - project creation fully functional
 
@@ -104,15 +104,15 @@
 
 ### Implementation for User Story 3
 
-- [ ] T031 [US3] Implement ProjectController@show to return project details in `app/Http/Controllers/ProjectController.php`
-- [ ] T032 [US3] Implement ProjectController@update with validation in `app/Http/Controllers/ProjectController.php`
-- [ ] T033 [US3] Add edit mode to ProjectModal.vue with pre-populated data
-- [ ] T034 [US3] Implement updateProject action in projects store in `resources/js/stores/projects.js`
-- [ ] T035 [US3] Implement optimistic locking with updated_at comparison in update endpoint
-- [ ] T036 [US3] Create ConflictModal.vue for concurrent edit warnings in `resources/js/components/projects/ConflictModal.vue`
-- [ ] T037 [US3] Wire edit button on ProjectCard to open modal in edit mode
-- [ ] T038 [US3] Update project in list without page refresh after save
-- [ ] T039 [US3] Apply permission check - editors can edit, viewers cannot
+- [x] T031 [US3] Implement ProjectController@show to return project details in `app/Http/Controllers/ProjectController.php`
+- [x] T032 [US3] Implement ProjectController@update with validation in `app/Http/Controllers/ProjectController.php`
+- [x] T033 [US3] Add edit mode to ProjectModal.vue with pre-populated data
+- [x] T034 [US3] Implement updateProject action in projects store in `resources/js/stores/projects.js`
+- [x] T035 [US3] Implement optimistic locking with updated_at comparison in update endpoint
+- [x] T036 [US3] Create ConflictModal.vue for concurrent edit warnings in `resources/js/components/projects/ConflictModal.vue`
+- [x] T037 [US3] Wire edit button on ProjectCard to open modal in edit mode
+- [x] T038 [US3] Update project in list without page refresh after save
+- [x] T039 [US3] Apply permission check - editors can edit, viewers cannot
 
 **Checkpoint**: User Story 3 complete - project editing fully functional
 
@@ -126,14 +126,14 @@
 
 ### Implementation for User Story 4
 
-- [ ] T040 [US4] Implement ProjectController@destroy with cascade delete in `app/Http/Controllers/ProjectController.php`
-- [ ] T041 [US4] Add task count check for confirmation requirement in destroy method
-- [ ] T042 [P] [US4] Create DeleteConfirmModal.vue with name-typing for critical projects in `resources/js/components/projects/DeleteConfirmModal.vue`
-- [ ] T043 [US4] Implement deleteProject action in projects store in `resources/js/stores/projects.js`
-- [ ] T044 [US4] Wire delete button on ProjectCard to open confirmation modal
-- [ ] T045 [US4] Apply permission check - only instructor can delete
-- [ ] T046 [US4] Show error message if non-owner attempts delete
-- [ ] T047 [US4] Remove project from list optimistically after deletion
+- [x] T040 [US4] Implement ProjectController@destroy with cascade delete in `app/Http/Controllers/ProjectController.php`
+- [x] T041 [US4] Add task count check for confirmation requirement in destroy method
+- [x] T042 [P] [US4] Create DeleteConfirmModal.vue with name-typing for critical projects in `resources/js/components/projects/DeleteConfirmModal.vue`
+- [x] T043 [US4] Implement deleteProject action in projects store in `resources/js/stores/projects.js`
+- [x] T044 [US4] Wire delete button on ProjectCard to open confirmation modal
+- [x] T045 [US4] Apply permission check - only instructor can delete
+- [x] T046 [US4] Show error message if non-owner attempts delete
+- [x] T047 [US4] Remove project from list optimistically after deletion
 
 **Checkpoint**: User Story 4 complete - project deletion fully functional
 
