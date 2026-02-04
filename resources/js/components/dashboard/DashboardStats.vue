@@ -80,14 +80,16 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue';
+import { onMounted, computed } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useDashboardStore } from '../../stores/dashboard';
 import StatCard from './StatCard.vue';
 
 const dashboardStore = useDashboardStore();
 const { stats, loading, error } = storeToRefs(dashboardStore);
-const { hasProjects } = dashboardStore;
+
+// Use computed for getter to ensure reactivity
+const hasProjects = computed(() => dashboardStore.hasProjects);
 
 onMounted(async () => {
   await dashboardStore.fetchStats();
