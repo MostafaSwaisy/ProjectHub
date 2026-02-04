@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Project;
+use App\Models\Board;
 use App\Http\Resources\ProjectResource;
+use App\Http\Requests\StoreProjectRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ProjectController extends Controller
 {
@@ -99,10 +102,42 @@ class ProjectController extends Controller
 
     /**
      * Store a newly created resource in storage.
+     *
+     * @param StoreProjectRequest $request
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function store(Request $request)
+    public function store(StoreProjectRequest $request)
     {
-        //
+        // Authorize the action
+        $this->authorize('create', Project::class);
+
+        // Use database transaction to ensure project and board are created together
+        $project = DB::transaction(function () use ($request) {
+            // Create the project
+            $project = Project::create([
+                'title' => $request->title,
+                'description' => $request->description,
+                'timeline_status' => $request->timeline_status ?? 'On Track',
+                'budget_status' => $request->budget_status ?? 'Within Budget',
+                'instructor_id' => $request->user()->id,
+            ]);
+
+            // Create default board (columns will be auto-created via Board boot method)
+            Board::create([
+                'project_id' => $project->id,
+                'title' => 'Main Board',
+            ]);
+
+            return $project;
+        });
+
+        // Load relationships for the resource
+        $project->load(['instructor', 'members']);
+
+        return response()->json([
+            'data' => new ProjectResource($project),
+            'message' => 'Project created successfully',
+        ], 201);
     }
 
     /**
