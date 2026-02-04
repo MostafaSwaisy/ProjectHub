@@ -27,9 +27,40 @@ export const useProjectsStore = defineStore('projects', {
     },
 
     actions: {
-        // Placeholder actions - will be implemented in later tasks
-        async fetchProjects() {
-            // T017: Implement fetchProjects
+        async fetchProjects(page = 1) {
+            this.loading = true;
+            this.error = null;
+
+            try {
+                const params = {
+                    page,
+                    per_page: 20,
+                    archived: this.filters.archived,
+                    sort: this.filters.sort,
+                    order: this.filters.order,
+                };
+
+                // Add optional filters
+                if (this.filters.search) {
+                    params.search = this.filters.search;
+                }
+                if (this.filters.status) {
+                    params.status = this.filters.status;
+                }
+                if (this.filters.role && this.filters.role !== 'all') {
+                    params.role = this.filters.role;
+                }
+
+                const response = await axios.get('/api/projects', { params });
+
+                this.projects = response.data.data;
+                this.pagination = response.data.meta;
+            } catch (error) {
+                this.error = error.response?.data?.message || 'Failed to load projects';
+                console.error('Error fetching projects:', error);
+            } finally {
+                this.loading = false;
+            }
         },
 
         async createProject(data) {
