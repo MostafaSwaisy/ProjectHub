@@ -22,6 +22,8 @@
                     required
                     class="form-input"
                     :class="{ 'input-error': errors.title }"
+                    @blur="validateField('title')"
+                    @input="errors.title && validateField('title')"
                 />
                 <div class="input-meta">
                     <span v-if="errors.title" class="error-message">{{ errors.title }}</span>
@@ -42,6 +44,8 @@
                     rows="4"
                     class="form-input"
                     :class="{ 'input-error': errors.description }"
+                    @blur="validateField('description')"
+                    @input="errors.description && validateField('description')"
                 ></textarea>
                 <div class="input-meta">
                     <span v-if="errors.description" class="error-message">{{ errors.description }}</span>
