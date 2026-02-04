@@ -28,7 +28,8 @@
       "Bash(npm --version:*)",
       "Bash(npm run dev:*)",
       "Bash(curl:*)",
-      "mcp__plugin_laravel-boost_laravel-boost__tinker"
+      "mcp__plugin_laravel-boost_laravel-boost__tinker",
+      "Bash(python -m json.tool:*)"
     ]
   }
 }
