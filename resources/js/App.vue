@@ -1,15 +1,7 @@
 <template>
     <div id="app">
         <!-- T033: Page transition animations with route metadata -->
-        <router-view v-slot="{ Component }">
-            <Transition
-                :name="route.meta.transition || 'fade'"
-                :duration="route.meta.duration || 300"
-                mode="out-in"
-            >
-                <component :is="Component" :key="route.fullPath" />
-            </Transition>
-        </router-view>
+        <router-view :key="$route.path" />
     </div>
 </template>
 
