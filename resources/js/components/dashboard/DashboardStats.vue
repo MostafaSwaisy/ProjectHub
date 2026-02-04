@@ -219,59 +219,94 @@ const handleRetry = async () => {
 
 .empty-state {
   text-align: center;
-  padding: 20px;
+  padding: 60px 40px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.6) 100%);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05),
+              0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 .empty-state__icon {
-  width: 64px;
-  height: 64px;
-  color: var(--text-secondary);
-  margin: 0 auto 16px;
+  width: 80px;
+  height: 80px;
+  color: var(--orange-primary);
+  margin: 0 auto 24px;
+  filter: drop-shadow(0 4px 12px rgba(255, 107, 53, 0.3));
 }
 
 .empty-state__title {
-  font-size: 20px;
+  font-size: 28px;
   font-weight: 700;
   color: var(--text-primary);
-  margin-bottom: 8px;
+  margin-bottom: 12px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
 }
 
 .empty-state__message {
-  font-size: 14px;
+  font-size: 16px;
   color: var(--text-secondary);
-  margin-bottom: 24px;
-  max-width: 500px;
+  margin-bottom: 32px;
+  max-width: 600px;
   margin-left: auto;
   margin-right: auto;
+  line-height: 1.6;
 }
 
 .empty-state__button {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 24px;
+  gap: 10px;
+  padding: 16px 32px;
   background: var(--orange-gradient);
-  border: none;
-  border-radius: 8px;
+  border: 2px solid var(--orange-primary);
+  border-radius: 12px;
   color: white;
-  font-weight: 600;
-  font-size: 16px;
+  font-weight: 700;
+  font-size: 18px;
   text-decoration: none;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  margin-bottom: 32px;
-  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+  box-shadow: 0 8px 24px rgba(255, 107, 53, 0.4),
+              0 0 40px rgba(255, 107, 53, 0.2),
+              inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.empty-state__button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+.empty-state__button:hover::before {
+  left: 100%;
 }
 
 .empty-state__button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(255, 107, 53, 0.4);
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 0 12px 32px rgba(255, 107, 53, 0.5),
+              0 0 60px rgba(255, 107, 53, 0.3),
+              inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  border-color: var(--orange-light);
+}
+
+.empty-state__button:active {
+  transform: translateY(-2px) scale(1.02);
 }
 
 .empty-state__button svg {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   stroke: currentColor;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
 @media (max-width: 768px) {
@@ -285,6 +320,28 @@ const handleRetry = async () => {
 
   .dashboard-stats__title {
     font-size: 20px;
+  }
+
+  .empty-state {
+    padding: 40px 24px;
+  }
+
+  .empty-state__icon {
+    width: 64px;
+    height: 64px;
+  }
+
+  .empty-state__title {
+    font-size: 24px;
+  }
+
+  .empty-state__message {
+    font-size: 14px;
+  }
+
+  .empty-state__button {
+    padding: 14px 28px;
+    font-size: 16px;
   }
 }
 </style>
