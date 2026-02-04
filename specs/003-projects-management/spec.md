@@ -15,6 +15,7 @@
 - Q: Should there be a confirmation dialog for delete? → A: Yes, with option to type project name for critical projects
 - Q: Can project members be promoted to instructor? → A: Not in this phase - transfer ownership is out of scope
 - Q: How should concurrent edit conflicts be detected and handled? → A: Optimistic locking with `updated_at` timestamp comparison
+- Q: What should the default role be when adding a new team member? → A: Viewer (read-only by default, least privilege)
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -173,7 +174,7 @@ As a project instructor, I want to add and remove team members from my project, 
 
 1. **Given** I am on the project edit modal, **When** I click "Manage Team", **Then** I see a section showing current team members with their roles
 2. **Given** I am in the team management section, **When** I click "Add Member", **Then** I see a search input to find users by name or email
-3. **Given** I search for a user, **When** I click on their name in results, **Then** they are added to the project as a "member" role
+3. **Given** I search for a user, **When** I click on their name in results, **Then** they are added to the project as a "Viewer" role (read-only by default)
 4. **Given** I view a team member, **When** I see their entry, **Then** I see their avatar, name, email, and role (Instructor/Editor/Viewer)
 5. **Given** I am the project instructor, **When** I click the remove button next to a member, **Then** they are removed from the project after confirmation
 6. **Given** I am a project member, **When** I try to add/remove members, **Then** I see an error "Only the project owner can manage team members"

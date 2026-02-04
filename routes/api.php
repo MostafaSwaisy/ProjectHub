@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\BoardController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\TaskController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -33,6 +34,23 @@ Route::prefix('auth')->group(function () {
 // Dashboard Routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('dashboard/stats', [DashboardController::class, 'stats'])->name('dashboard.stats');
+});
+
+// Project Routes
+Route::middleware('auth:sanctum')->group(function () {
+    // Project CRUD
+    Route::apiResource('projects', ProjectController::class);
+
+    // Project custom actions
+    Route::post('projects/{project}/archive', [ProjectController::class, 'archive'])->name('projects.archive');
+    Route::post('projects/{project}/unarchive', [ProjectController::class, 'unarchive'])->name('projects.unarchive');
+    Route::post('projects/{project}/duplicate', [ProjectController::class, 'duplicate'])->name('projects.duplicate');
+
+    // Project member management
+    Route::get('projects/{project}/members', [ProjectController::class, 'members'])->name('projects.members');
+    Route::post('projects/{project}/members', [ProjectController::class, 'addMember'])->name('projects.addMember');
+    Route::put('projects/{project}/members/{user}', [ProjectController::class, 'updateMember'])->name('projects.updateMember');
+    Route::delete('projects/{project}/members/{user}', [ProjectController::class, 'removeMember'])->name('projects.removeMember');
 });
 
 // Board Routes
