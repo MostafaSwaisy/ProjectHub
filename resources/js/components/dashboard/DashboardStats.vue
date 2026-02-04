@@ -219,7 +219,7 @@ const handleRetry = async () => {
 
 .empty-state {
   text-align: center;
-  padding: 0;
+  padding: 20px 0;
   background: transparent;
 }
 
