@@ -13,6 +13,14 @@
                     <p class="page-subtitle">Manage and view all your projects</p>
                 </div>
                 <div class="header-actions">
+                    <!-- New Project Button -->
+                    <button class="btn-new-project" @click="showModal = true">
+                        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                        New Project
+                    </button>
+
                     <!-- View Toggle -->
                     <div class="view-toggle">
                         <button
@@ -126,6 +134,14 @@
                 </button>
             </div>
         </div>
+
+        <!-- Project Modal -->
+        <ProjectModal
+            :is-open="showModal"
+            :loading="modalLoading"
+            @close="showModal = false"
+            @submit="handleSubmitProject"
+        />
     </AppLayout>
 </template>
 
@@ -133,13 +149,20 @@
 import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useProjectsStore } from '../../stores/projects';
+import { useToast } from '../../composables/useToast';
 import AppLayout from '../../layouts/AppLayout.vue';
 import ProjectCard from '../../components/projects/ProjectCard.vue';
 import ProjectRow from '../../components/projects/ProjectRow.vue';
 import EmptyState from '../../components/projects/EmptyState.vue';
+import ProjectModal from '../../components/projects/ProjectModal.vue';
 
 const router = useRouter();
 const projectsStore = useProjectsStore();
+const toast = useToast();
+
+// Modal state
+const showModal = ref(false);
+const modalLoading = ref(false);
 
 // View mode with localStorage persistence
 const viewMode = computed({
@@ -172,9 +195,29 @@ const navigateToBoard = (project) => {
     router.push(`/projects/${project.id}/kanban`);
 };
 
-const handleCreateProject = () => {
-    // T029: Will open create modal
-    console.log('Create project clicked');
+const handleSubmitProject = async (formData) => {
+    modalLoading.value = true;
+
+    try {
+        await projectsStore.createProject(formData);
+
+        // Close modal
+        showModal.value = false;
+
+        // Show success toast
+        toast.success('Project created successfully');
+
+        // T030: Project is already optimistically added to list by the store action
+    } catch (error) {
+        // Show error toast
+        toast.error(
+            error.response?.data?.errors
+                ? Object.values(error.response.data.errors).flat().join(', ')
+                : 'Failed to create project. Please try again.'
+        );
+    } finally {
+        modalLoading.value = false;
+    }
 };
 
 const handleEdit = (project) => {
@@ -237,6 +280,31 @@ const handleDelete = (project) => {
     display: flex;
     gap: 1rem;
     align-items: center;
+}
+
+.btn-new-project {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 0.625rem 1.25rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn-new-project:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn-new-project:active {
+    transform: translateY(0);
 }
 
 .view-toggle {
