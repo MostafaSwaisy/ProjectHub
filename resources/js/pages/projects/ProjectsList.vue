@@ -14,7 +14,7 @@
                 </div>
                 <div class="header-actions">
                     <!-- New Project Button -->
-                    <button class="btn-new-project" @click="showModal = true">
+                    <button class="btn-new-project" @click="handleCreateProject">
                         <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                         </svg>
@@ -138,9 +138,18 @@
         <!-- Project Modal -->
         <ProjectModal
             :is-open="showModal"
+            :project="editingProject"
             :loading="modalLoading"
-            @close="showModal = false"
+            @close="handleModalClose"
             @submit="handleSubmitProject"
+        />
+
+        <!-- Conflict Modal -->
+        <ConflictModal
+            :is-open="showConflictModal"
+            :current-data="conflictData"
+            @reload="handleReloadAfterConflict"
+            @discard="handleDiscardAfterConflict"
         />
     </AppLayout>
 </template>
@@ -155,6 +164,7 @@ import ProjectCard from '../../components/projects/ProjectCard.vue';
 import ProjectRow from '../../components/projects/ProjectRow.vue';
 import EmptyState from '../../components/projects/EmptyState.vue';
 import ProjectModal from '../../components/projects/ProjectModal.vue';
+import ConflictModal from '../../components/projects/ConflictModal.vue';
 
 const router = useRouter();
 const projectsStore = useProjectsStore();
@@ -163,6 +173,11 @@ const toast = useToast();
 // Modal state
 const showModal = ref(false);
 const modalLoading = ref(false);
+const editingProject = ref(null);
+
+// Conflict modal state
+const showConflictModal = ref(false);
+const conflictData = ref(null);
 
 // View mode with localStorage persistence
 const viewMode = computed({
@@ -199,30 +214,71 @@ const handleSubmitProject = async (formData) => {
     modalLoading.value = true;
 
     try {
-        await projectsStore.createProject(formData);
+        if (editingProject.value) {
+            // T032/T035: Update existing project with optimistic locking
+            const updateData = {
+                ...formData,
+                updated_at: editingProject.value.updated_at,
+            };
 
-        // Close modal
-        showModal.value = false;
+            await projectsStore.updateProject(editingProject.value.id, updateData);
+            toast.success('Project updated successfully');
+        } else {
+            // T030: Create new project
+            await projectsStore.createProject(formData);
+            toast.success('Project created successfully');
+        }
 
-        // Show success toast
-        toast.success('Project created successfully');
-
-        // T030: Project is already optimistically added to list by the store action
+        // Close modal and reset state
+        handleModalClose();
     } catch (error) {
-        // Show error toast
-        toast.error(
-            error.response?.data?.errors
-                ? Object.values(error.response.data.errors).flat().join(', ')
-                : 'Failed to create project. Please try again.'
-        );
+        // T036: Handle 409 Conflict for concurrent edits
+        if (error.response?.status === 409) {
+            conflictData.value = error.response.data.current_data;
+            showConflictModal.value = true;
+        } else {
+            // Show error toast
+            toast.error(
+                error.response?.data?.errors
+                    ? Object.values(error.response.data.errors).flat().join(', ')
+                    : `Failed to ${editingProject.value ? 'update' : 'create'} project. Please try again.`
+            );
+        }
     } finally {
         modalLoading.value = false;
     }
 };
 
+const handleModalClose = () => {
+    showModal.value = false;
+    editingProject.value = null;
+};
+
+const handleCreateProject = () => {
+    editingProject.value = null;
+    showModal.value = true;
+};
+
 const handleEdit = (project) => {
-    // T037: Will open edit modal
-    console.log('Edit project', project.id);
+    // T037: Open edit modal with project data
+    // T039: Permission check is already in ProjectCard/ProjectRow (only shows edit button if can_edit)
+    editingProject.value = project;
+    showModal.value = true;
+};
+
+const handleReloadAfterConflict = () => {
+    // Reload the project data from server
+    editingProject.value = conflictData.value;
+    conflictData.value = null;
+    showConflictModal.value = false;
+    // Keep modal open with refreshed data
+};
+
+const handleDiscardAfterConflict = () => {
+    // Discard changes and close everything
+    conflictData.value = null;
+    showConflictModal.value = false;
+    handleModalClose();
 };
 
 const handleArchive = (project) => {
