@@ -34,6 +34,12 @@
         </svg>
         <h3 class="empty-state__title">No Projects Yet</h3>
         <p class="empty-state__message">Create your first project to get started tracking tasks and collaborating with your team.</p>
+        <router-link to="/projects?create=true" class="empty-state__button">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          Create Your First Project
+        </router-link>
         <div class="dashboard-stats__grid">
           <StatCard label="Projects" :value="0" />
           <StatCard label="Active Tasks" :value="0" />
@@ -225,10 +231,39 @@ const handleRetry = async () => {
 .empty-state__message {
   font-size: 14px;
   color: var(--text-secondary);
-  margin-bottom: 32px;
+  margin-bottom: 24px;
   max-width: 500px;
   margin-left: auto;
   margin-right: auto;
+}
+
+.empty-state__button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: var(--orange-gradient);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-weight: 600;
+  font-size: 16px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-bottom: 32px;
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+}
+
+.empty-state__button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(255, 107, 53, 0.4);
+}
+
+.empty-state__button svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
 }
 
 @media (max-width: 768px) {
