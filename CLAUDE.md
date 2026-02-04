@@ -5,6 +5,7 @@ Auto-generated from all feature plans. Last updated: 2026-02-01
 ## Active Technologies
 - PHP 8.2+ (Laravel 12.x), JavaScript ES2022 (Vue 3.4.0) + Laravel Framework 12, Vue 3.4.0, Vue Router 4.3.0, Pinia 2.2.0, Axios 1.11.0, Laravel Sanctum 4.2, Tailwind CSS 4.0.0 (002-dashboard-navigation)
 - SQLite (existing schema, NO migrations needed) (002-dashboard-navigation)
+- SQLite (existing schema with projects, project_members, boards, columns, tasks tables) (003-projects-management)
 
 - JavaScript ES2022, Vue.js 3.4.0 + Vue 3.4.0, Vue Router 4.3.0, Pinia 2.2.0, Axios 1.11.0, Tailwind CSS 4.0.0, Vite 7.0.7 (001-modern-ui)
 
@@ -25,6 +26,7 @@ npm test; npm run lint
 JavaScript ES2022, Vue.js 3.4.0: Follow standard conventions
 
 ## Recent Changes
+- 003-projects-management: Added PHP 8.2+ (Laravel 12.x), JavaScript ES2022 (Vue 3.4.0) + Laravel Framework 12, Vue 3.4.0, Vue Router 4.3.0, Pinia 2.2.0, Axios 1.11.0, Laravel Sanctum 4.2, Tailwind CSS 4.0.0
 - 002-dashboard-navigation: Added PHP 8.2+ (Laravel 12.x), JavaScript ES2022 (Vue 3.4.0) + Laravel Framework 12, Vue 3.4.0, Vue Router 4.3.0, Pinia 2.2.0, Axios 1.11.0, Laravel Sanctum 4.2, Tailwind CSS 4.0.0
 
 - 001-modern-ui: Added JavaScript ES2022, Vue.js 3.4.0 + Vue 3.4.0, Vue Router 4.3.0, Pinia 2.2.0, Axios 1.11.0, Tailwind CSS 4.0.0, Vite 7.0.7

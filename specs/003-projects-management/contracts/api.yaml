@@ -1,0 +1,742 @@
+openapi: 3.0.3
+info:
+  title: ProjectHub - Projects Management API
+  description: API endpoints for Projects Management feature (003-projects-management)
+  version: 1.0.0
+
+servers:
+  - url: /api
+    description: API base path
+
+components:
+  securitySchemes:
+    sanctum:
+      type: http
+      scheme: bearer
+      bearerFormat: Sanctum Token
+
+  schemas:
+    Project:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          maxLength: 100
+          example: "Website Redesign"
+        description:
+          type: string
+          maxLength: 500
+          nullable: true
+          example: "Complete redesign of company website"
+        instructor_id:
+          type: integer
+          example: 1
+        timeline_status:
+          type: string
+          enum: ["On Track", "At Risk", "Ahead"]
+          example: "On Track"
+        budget_status:
+          type: string
+          enum: ["Within Budget", "Over Budget"]
+          example: "Within Budget"
+        is_archived:
+          type: boolean
+          default: false
+        active_task_count:
+          type: integer
+          description: Count of tasks not in Done column
+          example: 12
+        total_task_count:
+          type: integer
+          example: 15
+        progress_percentage:
+          type: integer
+          minimum: 0
+          maximum: 100
+          example: 75
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        instructor:
+          $ref: '#/components/schemas/UserSummary'
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProjectMember'
+
+    ProjectSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+          nullable: true
+        timeline_status:
+          type: string
+        budget_status:
+          type: string
+        is_archived:
+          type: boolean
+        active_task_count:
+          type: integer
+        progress_percentage:
+          type: integer
+        member_count:
+          type: integer
+        members:
+          type: array
+          maxItems: 5
+          items:
+            $ref: '#/components/schemas/UserSummary'
+
+    ProjectMember:
+      type: object
+      properties:
+        id:
+          type: integer
+        user_id:
+          type: integer
+        role:
+          type: string
+          enum: ["editor", "viewer"]
+        user:
+          $ref: '#/components/schemas/UserSummary'
+        created_at:
+          type: string
+          format: date-time
+
+    UserSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+
+    CreateProjectRequest:
+      type: object
+      required:
+        - title
+      properties:
+        title:
+          type: string
+          maxLength: 100
+          example: "New Project"
+        description:
+          type: string
+          maxLength: 500
+          nullable: true
+        timeline_status:
+          type: string
+          enum: ["On Track", "At Risk", "Ahead"]
+          default: "On Track"
+        budget_status:
+          type: string
+          enum: ["Within Budget", "Over Budget"]
+          default: "Within Budget"
+
+    UpdateProjectRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 100
+        description:
+          type: string
+          maxLength: 500
+          nullable: true
+        timeline_status:
+          type: string
+          enum: ["On Track", "At Risk", "Ahead"]
+        budget_status:
+          type: string
+          enum: ["Within Budget", "Over Budget"]
+
+    AddMemberRequest:
+      type: object
+      required:
+        - user_id
+        - role
+      properties:
+        user_id:
+          type: integer
+        role:
+          type: string
+          enum: ["editor", "viewer"]
+
+    UpdateMemberRequest:
+      type: object
+      required:
+        - role
+      properties:
+        role:
+          type: string
+          enum: ["editor", "viewer"]
+
+    DuplicateProjectRequest:
+      type: object
+      required:
+        - title
+      properties:
+        title:
+          type: string
+          maxLength: 100
+          example: "Project Copy"
+        include_tasks:
+          type: boolean
+          default: false
+          description: Whether to copy tasks or just structure
+
+    PaginatedProjects:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProjectSummary'
+        meta:
+          type: object
+          properties:
+            current_page:
+              type: integer
+            last_page:
+              type: integer
+            per_page:
+              type: integer
+            total:
+              type: integer
+
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+
+security:
+  - sanctum: []
+
+paths:
+  /projects:
+    get:
+      summary: List projects
+      description: Get paginated list of user's projects (as owner or member)
+      tags:
+        - Projects
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Search by title or description
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: ["On Track", "At Risk", "Ahead"]
+          description: Filter by timeline status
+        - name: role
+          in: query
+          schema:
+            type: string
+            enum: ["all", "owner", "member"]
+          description: Filter by user's role in project
+        - name: archived
+          in: query
+          schema:
+            type: boolean
+            default: false
+          description: Show archived projects instead of active
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: ["updated_at", "created_at", "title"]
+            default: "updated_at"
+        - name: order
+          in: query
+          schema:
+            type: string
+            enum: ["asc", "desc"]
+            default: "desc"
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: per_page
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+      responses:
+        '200':
+          description: Paginated list of projects
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedProjects'
+        '401':
+          description: Unauthorized
+
+    post:
+      summary: Create project
+      description: Create a new project with default board
+      tags:
+        - Projects
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProjectRequest'
+      responses:
+        '201':
+          description: Project created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Project'
+                  message:
+                    type: string
+                    example: "Project created successfully"
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - user cannot create projects
+
+  /projects/{id}:
+    get:
+      summary: Get project details
+      description: Get full project details including members
+      tags:
+        - Projects
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Project details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Project'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - no access to this project
+        '404':
+          description: Project not found
+
+    put:
+      summary: Update project
+      description: Update project details
+      tags:
+        - Projects
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProjectRequest'
+      responses:
+        '200':
+          description: Project updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Project'
+                  message:
+                    type: string
+                    example: "Project updated successfully"
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - cannot edit this project
+        '404':
+          description: Project not found
+        '422':
+          description: Validation error
+
+    delete:
+      summary: Delete project
+      description: Permanently delete project and all related data
+      tags:
+        - Projects
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: confirm_title
+          in: query
+          schema:
+            type: string
+          description: Required for projects with >10 tasks
+      responses:
+        '200':
+          description: Project deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Project deleted successfully"
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - only owner can delete
+        '404':
+          description: Project not found
+        '422':
+          description: Confirmation required but not provided or incorrect
+
+  /projects/{id}/archive:
+    post:
+      summary: Archive project
+      description: Archive a project (hide from active list)
+      tags:
+        - Projects
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Project archived successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Project'
+                  message:
+                    type: string
+                    example: "Project archived successfully"
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - only owner can archive
+        '404':
+          description: Project not found
+
+  /projects/{id}/unarchive:
+    post:
+      summary: Unarchive project
+      description: Restore an archived project to active state
+      tags:
+        - Projects
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Project unarchived successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Project'
+                  message:
+                    type: string
+                    example: "Project unarchived successfully"
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - only owner can unarchive
+        '404':
+          description: Project not found
+
+  /projects/{id}/duplicate:
+    post:
+      summary: Duplicate project
+      description: Create a copy of an existing project
+      tags:
+        - Projects
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DuplicateProjectRequest'
+      responses:
+        '201':
+          description: Project duplicated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Project'
+                  message:
+                    type: string
+                    example: "Project duplicated successfully"
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - no access to source project
+        '404':
+          description: Source project not found
+        '422':
+          description: Validation error
+
+  /projects/{id}/members:
+    get:
+      summary: List project members
+      description: Get paginated list of project team members
+      tags:
+        - Project Members
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: per_page
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: List of project members
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ProjectMember'
+                  meta:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Project not found
+
+    post:
+      summary: Add member to project
+      description: Add a user as a team member
+      tags:
+        - Project Members
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddMemberRequest'
+      responses:
+        '201':
+          description: Member added successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ProjectMember'
+                  message:
+                    type: string
+                    example: "Member added successfully"
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - only owner can add members
+        '404':
+          description: Project or user not found
+        '409':
+          description: Conflict - user is already a member
+        '422':
+          description: Validation error
+
+  /projects/{id}/members/{userId}:
+    put:
+      summary: Update member role
+      description: Change a team member's role
+      tags:
+        - Project Members
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateMemberRequest'
+      responses:
+        '200':
+          description: Member role updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ProjectMember'
+                  message:
+                    type: string
+                    example: "Member role updated successfully"
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - only owner can change roles
+        '404':
+          description: Project or member not found
+
+    delete:
+      summary: Remove member from project
+      description: Remove a team member from the project
+      tags:
+        - Project Members
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Member removed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Member removed successfully"
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - only owner can remove members
+        '404':
+          description: Project or member not found
+
+  /users/search:
+    get:
+      summary: Search users
+      description: Search for users to add as project members
+      tags:
+        - Users
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 2
+          description: Search query (name or email)
+        - name: exclude_project
+          in: query
+          schema:
+            type: integer
+          description: Exclude users already in this project
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    maxItems: 10
+                    items:
+                      $ref: '#/components/schemas/UserSummary'
+        '401':
+          description: Unauthorized
+        '422':
+          description: Search query too short
