@@ -151,6 +151,16 @@
             @reload="handleReloadAfterConflict"
             @discard="handleDiscardAfterConflict"
         />
+
+        <!-- Delete Confirmation Modal -->
+        <DeleteConfirmModal
+            :is-open="showDeleteModal"
+            :project="deletingProject"
+            :task-count="deletingProject?.task_completion?.total || 0"
+            :loading="deleteLoading"
+            @confirm="handleConfirmDelete"
+            @cancel="handleCancelDelete"
+        />
     </AppLayout>
 </template>
 
@@ -165,6 +175,7 @@ import ProjectRow from '../../components/projects/ProjectRow.vue';
 import EmptyState from '../../components/projects/EmptyState.vue';
 import ProjectModal from '../../components/projects/ProjectModal.vue';
 import ConflictModal from '../../components/projects/ConflictModal.vue';
+import DeleteConfirmModal from '../../components/projects/DeleteConfirmModal.vue';
 
 const router = useRouter();
 const projectsStore = useProjectsStore();
@@ -178,6 +189,11 @@ const editingProject = ref(null);
 // Conflict modal state
 const showConflictModal = ref(false);
 const conflictData = ref(null);
+
+// Delete modal state
+const showDeleteModal = ref(false);
+const deletingProject = ref(null);
+const deleteLoading = ref(false);
 
 // View mode with localStorage persistence
 const viewMode = computed({
@@ -287,8 +303,45 @@ const handleArchive = (project) => {
 };
 
 const handleDelete = (project) => {
-    // T044: Will open delete confirmation
-    console.log('Delete project', project.id);
+    // T044: Open delete confirmation modal
+    // T045: Permission check is already in ProjectCard/ProjectRow (only shows delete button if can_delete)
+    deletingProject.value = project;
+    showDeleteModal.value = true;
+};
+
+const handleConfirmDelete = async () => {
+    if (!deletingProject.value) return;
+
+    deleteLoading.value = true;
+
+    try {
+        await projectsStore.deleteProject(deletingProject.value.id);
+
+        // Close modal and reset state
+        showDeleteModal.value = false;
+        deletingProject.value = null;
+
+        // Show success toast
+        toast.success('Project deleted successfully');
+
+        // T047: Project is already optimistically removed from list by the store action
+    } catch (error) {
+        // T046: Show error message if non-owner attempts delete (403 Forbidden)
+        if (error.response?.status === 403) {
+            toast.error('You do not have permission to delete this project. Only the project owner can delete it.');
+        } else {
+            toast.error(
+                error.response?.data?.message || 'Failed to delete project. Please try again.'
+            );
+        }
+    } finally {
+        deleteLoading.value = false;
+    }
+};
+
+const handleCancelDelete = () => {
+    showDeleteModal.value = false;
+    deletingProject.value = null;
 };
 </script>
 
