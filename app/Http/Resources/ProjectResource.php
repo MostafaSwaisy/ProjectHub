@@ -1,0 +1,50 @@
+<?php
+
+namespace App\Http\Resources;
+
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
+
+class ProjectResource extends JsonResource
+{
+    /**
+     * Transform the resource into an array.
+     *
+     * @return array<string, mixed>
+     */
+    public function toArray(Request $request): array
+    {
+        // Calculate task completion statistics
+        $totalTasks = $this->tasks()->count();
+        $completedTasks = $this->tasks()
+            ->whereHas('column', function ($query) {
+                $query->where('title', 'Done');
+            })
+            ->count();
+
+        $taskCompletion = [
+            'total' => $totalTasks,
+            'completed' => $completedTasks,
+            'percentage' => $totalTasks > 0 ? round(($completedTasks / $totalTasks) * 100, 2) : 0,
+        ];
+
+        // Get members (limited to 5 for list view performance, all for show view)
+        $members = $this->whenLoaded('members', function () {
+            return UserResource::collection($this->members);
+        });
+
+        return [
+            'id' => $this->id,
+            'title' => $this->title,
+            'description' => $this->description,
+            'timeline_status' => $this->timeline_status ?? 'On Track',
+            'budget_status' => $this->budget_status ?? 'Within Budget',
+            'created_at' => $this->created_at?->toISOString(),
+            'updated_at' => $this->updated_at?->toISOString(),
+            'instructor' => new UserResource($this->whenLoaded('instructor')),
+            'members' => $members,
+            'total_members' => 1 + ($this->members ? $this->members->count() : 0),
+            'task_completion' => $taskCompletion,
+        ];
+    }
+}

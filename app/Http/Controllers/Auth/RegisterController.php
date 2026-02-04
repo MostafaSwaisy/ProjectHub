@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\RegisterRequest;
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
@@ -28,16 +29,11 @@ class RegisterController extends Controller
             ]);
 
             // Generate Sanctum token
-            $token = $user->createToken('API Token');
+            $token = $user->createToken('auth_token');
 
             return response()->json([
                 'message' => 'User registered successfully.',
-                'user' => [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'role_id' => $user->role_id,
-                ],
+                'user' => new UserResource($user),
                 'token' => $token->plainTextToken,
             ], 201);
         } catch (\Exception $e) {

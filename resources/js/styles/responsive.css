@@ -1,0 +1,544 @@
+/* Responsive Design: Media Queries & Breakpoints */
+/* Supports mobile (640px), tablet (768px), desktop (1024px), wide (1280px) */
+/* Phase 1: Setup - T004 */
+
+/* ========================================
+   MOBILE FIRST APPROACH (< 640px)
+   ======================================== */
+
+@media screen and (max-width: 639px) {
+  :root {
+    --text-base: 0.9375rem; /* Slightly smaller for mobile */
+    --spacing-lg: 1.25rem;  /* Reduced padding on mobile */
+  }
+
+  /* Touch target minimum size (44x44px) */
+  button,
+  input,
+  [role="button"],
+  [role="menuitem"],
+  [role="tab"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Full-screen modals on mobile */
+  .modal {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 100% !important;
+    border-radius: 0 !important;
+    max-height: 100vh;
+  }
+
+  .modal-content {
+    border-radius: 0;
+  }
+
+  /* Auth pages: Single column layout */
+  .auth-container {
+    padding: var(--spacing-md);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+  }
+
+  .auth-card {
+    width: 100%;
+    max-width: 100%;
+    margin: var(--spacing-md) 0;
+  }
+
+  /* Form inputs full width */
+  .form-group {
+    width: 100%;
+    margin-bottom: var(--spacing-md);
+  }
+
+  .form-input,
+  .form-select {
+    width: 100%;
+  }
+
+  /* Buttons full width on mobile */
+  .button {
+    width: 100%;
+  }
+
+  .button-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+
+  .button-group button {
+    width: 100%;
+  }
+
+  /* Kanban: Horizontal scroll columns */
+  .kanban-board {
+    overflow-x: auto;
+    overflow-y: hidden;
+    display: flex;
+    gap: var(--spacing-md);
+  }
+
+  .kanban-column {
+    flex-shrink: 0;
+    width: 300px;
+    min-width: 300px;
+  }
+
+  /* Task cards readable size */
+  .task-card {
+    min-height: 80px;
+  }
+
+  .task-title {
+    font-size: var(--text-sm);
+  }
+
+  /* Hide certain elements on mobile */
+  .hide-mobile {
+    display: none !important;
+  }
+
+  /* Dropdown positioned better on mobile */
+  .dropdown-menu {
+    position: fixed;
+    width: 80vw;
+    max-width: 300px;
+    z-index: var(--z-modal);
+  }
+
+  /* Search input full width */
+  .search-input {
+    width: 100%;
+  }
+
+  /* Spacing adjustments */
+  .container {
+    padding-left: var(--spacing-md);
+    padding-right: var(--spacing-md);
+  }
+
+  /* Header adjustments */
+  .board-header {
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+
+  .board-stats {
+    width: 100%;
+    justify-content: space-around;
+  }
+
+  /* Stack layout for multi-column sections */
+  .flex-row {
+    flex-direction: column;
+  }
+
+  /* Text adjustments */
+  h1 {
+    font-size: var(--text-2xl);
+  }
+
+  h2 {
+    font-size: var(--text-xl);
+  }
+
+  h3 {
+    font-size: var(--text-lg);
+  }
+}
+
+/* ========================================
+   TABLET (640px - 1024px)
+   ======================================== */
+
+@media screen and (min-width: 640px) and (max-width: 1023px) {
+  :root {
+    --spacing-lg: 1.5rem;
+  }
+
+  /* Kanban: Show 2-3 columns at once */
+  .kanban-board {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-md);
+    overflow: hidden;
+  }
+
+  .kanban-board.show-3-cols {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .kanban-column {
+    width: 100%;
+    min-width: auto;
+  }
+
+  /* Auth pages: Slightly larger cards */
+  .auth-card {
+    max-width: 500px;
+  }
+
+  /* Modal sizing for tablet */
+  .modal {
+    width: 90vw;
+    max-width: 600px;
+  }
+
+  /* Buttons with better spacing */
+  .button-group {
+    display: flex;
+    flex-direction: row;
+    gap: var(--spacing-md);
+  }
+
+  .button-group button {
+    width: auto;
+    flex: 1;
+  }
+
+  /* Show more elements on tablet */
+  .show-tablet {
+    display: block !important;
+  }
+
+  /* Adjust padding */
+  .container {
+    padding-left: var(--spacing-lg);
+    padding-right: var(--spacing-lg);
+  }
+
+  /* Horizontal layout for row items */
+  .flex-row {
+    flex-direction: row;
+  }
+
+  /* Stats display */
+  .board-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-md);
+  }
+}
+
+/* ========================================
+   DESKTOP (1024px - 1280px)
+   ======================================== */
+
+@media screen and (min-width: 1024px) and (max-width: 1279px) {
+  /* Kanban: Show 4-5 columns at once */
+  .kanban-board {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--spacing-md);
+    overflow: auto;
+  }
+
+  .kanban-column {
+    width: 100%;
+    min-width: auto;
+  }
+
+  /* Auth pages: Normal sizing */
+  .auth-card {
+    max-width: 400px;
+  }
+
+  /* Modal normal sizing */
+  .modal {
+    width: auto;
+    max-width: 600px;
+  }
+
+  /* Show desktop elements */
+  .show-desktop {
+    display: block !important;
+  }
+
+  /* Full width for appropriate elements */
+  .container {
+    padding-left: var(--spacing-xl);
+    padding-right: var(--spacing-xl);
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+}
+
+/* ========================================
+   WIDE DESKTOP (>1280px)
+   ======================================== */
+
+@media screen and (min-width: 1280px) {
+  .kanban-board {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: var(--spacing-md);
+  }
+
+  .kanban-column {
+    width: 100%;
+    min-width: auto;
+  }
+
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding-left: var(--spacing-2xl);
+    padding-right: var(--spacing-2xl);
+  }
+
+  /* Full width modals use proper sizing */
+  .modal {
+    width: auto;
+    max-width: 800px;
+  }
+
+  /* Optimal spacing for large screens */
+  .board-header {
+    justify-content: space-between;
+  }
+
+  .board-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--spacing-lg);
+  }
+
+  /* Hover states work on desktop */
+  .hover-visible {
+    display: block;
+  }
+}
+
+/* ========================================
+   LANDSCAPE ORIENTATION
+   ======================================== */
+
+@media (orientation: landscape) and (max-height: 600px) {
+  /* Reduce vertical spacing on small landscape */
+  :root {
+    --spacing-lg: 1rem;
+    --spacing-xl: 1.5rem;
+  }
+
+  .container {
+    padding-top: var(--spacing-sm);
+    padding-bottom: var(--spacing-sm);
+  }
+
+  /* Tighter modal sizing */
+  .modal {
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .auth-card {
+    margin-top: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+  }
+
+  /* Adjust header spacing */
+  .board-header {
+    padding: var(--spacing-sm);
+  }
+}
+
+/* ========================================
+   TALL SCREENS (High aspect ratio)
+   ======================================== */
+
+@media (min-aspect-ratio: 1/2) {
+  /* Extra padding for portrait/tall devices */
+  .auth-container {
+    padding-top: var(--spacing-2xl);
+    padding-bottom: var(--spacing-2xl);
+  }
+
+  .auth-card {
+    margin-bottom: var(--spacing-xl);
+  }
+}
+
+/* ========================================
+   SMALL SCREENS (Under 320px - Warning)
+   ======================================== */
+
+@media screen and (max-width: 319px) {
+  :root {
+    --text-base: 0.875rem;
+    --spacing-md: 0.75rem;
+    --spacing-lg: 1rem;
+  }
+
+  .container {
+    padding-left: var(--spacing-sm);
+    padding-right: var(--spacing-sm);
+  }
+
+  .button {
+    font-size: var(--text-sm);
+    padding: 0.5rem 1rem;
+  }
+
+  /* Show minimum width warning */
+  .min-width-warning {
+    display: block;
+    background-color: var(--black-tertiary);
+    color: var(--text-secondary);
+    padding: var(--spacing-md);
+    text-align: center;
+    font-size: var(--text-xs);
+  }
+}
+
+/* ========================================
+   HIGH DPI / RETINA DISPLAYS
+   ======================================== */
+
+@media (-webkit-min-device-pixel-ratio: 2),
+       (min-resolution: 192dpi) {
+  /* Fine-tune for high DPI */
+  * {
+    -webkit-font-smoothing: subpixel-antialiased;
+  }
+
+  /* Slightly thicker borders on retina */
+  .glass,
+  .glass-lg,
+  .modal,
+  .card {
+    border-width: 1.5px;
+  }
+}
+
+/* ========================================
+   TOUCH DEVICES
+   ======================================== */
+
+@media (hover: none) and (pointer: coarse) {
+  /* Remove hover states on touch devices */
+  *:hover {
+    background-color: inherit;
+  }
+
+  /* Use active states instead */
+  button:active,
+  a:active,
+  .card:active {
+    opacity: 0.8;
+    transform: scale(0.98);
+  }
+
+  /* Larger touch targets */
+  button,
+  input,
+  [role="button"] {
+    min-height: 48px;
+    min-width: 48px;
+  }
+
+  /* Disable long-press menu */
+  input,
+  button {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  /* Optimize scrolling */
+  .kanban-board,
+  .scrollable-area {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Tap feedback */
+  .clickable {
+    -webkit-tap-highlight-color: rgba(255, 107, 53, 0.2);
+  }
+}
+
+/* ========================================
+   PRINT STYLES
+   ======================================== */
+
+@media print {
+  /* Hide interactive elements */
+  .hide-print,
+  button,
+  .modal,
+  .dropdown {
+    display: none !important;
+  }
+
+  /* Optimize for print */
+  body {
+    background-color: white;
+    color: black;
+  }
+
+  .container {
+    max-width: 100%;
+  }
+
+  /* Page breaks */
+  .kanban-column {
+    page-break-inside: avoid;
+  }
+
+  .task-card {
+    page-break-inside: avoid;
+  }
+}
+
+/* ========================================
+   DARK MODE (System preference)
+   ======================================== */
+
+@media (prefers-color-scheme: dark) {
+  /* Already dark by default, no changes needed */
+}
+
+@media (prefers-color-scheme: light) {
+  /* If light mode ever needed */
+  :root {
+    --black-primary: #ffffff;
+    --black-secondary: #f5f5f5;
+    --text-primary: #000000;
+    --text-secondary: #666666;
+  }
+}
+
+/* ========================================
+   REDUCED MOTION
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ========================================
+   HIGH CONTRAST
+   ======================================== */
+
+@media (prefers-contrast: more) {
+  :root {
+    --text-secondary: #999999;
+    --text-muted: #888888;
+  }
+
+  .glass {
+    border-width: 2px;
+  }
+}

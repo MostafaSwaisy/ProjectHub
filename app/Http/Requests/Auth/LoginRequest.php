@@ -30,6 +30,10 @@ class LoginRequest extends FormRequest
                 'required',
                 'string',
             ],
+            'remember' => [
+                'sometimes',
+                'boolean',
+            ],
         ];
     }
 
