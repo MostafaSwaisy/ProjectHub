@@ -117,7 +117,36 @@ export const useProjectsStore = defineStore('projects', {
         },
 
         async deleteProject(id) {
-            // T043: Implement deleteProject
+            this.loading = true;
+            this.error = null;
+
+            try {
+                const response = await axios.delete(`/api/projects/${id}`);
+
+                // T047: Remove project from list optimistically
+                const index = this.projects.findIndex(p => p.id === id);
+                if (index !== -1) {
+                    this.projects.splice(index, 1);
+                }
+
+                // Update pagination total count
+                if (this.pagination) {
+                    this.pagination.total -= 1;
+                }
+
+                // Clear currentProject if it's the one being deleted
+                if (this.currentProject && this.currentProject.id === id) {
+                    this.currentProject = null;
+                }
+
+                return response.data;
+            } catch (error) {
+                this.error = error.response?.data?.message || 'Failed to delete project';
+                console.error('Error deleting project:', error);
+                throw error;
+            } finally {
+                this.loading = false;
+            }
         },
 
         async archiveProject(id) {
