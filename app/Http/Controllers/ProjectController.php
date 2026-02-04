@@ -6,6 +6,7 @@ use App\Models\Project;
 use App\Models\Board;
 use App\Http\Resources\ProjectResource;
 use App\Http\Requests\StoreProjectRequest;
+use App\Http\Requests\UpdateProjectRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -161,10 +162,45 @@ class ProjectController extends Controller
 
     /**
      * Update the specified resource in storage.
+     *
+     * @param UpdateProjectRequest $request
+     * @param Project $project
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateProjectRequest $request, Project $project)
     {
-        //
+        // Authorize the action
+        $this->authorize('update', $project);
+
+        // T035: Optimistic locking - check if project was modified since client loaded it
+        if ($request->has('updated_at')) {
+            $clientUpdatedAt = $request->updated_at;
+            $serverUpdatedAt = $project->updated_at->toISOString();
+
+            if ($clientUpdatedAt !== $serverUpdatedAt) {
+                return response()->json([
+                    'error' => 'conflict',
+                    'message' => 'This project was modified by another user. Please refresh and try again.',
+                    'current_data' => new ProjectResource($project->load(['instructor', 'members'])),
+                ], 409); // 409 Conflict
+            }
+        }
+
+        // Update the project
+        $project->update($request->only([
+            'title',
+            'description',
+            'timeline_status',
+            'budget_status',
+        ]));
+
+        // Reload relationships
+        $project->load(['instructor', 'members']);
+
+        return response()->json([
+            'data' => new ProjectResource($project),
+            'message' => 'Project updated successfully',
+        ]);
     }
 
     /**
