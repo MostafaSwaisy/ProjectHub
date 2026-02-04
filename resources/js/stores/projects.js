@@ -89,7 +89,31 @@ export const useProjectsStore = defineStore('projects', {
         },
 
         async updateProject(id, data) {
-            // T034: Implement updateProject
+            this.loading = true;
+            this.error = null;
+
+            try {
+                const response = await axios.put(`/api/projects/${id}`, data);
+
+                // Update the project in the list
+                const index = this.projects.findIndex(p => p.id === id);
+                if (index !== -1) {
+                    this.projects[index] = response.data.data;
+                }
+
+                // Update currentProject if it's the one being edited
+                if (this.currentProject && this.currentProject.id === id) {
+                    this.currentProject = response.data.data;
+                }
+
+                return response.data.data;
+            } catch (error) {
+                this.error = error.response?.data?.message || 'Failed to update project';
+                console.error('Error updating project:', error);
+                throw error;
+            } finally {
+                this.loading = false;
+            }
         },
 
         async deleteProject(id) {
