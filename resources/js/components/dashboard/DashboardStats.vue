@@ -219,9 +219,8 @@ const handleRetry = async () => {
 
 .empty-state {
   text-align: center;
-  padding: 60px 40px;
+  padding: 0;
   background: transparent;
-  border-radius: 16px;
 }
 
 .empty-state__icon {
@@ -316,10 +315,6 @@ const handleRetry = async () => {
 
   .dashboard-stats__title {
     font-size: 20px;
-  }
-
-  .empty-state {
-    padding: 40px 24px;
   }
 
   .empty-state__icon {
