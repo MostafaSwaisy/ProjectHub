@@ -14,6 +14,7 @@
 - Q: What happens to tasks when a project is archived? → A: Tasks remain unchanged but are hidden from dashboard statistics
 - Q: Should there be a confirmation dialog for delete? → A: Yes, with option to type project name for critical projects
 - Q: Can project members be promoted to instructor? → A: Not in this phase - transfer ownership is out of scope
+- Q: How should concurrent edit conflicts be detected and handled? → A: Optimistic locking with `updated_at` timestamp comparison
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -74,7 +75,7 @@ As a project manager, I want to edit my project's details, so that I can keep pr
 4. **Given** I am a project member (not instructor), **When** I try to edit the project, **Then** I can edit title, description, and status but cannot delete or transfer ownership
 5. **Given** I update the timeline status to "At Risk", **When** I save, **Then** the project card shows an orange "At Risk" badge
 6. **Given** I clear the title field, **When** I try to save, **Then** I see a validation error and the save is prevented
-7. **Given** another user has updated the project, **When** I try to save my changes, **Then** I see a conflict warning with option to overwrite or refresh
+7. **Given** another user has updated the project (detected via `updated_at` timestamp mismatch), **When** I try to save my changes, **Then** I see a conflict warning with option to overwrite (force save) or refresh (reload latest data and discard my changes)
 
 ---
 
