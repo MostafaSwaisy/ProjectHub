@@ -147,15 +147,15 @@
 
 ### Implementation for User Story 5
 
-- [ ] T048 [US5] Implement ProjectController@archive endpoint in `app/Http/Controllers/ProjectController.php`
-- [ ] T049 [US5] Implement ProjectController@unarchive endpoint in `app/Http/Controllers/ProjectController.php`
-- [ ] T050 [P] [US5] Create ArchiveConfirmModal.vue in `resources/js/components/projects/ArchiveConfirmModal.vue`
-- [ ] T051 [US5] Implement archiveProject and unarchiveProject actions in projects store
-- [ ] T052 [US5] Add Active/Archived tabs to ProjectsList.vue toolbar
-- [ ] T053 [US5] Style archived project cards with gray overlay indicator
-- [ ] T054 [US5] Update DashboardController to exclude archived projects from stats in `app/Http/Controllers/DashboardController.php`
-- [ ] T055 [US5] Implement read-only mode for archived project kanban boards
-- [ ] T056 [US5] Apply permission check - only instructor can archive/unarchive
+- [X] T048 [US5] Implement ProjectController@archive endpoint in `app/Http/Controllers/ProjectController.php`
+- [X] T049 [US5] Implement ProjectController@unarchive endpoint in `app/Http/Controllers/ProjectController.php`
+- [X] T050 [P] [US5] Create ArchiveConfirmModal.vue in `resources/js/components/projects/ArchiveConfirmModal.vue`
+- [X] T051 [US5] Implement archiveProject and unarchiveProject actions in projects store
+- [X] T052 [US5] Add Active/Archived tabs to ProjectsList.vue toolbar
+- [X] T053 [US5] Style archived project cards with gray overlay indicator
+- [X] T054 [US5] Update DashboardController to exclude archived projects from stats in `app/Http/Controllers/DashboardController.php`
+- [X] T055 [US5] Implement read-only mode for archived project kanban boards
+- [X] T056 [US5] Apply permission check - only instructor can archive/unarchive
 
 **Checkpoint**: User Story 5 complete - archive functionality fully functional
 

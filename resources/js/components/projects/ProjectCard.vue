@@ -29,6 +29,16 @@
                     </svg>
                 </button>
                 <button
+                    v-if="project.permissions.can_archive && project.is_archived"
+                    class="action-btn success"
+                    @click="$emit('archive', project)"
+                    title="Unarchive"
+                >
+                    <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </button>
+                <button
                     v-if="project.permissions.can_delete"
                     class="action-btn danger"
                     @click="$emit('delete', project)"
@@ -161,8 +171,30 @@ const handleCardClick = () => {
 }
 
 .project-card.archived {
-    opacity: 0.7;
-    background: rgba(100, 100, 100, 0.05);
+    opacity: 0.8;
+    background: rgba(100, 100, 100, 0.1);
+    position: relative;
+}
+
+.project-card.archived::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(71, 85, 105, 0.3), rgba(100, 116, 139, 0.2));
+    border-radius: 0.75rem;
+    pointer-events: none;
+}
+
+.project-card.archived .project-title,
+.project-card.archived .project-description {
+    color: #94a3b8;
+}
+
+.project-card.archived:hover {
+    opacity: 0.9;
 }
 
 .project-header {
@@ -209,6 +241,11 @@ const handleCardClick = () => {
 .action-btn.danger:hover {
     background: rgba(239, 68, 68, 0.2);
     color: #ef4444;
+}
+
+.action-btn.success:hover {
+    background: rgba(34, 197, 94, 0.2);
+    color: #22c55e;
 }
 
 .icon {

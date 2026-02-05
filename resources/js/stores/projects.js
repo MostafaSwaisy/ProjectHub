@@ -150,11 +150,59 @@ export const useProjectsStore = defineStore('projects', {
         },
 
         async archiveProject(id) {
-            // T051: Implement archiveProject
+            this.loading = true;
+            this.error = null;
+
+            try {
+                const response = await axios.post(`/api/projects/${id}/archive`);
+
+                // T051: Update the project in the list
+                const index = this.projects.findIndex(p => p.id === id);
+                if (index !== -1) {
+                    this.projects[index] = response.data.data;
+                }
+
+                // Update currentProject if it's the one being archived
+                if (this.currentProject && this.currentProject.id === id) {
+                    this.currentProject = response.data.data;
+                }
+
+                return response.data.data;
+            } catch (error) {
+                this.error = error.response?.data?.message || 'Failed to archive project';
+                console.error('Error archiving project:', error);
+                throw error;
+            } finally {
+                this.loading = false;
+            }
         },
 
         async unarchiveProject(id) {
-            // T051: Implement unarchiveProject
+            this.loading = true;
+            this.error = null;
+
+            try {
+                const response = await axios.post(`/api/projects/${id}/unarchive`);
+
+                // T051: Update the project in the list
+                const index = this.projects.findIndex(p => p.id === id);
+                if (index !== -1) {
+                    this.projects[index] = response.data.data;
+                }
+
+                // Update currentProject if it's the one being unarchived
+                if (this.currentProject && this.currentProject.id === id) {
+                    this.currentProject = response.data.data;
+                }
+
+                return response.data.data;
+            } catch (error) {
+                this.error = error.response?.data?.message || 'Failed to unarchive project';
+                console.error('Error unarchiving project:', error);
+                throw error;
+            } finally {
+                this.loading = false;
+            }
         },
 
         async duplicateProject(id, data) {

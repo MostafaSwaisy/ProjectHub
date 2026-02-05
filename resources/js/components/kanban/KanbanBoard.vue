@@ -3,6 +3,7 @@
     <div class="kanban-board-wrapper">
         <!-- Board Header -->
         <BoardHeader
+            :is-archived="isArchived"
             @add-task="openCreateModal"
             @filters-changed="onFiltersChanged"
         />
@@ -27,6 +28,7 @@
                         :key="column.id"
                         :column="column"
                         :tasks="getTasksByStatus(column.id)"
+                        :is-archived="isArchived"
                         @edit-task="editTask"
                         @duplicate-task="duplicateTask"
                         @archive-task="archiveTask"
@@ -97,6 +99,10 @@ const props = defineProps({
         type: [String, Number],
         required: true,
     },
+    isArchived: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 const tasksStore = useTasksStore();
@@ -166,14 +172,20 @@ onBeforeUnmount(() => {
 
 // Methods
 const openCreateModal = () => {
+    // T055: Prevent creating tasks in archived projects
+    if (props.isArchived) return;
     kanbanStore.openCreateTaskModal();
 };
 
 const editTask = (taskId) => {
+    // T055: Prevent editing tasks in archived projects
+    if (props.isArchived) return;
     kanbanStore.openEditTaskModal(taskId);
 };
 
 const deleteTask = (taskId) => {
+    // T055: Prevent deleting tasks in archived projects
+    if (props.isArchived) return;
     taskToDelete.value = taskId;
     showDeleteConfirm.value = true;
 };

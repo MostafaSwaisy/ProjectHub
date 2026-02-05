@@ -228,18 +228,48 @@ class ProjectController extends Controller
 
     /**
      * Archive a project
+     *
+     * @param Project $project
+     * @return \Illuminate\Http\JsonResponse
      */
     public function archive(Project $project)
     {
-        // Will be implemented in T048
+        // Authorize the action
+        $this->authorize('archive', $project);
+
+        // T048: Archive the project
+        $project->update(['is_archived' => true]);
+
+        // Reload relationships
+        $project->load(['instructor', 'members']);
+
+        return response()->json([
+            'data' => new ProjectResource($project),
+            'message' => 'Project archived successfully',
+        ]);
     }
 
     /**
      * Unarchive a project
+     *
+     * @param Project $project
+     * @return \Illuminate\Http\JsonResponse
      */
     public function unarchive(Project $project)
     {
-        // Will be implemented in T049
+        // Authorize the action
+        $this->authorize('archive', $project);
+
+        // T049: Unarchive the project
+        $project->update(['is_archived' => false]);
+
+        // Reload relationships
+        $project->load(['instructor', 'members']);
+
+        return response()->json([
+            'data' => new ProjectResource($project),
+            'message' => 'Project unarchived successfully',
+        ]);
     }
 
     /**

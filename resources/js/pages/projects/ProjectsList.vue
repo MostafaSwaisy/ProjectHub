@@ -47,6 +47,30 @@
                 </div>
             </div>
 
+            <!-- T052: Active/Archived Tabs -->
+            <div class="tabs-container">
+                <button
+                    class="tab-btn"
+                    :class="{ active: !isArchivedTab }"
+                    @click="switchTab(false)"
+                >
+                    <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Active Projects
+                </button>
+                <button
+                    class="tab-btn"
+                    :class="{ active: isArchivedTab }"
+                    @click="switchTab(true)"
+                >
+                    <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                    </svg>
+                    Archived Projects
+                </button>
+            </div>
+
             <!-- Loading State -->
             <div v-if="projectsStore.loading" class="loading-container">
                 <div class="spinner"></div>
@@ -161,6 +185,16 @@
             @confirm="handleConfirmDelete"
             @cancel="handleCancelDelete"
         />
+
+        <!-- Archive Confirmation Modal -->
+        <ArchiveConfirmModal
+            :is-open="showArchiveModal"
+            :project="archivingProject"
+            :is-archiving="isArchiving"
+            :loading="archiveLoading"
+            @confirm="handleConfirmArchive"
+            @cancel="handleCancelArchive"
+        />
     </AppLayout>
 </template>
 
@@ -176,6 +210,7 @@ import EmptyState from '../../components/projects/EmptyState.vue';
 import ProjectModal from '../../components/projects/ProjectModal.vue';
 import ConflictModal from '../../components/projects/ConflictModal.vue';
 import DeleteConfirmModal from '../../components/projects/DeleteConfirmModal.vue';
+import ArchiveConfirmModal from '../../components/projects/ArchiveConfirmModal.vue';
 
 const router = useRouter();
 const projectsStore = useProjectsStore();
@@ -194,6 +229,15 @@ const conflictData = ref(null);
 const showDeleteModal = ref(false);
 const deletingProject = ref(null);
 const deleteLoading = ref(false);
+
+// Archive modal state
+const showArchiveModal = ref(false);
+const archivingProject = ref(null);
+const isArchiving = ref(true); // true = archiving, false = unarchiving
+const archiveLoading = ref(false);
+
+// Tab state
+const isArchivedTab = ref(false);
 
 // View mode with localStorage persistence
 const viewMode = computed({
@@ -297,9 +341,55 @@ const handleDiscardAfterConflict = () => {
     handleModalClose();
 };
 
+const switchTab = (archived) => {
+    isArchivedTab.value = archived;
+    projectsStore.setFilters({ archived });
+    loadProjects();
+};
+
 const handleArchive = (project) => {
-    // T051: Will implement archive
-    console.log('Archive project', project.id);
+    // Determine if we're archiving or unarchiving based on current state
+    archivingProject.value = project;
+    isArchiving.value = !project.is_archived;
+    showArchiveModal.value = true;
+};
+
+const handleConfirmArchive = async () => {
+    if (!archivingProject.value) return;
+
+    archiveLoading.value = true;
+
+    try {
+        if (isArchiving.value) {
+            await projectsStore.archiveProject(archivingProject.value.id);
+            toast.success('Project archived successfully');
+        } else {
+            await projectsStore.unarchiveProject(archivingProject.value.id);
+            toast.success('Project unarchived successfully');
+        }
+
+        // Close modal and reset state
+        showArchiveModal.value = false;
+        archivingProject.value = null;
+
+        // Reload projects to reflect the change
+        loadProjects();
+    } catch (error) {
+        if (error.response?.status === 403) {
+            toast.error('You do not have permission to archive this project. Only the project owner can archive it.');
+        } else {
+            toast.error(
+                error.response?.data?.message || `Failed to ${isArchiving.value ? 'archive' : 'unarchive'} project. Please try again.`
+            );
+        }
+    } finally {
+        archiveLoading.value = false;
+    }
+};
+
+const handleCancelArchive = () => {
+    showArchiveModal.value = false;
+    archivingProject.value = null;
 };
 
 const handleDelete = (project) => {
@@ -447,6 +537,45 @@ const handleCancelDelete = () => {
 .icon {
     width: 1.25rem;
     height: 1.25rem;
+}
+
+.tabs-container {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid rgba(148, 163, 184, 0.2);
+}
+
+.tab-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: transparent;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #94a3b8;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+}
+
+.tab-btn:hover {
+    color: #f8fafc;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.tab-btn.active {
+    color: #667eea;
+    border-bottom-color: #667eea;
+}
+
+.tab-btn .icon {
+    width: 1rem;
+    height: 1rem;
 }
 
 .loading-container,
