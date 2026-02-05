@@ -98,6 +98,17 @@
                     </select>
                 </div>
             </div>
+
+            <!-- T081: Team Management Section (Edit Mode Only) -->
+            <div v-if="isEditMode && project" class="team-section">
+                <div class="section-divider"></div>
+                <TeamManagement
+                    :project="project"
+                    @member-added="handleMemberChange"
+                    @member-updated="handleMemberChange"
+                    @member-removed="handleMemberChange"
+                />
+            </div>
         </form>
 
         <!-- Footer Actions -->
@@ -127,6 +138,7 @@
 import { ref, computed, watch } from 'vue';
 import Modal from '../shared/Modal.vue';
 import ConfirmDialog from '../shared/ConfirmDialog.vue';
+import TeamManagement from './TeamManagement.vue';
 
 const props = defineProps({
     isOpen: {
@@ -252,6 +264,12 @@ const forceClose = () => {
     errors.value = {};
     showConfirmDialog.value = false;
     emit('close');
+};
+
+// Handle team member changes
+const handleMemberChange = () => {
+    // Emit event to parent to reload project data
+    emit('member-changed');
 };
 </script>
 
@@ -390,6 +408,22 @@ const forceClose = () => {
 
 @keyframes spin {
     to { transform: rotate(360deg); }
+}
+
+.team-section {
+    margin-top: 1rem;
+}
+
+.section-divider {
+    height: 1px;
+    background: linear-gradient(
+        to right,
+        transparent,
+        rgba(148, 163, 184, 0.3) 20%,
+        rgba(148, 163, 184, 0.3) 80%,
+        transparent
+    );
+    margin: 2rem 0;
 }
 
 @media (max-width: 640px) {

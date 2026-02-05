@@ -282,33 +282,153 @@ class ProjectController extends Controller
 
     /**
      * List project members
+     * T072: GET /api/projects/{project}/members
      */
-    public function members(Project $project)
+    public function members(Request $request, Project $project)
     {
-        // Will be implemented in T072
+        // Authorize the action
+        $this->authorize('view', $project);
+
+        // Get pagination params
+        $perPage = $request->input('per_page', 20);
+        $perPage = min($perPage, 100); // Max 100 members per page
+
+        // Get members with pagination
+        $members = $project->members()
+            ->withPivot('role', 'created_at')
+            ->orderBy('project_members.created_at', 'desc')
+            ->paginate($perPage);
+
+        return response()->json([
+            'data' => $members->map(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'user_id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'role' => $user->pivot->role,
+                    'joined_at' => $user->pivot->created_at,
+                ];
+            }),
+            'meta' => [
+                'current_page' => $members->currentPage(),
+                'last_page' => $members->lastPage(),
+                'per_page' => $members->perPage(),
+                'total' => $members->total(),
+            ],
+        ]);
     }
 
     /**
      * Add a member to the project
+     * T073: POST /api/projects/{project}/members
      */
     public function addMember(Request $request, Project $project)
     {
-        // Will be implemented in T073
+        // Authorize the action
+        $this->authorize('manageMembers', $project);
+
+        // Validate request
+        $validated = $request->validate([
+            'user_id' => ['required', 'exists:users,id'],
+            'role' => ['required', 'in:editor,viewer'],
+        ]);
+
+        // Check if user is already a member
+        if ($project->members()->where('user_id', $validated['user_id'])->exists()) {
+            return response()->json([
+                'message' => 'User is already a member of this project',
+            ], 422);
+        }
+
+        // Check if trying to add the project owner
+        if ($project->instructor_id == $validated['user_id']) {
+            return response()->json([
+                'message' => 'The project owner is already part of the project',
+            ], 422);
+        }
+
+        // Add member with default Viewer role
+        $project->members()->attach($validated['user_id'], [
+            'role' => $validated['role'] ?? 'viewer',
+        ]);
+
+        // Reload members
+        $project->load('members');
+
+        return response()->json([
+            'data' => new ProjectResource($project),
+            'message' => 'Member added successfully',
+        ], 201);
     }
 
     /**
      * Update a member's role
+     * T074: PUT /api/projects/{project}/members/{userId}
      */
     public function updateMember(Request $request, Project $project, $userId)
     {
-        // Will be implemented in T074
+        // Authorize the action
+        $this->authorize('manageMembers', $project);
+
+        // Validate request
+        $validated = $request->validate([
+            'role' => ['required', 'in:editor,viewer'],
+        ]);
+
+        // Check if user is a member
+        if (!$project->members()->where('user_id', $userId)->exists()) {
+            return response()->json([
+                'message' => 'User is not a member of this project',
+            ], 404);
+        }
+
+        // Update member role
+        $project->members()->updateExistingPivot($userId, [
+            'role' => $validated['role'],
+        ]);
+
+        // Reload members
+        $project->load('members');
+
+        return response()->json([
+            'data' => new ProjectResource($project),
+            'message' => 'Member role updated successfully',
+        ]);
     }
 
     /**
      * Remove a member from the project
+     * T075: DELETE /api/projects/{project}/members/{userId}
      */
     public function removeMember(Project $project, $userId)
     {
-        // Will be implemented in T075
+        // Authorize the action
+        $this->authorize('manageMembers', $project);
+
+        // Check if user is a member
+        if (!$project->members()->where('user_id', $userId)->exists()) {
+            return response()->json([
+                'message' => 'User is not a member of this project',
+            ], 404);
+        }
+
+        // Prevent removing the project owner (though they shouldn't be in members table)
+        if ($project->instructor_id == $userId) {
+            return response()->json([
+                'message' => 'Cannot remove the project owner',
+            ], 422);
+        }
+
+        // Remove member
+        $project->members()->detach($userId);
+
+        // Reload members
+        $project->load('members');
+
+        return response()->json([
+            'data' => new ProjectResource($project),
+            'message' => 'Member removed successfully',
+        ]);
     }
 }

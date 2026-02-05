@@ -210,18 +210,18 @@
 
 ### Implementation for User Story 8
 
-- [ ] T072 [US8] Implement ProjectController@members to list project members in `app/Http/Controllers/ProjectController.php`
-- [ ] T073 [US8] Implement ProjectController@addMember with default Viewer role in `app/Http/Controllers/ProjectController.php`
-- [ ] T074 [US8] Implement ProjectController@updateMember for role changes in `app/Http/Controllers/ProjectController.php`
-- [ ] T075 [US8] Implement ProjectController@removeMember with confirmation in `app/Http/Controllers/ProjectController.php`
-- [ ] T076 [P] [US8] Create AddProjectMemberRequest validation in `app/Http/Requests/AddProjectMemberRequest.php`
-- [ ] T077 [US8] Create UserController@search for finding users by name/email in `app/Http/Controllers/UserController.php`
-- [ ] T078 [P] [US8] Create TeamManagement.vue component in `resources/js/components/projects/TeamManagement.vue`
-- [ ] T079 [US8] Implement user search with debounce in TeamManagement.vue
-- [ ] T080 [US8] Implement member list with role dropdown and remove button
-- [ ] T081 [US8] Add team management section to ProjectModal.vue edit mode
-- [ ] T082 [US8] Apply permission check - only instructor can manage members
-- [ ] T083 [US8] Paginate member list for projects with 20+ members
+- [X] T072 [US8] Implement ProjectController@members to list project members in `app/Http/Controllers/ProjectController.php`
+- [X] T073 [US8] Implement ProjectController@addMember with default Viewer role in `app/Http/Controllers/ProjectController.php`
+- [X] T074 [US8] Implement ProjectController@updateMember for role changes in `app/Http/Controllers/ProjectController.php`
+- [X] T075 [US8] Implement ProjectController@removeMember with confirmation in `app/Http/Controllers/ProjectController.php`
+- [X] T076 [P] [US8] Create AddProjectMemberRequest validation in `app/Http/Requests/AddProjectMemberRequest.php`
+- [X] T077 [US8] Create UserController@search for finding users by name/email in `app/Http/Controllers/UserController.php`
+- [X] T078 [P] [US8] Create TeamManagement.vue component in `resources/js/components/projects/TeamManagement.vue`
+- [X] T079 [US8] Implement user search with debounce in TeamManagement.vue
+- [X] T080 [US8] Implement member list with role dropdown and remove button
+- [X] T081 [US8] Add team management section to ProjectModal.vue edit mode
+- [X] T082 [US8] Apply permission check - only instructor can manage members
+- [X] T083 [US8] Paginate member list for projects with 20+ members
 
 **Checkpoint**: User Story 8 complete - team management fully functional
 
