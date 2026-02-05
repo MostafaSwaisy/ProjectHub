@@ -251,16 +251,16 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T091 [P] Mobile responsive design for ProjectsList at 768px breakpoint
-- [ ] T092 [P] Mobile responsive design for ProjectModal at 768px breakpoint
-- [ ] T093 [P] Mobile responsive design for ProjectCard grid/list toggle
-- [ ] T094 Add loading skeletons for project list while fetching
-- [ ] T095 Implement error boundary and retry logic for API failures
-- [ ] T096 Add keyboard navigation (arrow keys in list, Enter to open)
-- [ ] T097 Performance optimization - lazy load project avatars
-- [ ] T098 Bundle size audit - ensure <50KB additional JS
-- [ ] T099 Run quickstart.md validation for all user flows
-- [ ] T100 Final accessibility audit (ARIA labels, focus management)
+- [X] T091 [P] Mobile responsive design for ProjectsList at 768px breakpoint
+- [X] T092 [P] Mobile responsive design for ProjectModal at 768px breakpoint
+- [X] T093 [P] Mobile responsive design for ProjectCard grid/list toggle
+- [X] T094 Add loading skeletons for project list while fetching
+- [X] T095 Implement error boundary and retry logic for API failures
+- [X] T096 Add keyboard navigation (arrow keys in list, Enter to open)
+- [X] T097 Performance optimization - lazy load project avatars
+- [X] T098 Bundle size audit - ensure <50KB additional JS
+- [X] T099 Run quickstart.md validation for all user flows
+- [X] T100 Final accessibility audit (ARIA labels, focus management)
 
 ---
 
