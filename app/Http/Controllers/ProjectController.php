@@ -274,10 +274,79 @@ class ProjectController extends Controller
 
     /**
      * Duplicate a project
+     * T084-T090: POST /api/projects/{project}/duplicate
      */
     public function duplicate(Request $request, Project $project)
     {
-        // Will be implemented in T084
+        // Authorize - user must be able to view the project to duplicate it
+        $this->authorize('view', $project);
+
+        // Validate request
+        $validated = $request->validate([
+            'title' => ['required', 'string', 'max:100'],
+            'include_tasks' => ['boolean'],
+        ]);
+
+        try {
+            // Use transaction to ensure atomicity
+            $duplicatedProject = DB::transaction(function () use ($project, $validated, $request) {
+                // T084, T090: Create new project with current user as instructor
+                $newProject = Project::create([
+                    'title' => $validated['title'],
+                    'description' => $project->description,
+                    'timeline_status' => $project->timeline_status,
+                    'budget_status' => $project->budget_status,
+                    'instructor_id' => $request->user()->id, // Current user becomes owner
+                    'is_archived' => false, // New project is always active
+                ]);
+
+                // T085: Duplicate boards and columns
+                foreach ($project->boards as $board) {
+                    $newBoard = $newProject->boards()->create([
+                        'title' => $board->title,
+                    ]);
+
+                    // Duplicate columns
+                    foreach ($board->columns as $column) {
+                        $newColumn = $newBoard->columns()->create([
+                            'title' => $column->title,
+                            'position' => $column->position,
+                        ]);
+
+                        // T085: Optionally duplicate tasks
+                        if ($validated['include_tasks'] ?? false) {
+                            foreach ($column->tasks as $task) {
+                                $newColumn->tasks()->create([
+                                    'title' => $task->title,
+                                    'description' => $task->description,
+                                    'priority' => $task->priority,
+                                    'due_date' => $task->due_date,
+                                    'position' => $task->position,
+                                    // Note: assignee_id is intentionally NOT copied
+                                    // Tasks in duplicated project have no assignees
+                                ]);
+                            }
+                        }
+                    }
+                }
+
+                return $newProject;
+            });
+
+            // Load relationships for response
+            $duplicatedProject->load(['instructor', 'members', 'boards']);
+
+            return response()->json([
+                'data' => new ProjectResource($duplicatedProject),
+                'message' => 'Project duplicated successfully',
+            ], 201);
+        } catch (\Exception $e) {
+            // T089: Handle duplication failure - transaction automatically rolled back
+            return response()->json([
+                'message' => 'Failed to duplicate project. Please try again.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**

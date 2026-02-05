@@ -235,13 +235,13 @@
 
 ### Implementation for User Story 9
 
-- [ ] T084 [US9] Implement ProjectController@duplicate with transaction in `app/Http/Controllers/ProjectController.php`
-- [ ] T085 [US9] Add include_tasks option to duplicate boards, columns, and optionally tasks
-- [ ] T086 [P] [US9] Create DuplicateProjectModal.vue with name input and options in `resources/js/components/projects/DuplicateProjectModal.vue`
-- [ ] T087 [US9] Implement duplicateProject action in projects store
-- [ ] T088 [US9] Add "Duplicate" option to project card actions menu
-- [ ] T089 [US9] Handle duplication failure with rollback and error message
-- [ ] T090 [US9] Set current user as instructor (owner) of duplicated project
+- [X] T084 [US9] Implement ProjectController@duplicate with transaction in `app/Http/Controllers/ProjectController.php`
+- [X] T085 [US9] Add include_tasks option to duplicate boards, columns, and optionally tasks
+- [X] T086 [P] [US9] Create DuplicateProjectModal.vue with name input and options in `resources/js/components/projects/DuplicateProjectModal.vue`
+- [X] T087 [US9] Implement duplicateProject action in projects store
+- [X] T088 [US9] Add "Duplicate" option to project card actions menu
+- [X] T089 [US9] Handle duplication failure with rollback and error message
+- [X] T090 [US9] Set current user as instructor (owner) of duplicated project
 
 **Checkpoint**: User Story 9 complete - project duplication fully functional
 

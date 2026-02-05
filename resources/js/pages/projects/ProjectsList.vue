@@ -117,6 +117,7 @@
                     @click="navigateToBoard"
                     @edit="handleEdit"
                     @archive="handleArchive"
+                    @duplicate="handleDuplicate"
                     @delete="handleDelete"
                 />
             </div>
@@ -143,6 +144,7 @@
                             @click="navigateToBoard"
                             @edit="handleEdit"
                             @archive="handleArchive"
+                            @duplicate="handleDuplicate"
                             @delete="handleDelete"
                         />
                     </tbody>
@@ -210,6 +212,15 @@
             @confirm="handleConfirmArchive"
             @cancel="handleCancelArchive"
         />
+
+        <!-- Duplicate Project Modal -->
+        <DuplicateProjectModal
+            :is-open="showDuplicateModal"
+            :project="duplicatingProject"
+            :loading="duplicateLoading"
+            @duplicate="handleConfirmDuplicate"
+            @close="handleCancelDuplicate"
+        />
     </AppLayout>
 </template>
 
@@ -228,6 +239,7 @@ import DeleteConfirmModal from '../../components/projects/DeleteConfirmModal.vue
 import ArchiveConfirmModal from '../../components/projects/ArchiveConfirmModal.vue';
 import ProjectFilters from '../../components/projects/ProjectFilters.vue';
 import ProjectSearch from '../../components/projects/ProjectSearch.vue';
+import DuplicateProjectModal from '../../components/projects/DuplicateProjectModal.vue';
 
 const router = useRouter();
 const projectsStore = useProjectsStore();
@@ -252,6 +264,11 @@ const showArchiveModal = ref(false);
 const archivingProject = ref(null);
 const isArchiving = ref(true); // true = archiving, false = unarchiving
 const archiveLoading = ref(false);
+
+// Duplicate modal state
+const showDuplicateModal = ref(false);
+const duplicatingProject = ref(null);
+const duplicateLoading = ref(false);
 
 // Tab state
 const isArchivedTab = ref(false);
@@ -410,6 +427,43 @@ const handleConfirmArchive = async () => {
 const handleCancelArchive = () => {
     showArchiveModal.value = false;
     archivingProject.value = null;
+};
+
+const handleDuplicate = (project) => {
+    // T088: Open duplicate modal
+    duplicatingProject.value = project;
+    showDuplicateModal.value = true;
+};
+
+const handleConfirmDuplicate = async (data) => {
+    if (!duplicatingProject.value) return;
+
+    duplicateLoading.value = true;
+
+    try {
+        await projectsStore.duplicateProject(duplicatingProject.value.id, data);
+
+        // Close modal and reset state
+        showDuplicateModal.value = false;
+        duplicatingProject.value = null;
+
+        // Show success toast
+        toast.success('Project duplicated successfully');
+
+        // Reload projects to show the new duplicate
+        loadProjects();
+    } catch (error) {
+        toast.error(
+            error.response?.data?.message || 'Failed to duplicate project. Please try again.'
+        );
+    } finally {
+        duplicateLoading.value = false;
+    }
+};
+
+const handleCancelDuplicate = () => {
+    showDuplicateModal.value = false;
+    duplicatingProject.value = null;
 };
 
 const handleDelete = (project) => {

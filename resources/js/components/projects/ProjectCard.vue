@@ -39,6 +39,15 @@
                     </svg>
                 </button>
                 <button
+                    class="action-btn info"
+                    @click="$emit('duplicate', project)"
+                    title="Duplicate"
+                >
+                    <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                </button>
+                <button
                     v-if="project.permissions.can_delete"
                     class="action-btn danger"
                     @click="$emit('delete', project)"
@@ -246,6 +255,11 @@ const handleCardClick = () => {
 .action-btn.success:hover {
     background: rgba(34, 197, 94, 0.2);
     color: #22c55e;
+}
+
+.action-btn.info:hover {
+    background: rgba(59, 130, 246, 0.2);
+    color: #3b82f6;
 }
 
 .icon {

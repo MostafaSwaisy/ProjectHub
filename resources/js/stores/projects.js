@@ -206,7 +206,29 @@ export const useProjectsStore = defineStore('projects', {
         },
 
         async duplicateProject(id, data) {
-            // T087: Implement duplicateProject
+            // T087: Duplicate a project
+            this.loading = true;
+            this.error = null;
+
+            try {
+                const response = await axios.post(`/api/projects/${id}/duplicate`, data);
+
+                // Add the duplicated project to the list
+                this.projects.unshift(response.data.data);
+
+                // Update pagination total count
+                if (this.pagination) {
+                    this.pagination.total += 1;
+                }
+
+                return response.data.data;
+            } catch (error) {
+                this.error = error.response?.data?.message || 'Failed to duplicate project';
+                console.error('Error duplicating project:', error);
+                throw error;
+            } finally {
+                this.loading = false;
+            }
         },
 
         setFilters(newFilters) {
