@@ -71,6 +71,13 @@
                 </button>
             </div>
 
+            <!-- Search -->
+            <ProjectSearch
+                v-model="searchQuery"
+                :results-count="projectsStore.totalCount"
+                @search="handleSearch"
+            />
+
             <!-- Filters -->
             <ProjectFilters
                 :filters="projectsStore.filters"
@@ -94,8 +101,10 @@
             <!-- Empty State -->
             <EmptyState
                 v-else-if="!projectsStore.hasProjects"
-                title="No projects found"
-                description="Get started by creating your first project to organize your work and collaborate with your team."
+                :title="searchQuery ? 'No projects found' : 'No projects yet'"
+                :description="searchQuery
+                    ? `No projects match your search for '${searchQuery}'. Try different keywords or clear your search.`
+                    : 'Get started by creating your first project to organize your work and collaborate with your team.'"
                 @create="handleCreateProject"
             />
 
@@ -218,6 +227,7 @@ import ConflictModal from '../../components/projects/ConflictModal.vue';
 import DeleteConfirmModal from '../../components/projects/DeleteConfirmModal.vue';
 import ArchiveConfirmModal from '../../components/projects/ArchiveConfirmModal.vue';
 import ProjectFilters from '../../components/projects/ProjectFilters.vue';
+import ProjectSearch from '../../components/projects/ProjectSearch.vue';
 
 const router = useRouter();
 const projectsStore = useProjectsStore();
@@ -245,6 +255,9 @@ const archiveLoading = ref(false);
 
 // Tab state
 const isArchivedTab = ref(false);
+
+// Search state
+const searchQuery = ref('');
 
 // View mode with localStorage persistence
 const viewMode = computed({
@@ -457,6 +470,15 @@ const handleFiltersUpdate = (newFilters) => {
     filterDebounceTimer = setTimeout(() => {
         loadProjects();
     }, 300);
+};
+
+// T067, T071: Handle search with integration to filters
+const handleSearch = (query) => {
+    // Update search in store filters (will be combined with other filters)
+    projectsStore.setFilters({ search: query });
+
+    // Refetch projects with search query
+    loadProjects();
 };
 </script>
 

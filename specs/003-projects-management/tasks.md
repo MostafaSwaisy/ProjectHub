@@ -190,13 +190,13 @@
 
 ### Implementation for User Story 7
 
-- [ ] T065 [US7] Add search parameter to ProjectController@index with LIKE query
-- [ ] T066 [P] [US7] Create ProjectSearch.vue with input and clear button in `resources/js/components/projects/ProjectSearch.vue`
-- [ ] T067 [US7] Implement 300ms debounced search in projects store
-- [ ] T068 [US7] Add search state to URL params for shareability
-- [ ] T069 [US7] Show "No projects found" state when search returns empty
-- [ ] T070 [US7] Implement Escape key to clear search and blur input
-- [ ] T071 [US7] Integrate search with active filters (AND logic)
+- [X] T065 [US7] Add search parameter to ProjectController@index with LIKE query
+- [X] T066 [P] [US7] Create ProjectSearch.vue with input and clear button in `resources/js/components/projects/ProjectSearch.vue`
+- [X] T067 [US7] Implement 300ms debounced search in projects store
+- [X] T068 [US7] Add search state to URL params for shareability
+- [X] T069 [US7] Show "No projects found" state when search returns empty
+- [X] T070 [US7] Implement Escape key to clear search and blur input
+- [X] T071 [US7] Integrate search with active filters (AND logic)
 
 **Checkpoint**: User Story 7 complete - search fully functional
 
