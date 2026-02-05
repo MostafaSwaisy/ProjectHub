@@ -169,14 +169,14 @@
 
 ### Implementation for User Story 6
 
-- [ ] T057 [US6] Add filter parameters (status, role, sort, order) to ProjectController@index
-- [ ] T058 [P] [US6] Create ProjectFilters.vue with status dropdown in `resources/js/components/projects/ProjectFilters.vue`
-- [ ] T059 [US6] Add role filter dropdown (All, My Projects, Member Of) to ProjectFilters.vue
-- [ ] T060 [US6] Add sort dropdown (Last Updated, Created, Title A-Z, Title Z-A) to ProjectFilters.vue
-- [ ] T061 [US6] Implement filter state in projects store with URL param sync
-- [ ] T062 [US6] Add "Clear Filters" button functionality
-- [ ] T063 [US6] Persist filter state to localStorage as fallback
-- [ ] T064 [US6] Wire filters to refetch projects with debounce
+- [X] T057 [US6] Add filter parameters (status, role, sort, order) to ProjectController@index
+- [X] T058 [P] [US6] Create ProjectFilters.vue with status dropdown in `resources/js/components/projects/ProjectFilters.vue`
+- [X] T059 [US6] Add role filter dropdown (All, My Projects, Member Of) to ProjectFilters.vue
+- [X] T060 [US6] Add sort dropdown (Last Updated, Created, Title A-Z, Title Z-A) to ProjectFilters.vue
+- [X] T061 [US6] Implement filter state in projects store with URL param sync
+- [X] T062 [US6] Add "Clear Filters" button functionality
+- [X] T063 [US6] Persist filter state to localStorage as fallback
+- [X] T064 [US6] Wire filters to refetch projects with debounce
 
 **Checkpoint**: User Story 6 complete - filter and sort fully functional
 

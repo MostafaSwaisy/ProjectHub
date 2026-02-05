@@ -71,6 +71,12 @@
                 </button>
             </div>
 
+            <!-- Filters -->
+            <ProjectFilters
+                :filters="projectsStore.filters"
+                @update:filters="handleFiltersUpdate"
+            />
+
             <!-- Loading State -->
             <div v-if="projectsStore.loading" class="loading-container">
                 <div class="spinner"></div>
@@ -211,6 +217,7 @@ import ProjectModal from '../../components/projects/ProjectModal.vue';
 import ConflictModal from '../../components/projects/ConflictModal.vue';
 import DeleteConfirmModal from '../../components/projects/DeleteConfirmModal.vue';
 import ArchiveConfirmModal from '../../components/projects/ArchiveConfirmModal.vue';
+import ProjectFilters from '../../components/projects/ProjectFilters.vue';
 
 const router = useRouter();
 const projectsStore = useProjectsStore();
@@ -432,6 +439,24 @@ const handleConfirmDelete = async () => {
 const handleCancelDelete = () => {
     showDeleteModal.value = false;
     deletingProject.value = null;
+};
+
+// T064: Handle filter updates with debounce
+let filterDebounceTimer = null;
+
+const handleFiltersUpdate = (newFilters) => {
+    // Clear existing timer
+    if (filterDebounceTimer) {
+        clearTimeout(filterDebounceTimer);
+    }
+
+    // Update filters in store
+    projectsStore.setFilters(newFilters);
+
+    // Debounce the refetch (300ms delay)
+    filterDebounceTimer = setTimeout(() => {
+        loadProjects();
+    }, 300);
 };
 </script>
 
