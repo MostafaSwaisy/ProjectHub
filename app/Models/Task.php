@@ -31,6 +31,10 @@ class Task extends Model
     protected $appends = [
         'progress',
         'completed_subtask_count',
+        'is_overdue',
+        'subtask_count',
+        'comment_count',
+        'label_count',
     ];
 
     public function column(): BelongsTo
@@ -96,12 +100,42 @@ class Task extends Model
 
     /**
      * Determine if the task is overdue.
-     * Returns true if due_date is in the past and task is not completed.
+     * Returns true if due_date is in the past.
      *
      * @return bool
      */
-    public function isOverdue(): bool
+    public function getIsOverdueAttribute(): bool
     {
         return $this->due_date && $this->due_date < now()->startOfDay();
+    }
+
+    /**
+     * Get the total count of subtasks.
+     *
+     * @return int
+     */
+    public function getSubtaskCountAttribute(): int
+    {
+        return $this->subtasks()->count();
+    }
+
+    /**
+     * Get the count of comments.
+     *
+     * @return int
+     */
+    public function getCommentCountAttribute(): int
+    {
+        return $this->comments()->count();
+    }
+
+    /**
+     * Get the count of labels.
+     *
+     * @return int
+     */
+    public function getLabelCountAttribute(): int
+    {
+        return $this->labels()->count();
     }
 }

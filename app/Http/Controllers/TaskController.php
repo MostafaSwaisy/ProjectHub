@@ -6,6 +6,7 @@ use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
 use App\Http\Requests\MoveTaskRequest;
 use App\Http\Resources\TaskResource;
+use App\Models\Activity;
 use App\Models\Task;
 use App\Models\Column;
 use Illuminate\Http\Request;
@@ -205,6 +206,78 @@ class TaskController extends Controller
 
         foreach ($tasks as $index => $task) {
             $task->update(['position' => $index]);
+        }
+    }
+
+    /**
+     * Sync labels for a task.
+     *
+     * @param Task $task
+     * @param Request $request
+     * @return TaskResource
+     */
+    public function syncLabels(Task $task, Request $request)
+    {
+        $this->authorize('update', $task);
+
+        $request->validate([
+            'label_ids' => 'required|array',
+            'label_ids.*' => 'integer|exists:labels,id',
+        ]);
+
+        $labelIds = $request->input('label_ids');
+
+        // Get current labels for activity logging
+        $currentLabelIds = $task->labels()->pluck('labels.id')->toArray();
+
+        // Sync labels
+        $task->labels()->sync($labelIds);
+
+        // Log activity for new labels
+        $addedLabels = array_diff($labelIds, $currentLabelIds);
+        $removedLabels = array_diff($currentLabelIds, $labelIds);
+
+        foreach ($addedLabels as $labelId) {
+            $label = $task->labels()->find($labelId);
+            if ($label) {
+                $this->logActivity($task, 'label.assigned', [
+                    'label_id' => $labelId,
+                    'label_name' => $label->name,
+                ]);
+            }
+        }
+
+        foreach ($removedLabels as $labelId) {
+            $this->logActivity($task, 'label.removed', [
+                'label_id' => $labelId,
+            ]);
+        }
+
+        // Reload relationships
+        $task->load(['assignee', 'labels', 'subtasks']);
+        $task->loadCount(['subtasks', 'labels']);
+
+        return new TaskResource($task);
+    }
+
+    /**
+     * Log an activity for the task.
+     */
+    private function logActivity(Task $task, string $type, array $data = []): void
+    {
+        $column = $task->column;
+        $board = $column?->board;
+        $projectId = $board?->project_id;
+
+        if ($projectId) {
+            Activity::create([
+                'user_id' => auth()->id(),
+                'project_id' => $projectId,
+                'type' => $type,
+                'subject_type' => Task::class,
+                'subject_id' => $task->id,
+                'data' => $data,
+            ]);
         }
     }
 }

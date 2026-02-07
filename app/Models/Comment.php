@@ -25,6 +25,10 @@ class Comment extends Model
         'updated_at' => 'datetime',
     ];
 
+    protected $appends = [
+        'is_editable',
+    ];
+
     public function task(): BelongsTo
     {
         return $this->belongsTo(Task::class);
@@ -43,5 +47,23 @@ class Comment extends Model
     public function replies(): HasMany
     {
         return $this->hasMany(Comment::class, 'parent_id');
+    }
+
+    /**
+     * Check if the comment is still within the 15-minute edit window.
+     *
+     * @return bool
+     */
+    public function getIsEditableAttribute(): bool
+    {
+        $currentUser = auth()->user();
+        if (!$currentUser || $this->user_id !== $currentUser->id) {
+            return false;
+        }
+
+        $editWindowMinutes = 15;
+        $cutoffTime = $this->created_at->addMinutes($editWindowMinutes);
+
+        return now()->lt($cutoffTime);
     }
 }

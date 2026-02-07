@@ -43,45 +43,45 @@
 
 ### Backend Controllers
 
-- [ ] T007 Create SubtaskController with index, store, update, destroy, reorder methods in `app/Http/Controllers/SubtaskController.php`
-- [ ] T008 [P] Create CommentController with index, store, update, destroy methods in `app/Http/Controllers/CommentController.php`
-- [ ] T009 [P] Create LabelController with index, store, update, destroy methods in `app/Http/Controllers/LabelController.php`
-- [ ] T010 [P] Create ActivityController with index and projectActivities methods in `app/Http/Controllers/ActivityController.php`
+- [x] T007 Create SubtaskController with index, store, update, destroy, reorder methods in `app/Http/Controllers/SubtaskController.php`
+- [x] T008 [P] Create CommentController with index, store, update, destroy methods in `app/Http/Controllers/CommentController.php`
+- [x] T009 [P] Create LabelController with index, store, update, destroy methods in `app/Http/Controllers/LabelController.php`
+- [x] T010 [P] Create ActivityController with index and projectActivities methods in `app/Http/Controllers/ActivityController.php`
 
 ### Form Requests
 
-- [ ] T011 [P] Create StoreSubtaskRequest validation in `app/Http/Requests/StoreSubtaskRequest.php`
-- [ ] T012 [P] Create UpdateSubtaskRequest validation in `app/Http/Requests/UpdateSubtaskRequest.php`
-- [ ] T013 [P] Create StoreCommentRequest validation in `app/Http/Requests/StoreCommentRequest.php`
-- [ ] T014 [P] Create UpdateCommentRequest validation in `app/Http/Requests/UpdateCommentRequest.php`
-- [ ] T015 [P] Create StoreLabelRequest validation in `app/Http/Requests/StoreLabelRequest.php`
-- [ ] T016 [P] Create UpdateLabelRequest validation in `app/Http/Requests/UpdateLabelRequest.php`
+- [x] T011 [P] Create StoreSubtaskRequest validation in `app/Http/Requests/StoreSubtaskRequest.php`
+- [x] T012 [P] Create UpdateSubtaskRequest validation in `app/Http/Requests/UpdateSubtaskRequest.php`
+- [x] T013 [P] Create StoreCommentRequest validation in `app/Http/Requests/StoreCommentRequest.php`
+- [x] T014 [P] Create UpdateCommentRequest validation in `app/Http/Requests/UpdateCommentRequest.php`
+- [x] T015 [P] Create StoreLabelRequest validation in `app/Http/Requests/StoreLabelRequest.php`
+- [x] T016 [P] Create UpdateLabelRequest validation in `app/Http/Requests/UpdateLabelRequest.php`
 
 ### Policies
 
-- [ ] T017 Create CommentPolicy with update (15-min window check), delete methods in `app/Policies/CommentPolicy.php`
-- [ ] T018 [P] Create LabelPolicy with create, update, delete (project owner only) in `app/Policies/LabelPolicy.php`
+- [x] T017 Create CommentPolicy with update (15-min window check), delete methods in `app/Policies/CommentPolicy.php`
+- [x] T018 [P] Create LabelPolicy with create, update, delete (project owner only) in `app/Policies/LabelPolicy.php`
 
 ### Resources
 
-- [ ] T019 [P] Create SubtaskResource in `app/Http/Resources/SubtaskResource.php`
-- [ ] T020 [P] Create CommentResource with is_editable computed property in `app/Http/Resources/CommentResource.php`
-- [ ] T021 [P] Create LabelResource in `app/Http/Resources/LabelResource.php`
-- [ ] T022 [P] Create ActivityResource in `app/Http/Resources/ActivityResource.php`
+- [x] T019 [P] Create SubtaskResource in `app/Http/Resources/SubtaskResource.php`
+- [x] T020 [P] Create CommentResource with is_editable computed property in `app/Http/Resources/CommentResource.php`
+- [x] T021 [P] Create LabelResource in `app/Http/Resources/LabelResource.php`
+- [x] T022 [P] Create ActivityResource in `app/Http/Resources/ActivityResource.php`
 
 ### API Routes
 
-- [ ] T023 Register subtask routes (nested under tasks) in `routes/api.php`
-- [ ] T024 Register comment routes (shallow nesting) in `routes/api.php`
-- [ ] T025 Register label routes (nested under projects) in `routes/api.php`
-- [ ] T026 Register activity routes (task and project scoped) in `routes/api.php`
-- [ ] T027 Add task label sync route POST `/tasks/{task}/labels` in `routes/api.php`
+- [x] T023 Register subtask routes (nested under tasks) in `routes/api.php`
+- [x] T024 Register comment routes (shallow nesting) in `routes/api.php`
+- [x] T025 Register label routes (nested under projects) in `routes/api.php`
+- [x] T026 Register activity routes (task and project scoped) in `routes/api.php`
+- [x] T027 Add task label sync route POST `/tasks/{task}/labels` in `routes/api.php`
 
 ### Model Enhancements
 
-- [ ] T028 Update Task model with computed attributes (progress, is_overdue, label_count) in `app/Models/Task.php`
-- [ ] T029 [P] Update Comment model with isEditable accessor in `app/Models/Comment.php`
-- [ ] T030 Register CommentPolicy and LabelPolicy in `app/Providers/AuthServiceProvider.php`
+- [x] T028 Update Task model with computed attributes (progress, is_overdue, label_count) in `app/Models/Task.php`
+- [x] T029 [P] Update Comment model with isEditable accessor in `app/Models/Comment.php`
+- [x] T030 Register CommentPolicy and LabelPolicy in `app/Providers/AuthServiceProvider.php`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
