@@ -77,6 +77,15 @@
                     />
                 </div>
 
+                <!-- Comments Section -->
+                <div class="detail-section">
+                    <h4>Comments</h4>
+                    <CommentList
+                        :task-id="task.id"
+                        @updated="$emit('updated')"
+                    />
+                </div>
+
                 <!-- Created and Updated Info -->
                 <div class="detail-meta">
                     <p>Created: {{ formatDate(task.created_at) }}</p>
@@ -100,6 +109,7 @@
 <script setup>
 import { computed } from 'vue';
 import SubtaskList from './SubtaskList.vue';
+import CommentList from './CommentList.vue';
 
 const props = defineProps({
     task: {
