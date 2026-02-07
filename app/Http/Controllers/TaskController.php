@@ -199,6 +199,10 @@ class TaskController extends Controller
         $newColumnId = $validated['column_id'];
         $newPosition = $validated['position'];
 
+        // Store original column for activity logging
+        $oldColumnId = $task->column_id;
+        $oldColumn = $task->column;
+
         // Get the new column
         $newColumn = Column::findOrFail($newColumnId);
 
@@ -222,6 +226,15 @@ class TaskController extends Controller
         // Update position
         $task->position = $newPosition;
         $task->save();
+
+        // Log activity if column changed
+        if ($oldColumnId !== $newColumnId) {
+            $this->logActivity($task, 'task.moved', [
+                'task_title' => $task->title,
+                'from_column' => $oldColumn?->title,
+                'to_column' => $newColumn->title,
+            ]);
+        }
 
         // Reorder tasks in target column based on positions
         $this->reorderTasksInColumn($newColumn);

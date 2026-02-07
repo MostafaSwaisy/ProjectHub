@@ -14,10 +14,22 @@
         <!-- Priority Indicator Border -->
         <div class="priority-indicator"></div>
 
+        <!-- Drag Handle (shows on hover) -->
+        <div class="drag-handle">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <circle cx="9" cy="6" r="2"/>
+                <circle cx="15" cy="6" r="2"/>
+                <circle cx="9" cy="12" r="2"/>
+                <circle cx="15" cy="12" r="2"/>
+                <circle cx="9" cy="18" r="2"/>
+                <circle cx="15" cy="18" r="2"/>
+            </svg>
+        </div>
+
         <!-- Task Header -->
         <div class="task-header">
             <div class="task-id-title">
-                <span class="task-id">{{ task.id }}</span>
+                <span class="task-id">#{{ task.id }}</span>
                 <h3 class="task-title">{{ task.title }}</h3>
             </div>
             <button
@@ -260,6 +272,33 @@ const getInitials = (name) => {
 .task-card.dragging {
     opacity: 0.5;
     transform: rotate(2deg);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+/* Drag Handle */
+.drag-handle {
+    position: absolute;
+    top: 8px;
+    right: 36px;
+    color: var(--text-secondary);
+    opacity: 0;
+    cursor: grab;
+    padding: 4px;
+    transition: all var(--transition-normal);
+    z-index: 2;
+}
+
+.task-card:hover .drag-handle {
+    opacity: 0.6;
+}
+
+.drag-handle:hover {
+    opacity: 1 !important;
+    color: var(--orange-primary);
+}
+
+.task-card:active .drag-handle {
+    cursor: grabbing;
 }
 
 /* Priority Indicator Border */

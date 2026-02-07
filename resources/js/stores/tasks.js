@@ -281,6 +281,48 @@ export const useTasksStore = defineStore('tasks', () => {
         }
     };
 
+    // Actions: Reorder tasks within a column (within-column drag)
+    const reorderTasks = async (columnId, taskIds) => {
+        error.value = null;
+
+        // Store original positions for rollback
+        const originalTasks = tasks.value
+            .filter(t => t.column_id === columnId)
+            .map(t => ({ id: t.id, position: t.position }));
+
+        // Apply optimistic reorder
+        taskIds.forEach((taskId, index) => {
+            const taskIndex = tasks.value.findIndex(t => t.id === taskId);
+            if (taskIndex !== -1) {
+                tasks.value[taskIndex] = { ...tasks.value[taskIndex], position: index };
+            }
+        });
+
+        try {
+            // Send reorder request to server (batch update)
+            await Promise.all(
+                taskIds.map((taskId, index) =>
+                    axios.patch(`/api/tasks/${taskId}/move`, {
+                        column_id: columnId,
+                        position: index,
+                    })
+                )
+            );
+            return true;
+        } catch (err) {
+            // Rollback on error
+            originalTasks.forEach(({ id, position }) => {
+                const taskIndex = tasks.value.findIndex(t => t.id === id);
+                if (taskIndex !== -1) {
+                    tasks.value[taskIndex] = { ...tasks.value[taskIndex], position };
+                }
+            });
+            error.value = err.response?.data?.message || err.message;
+            console.error('Failed to reorder tasks:', err);
+            throw err;
+        }
+    };
+
     // Actions: Reset store
     const resetTasks = () => {
         tasks.value = [];
@@ -320,6 +362,7 @@ export const useTasksStore = defineStore('tasks', () => {
         updateTask,
         deleteTask,
         moveTask,
+        reorderTasks,
         syncLabels,
         updateTaskLocal,
         resetTasks,
