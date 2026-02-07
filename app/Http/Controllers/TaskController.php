@@ -6,6 +6,7 @@ use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
 use App\Http\Requests\MoveTaskRequest;
 use App\Http\Resources\TaskResource;
+use App\Http\Resources\TaskDetailResource;
 use App\Models\Activity;
 use App\Models\Task;
 use App\Models\Column;
@@ -87,6 +88,11 @@ class TaskController extends Controller
             'position' => $nextPosition,
         ]);
 
+        // Log activity
+        $this->logActivity($task, 'task.created', [
+            'task_title' => $task->title,
+        ]);
+
         // Load relationships with eager loading
         $task->load(['assignee', 'labels', 'subtasks']);
         $task->loadCount(['subtasks', 'labels']);
@@ -98,16 +104,16 @@ class TaskController extends Controller
      * Display a single task with all relationships (subtasks, comments, labels).
      *
      * @param Task $task
-     * @return JsonResponse
+     * @return TaskDetailResource
      */
     public function show(Task $task)
     {
         $this->authorize('view', $task);
 
-        $task->load(['assignee', 'labels', 'subtasks']);
-        $task->loadCount(['subtasks', 'labels']);
+        $task->load(['assignee', 'labels', 'subtasks', 'comments.user']);
+        $task->loadCount(['subtasks', 'labels', 'comments']);
 
-        return new TaskResource($task);
+        return new TaskDetailResource($task);
     }
 
     /**
@@ -121,7 +127,29 @@ class TaskController extends Controller
     {
         $this->authorize('update', $task);
 
-        $task->update($request->validated());
+        $validated = $request->validated();
+        $oldValues = $task->only(array_keys($validated));
+
+        $task->update($validated);
+
+        // Build changes array for activity log
+        $changes = [];
+        foreach ($validated as $key => $newValue) {
+            if (isset($oldValues[$key]) && $oldValues[$key] !== $newValue) {
+                $changes[$key] = [
+                    'old' => $oldValues[$key],
+                    'new' => $newValue,
+                ];
+            }
+        }
+
+        // Log activity if there were changes
+        if (!empty($changes)) {
+            $this->logActivity($task, 'task.updated', [
+                'task_title' => $task->title,
+                'changes' => $changes,
+            ]);
+        }
 
         // Reload relationships with eager loading
         $task->load(['assignee', 'labels', 'subtasks']);
@@ -139,6 +167,17 @@ class TaskController extends Controller
     public function destroy(Task $task)
     {
         $this->authorize('delete', $task);
+
+        // Log activity before deletion
+        $this->logActivity($task, 'task.deleted', [
+            'task_title' => $task->title,
+            'task_id' => $task->id,
+        ]);
+
+        // Delete related data (subtasks, comments, labels pivot)
+        $task->subtasks()->delete();
+        $task->comments()->delete();
+        $task->labels()->detach();
 
         $task->delete();
 

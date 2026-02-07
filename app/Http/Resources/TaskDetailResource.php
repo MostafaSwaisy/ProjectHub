@@ -5,10 +5,11 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class TaskResource extends JsonResource
+class TaskDetailResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
+     * This resource includes full details including comments for task detail views.
      *
      * @return array<string, mixed>
      */
@@ -30,8 +31,9 @@ class TaskResource extends JsonResource
             'label_count' => $this->labels_count ?? $this->labels()->count(),
             'labels' => LabelResource::collection($this->whenLoaded('labels')),
             'subtasks' => SubtaskResource::collection($this->whenLoaded('subtasks')),
+            'comments' => CommentResource::collection($this->whenLoaded('comments')),
             'progress' => $this->progress,
-            'is_overdue' => $this->is_overdue,
+            'is_overdue' => $this->isOverdue(),
             'created_at' => $this->created_at?->toISOString(),
             'updated_at' => $this->updated_at?->toISOString(),
         ];

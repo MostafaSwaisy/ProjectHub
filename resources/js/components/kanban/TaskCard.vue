@@ -49,7 +49,7 @@
                 <button
                     v-for="column in availableColumns"
                     :key="column.id"
-                    :disabled="column.id === task.status"
+                    :disabled="column.id === task.column_id"
                     class="submenu-item"
                     @click.stop="moveTaskToColumn(column.id)"
                 >
@@ -92,30 +92,25 @@
                 </svg>
                 <span>{{ formatDueDate(task.due_date) }}</span>
             </div>
-            <div v-if="task.assignees && task.assignees.length > 0" class="assignees">
+            <div v-if="task.assignee" class="assignees">
                 <div
-                    v-for="assignee in task.assignees.slice(0, 2)"
-                    :key="assignee.id"
                     class="assignee-avatar"
-                    :title="assignee.name"
+                    :title="task.assignee.name"
                 >
-                    {{ getInitials(assignee.name) }}
+                    {{ getInitials(task.assignee.name) }}
                 </div>
-                <span v-if="task.assignees.length > 2" class="assignee-more">
-                    +{{ task.assignees.length - 2 }}
-                </span>
             </div>
         </div>
 
         <!-- Subtask Progress -->
-        <div v-if="task.subtasks && task.subtasks.length > 0" class="subtask-progress">
+        <div v-if="task.subtask_count > 0" class="subtask-progress">
             <div class="progress-bar">
                 <div
                     class="progress-fill"
-                    :style="{ width: subtaskProgressPercent + '%' }"
+                    :style="{ width: task.progress + '%' }"
                 ></div>
             </div>
-            <span class="progress-text">{{ completedSubtasks }}/{{ task.subtasks.length }}</span>
+            <span class="progress-text">{{ task.completed_subtask_count }}/{{ task.subtask_count }}</span>
         </div>
     </div>
 </template>
@@ -128,6 +123,10 @@ const props = defineProps({
         type: Object,
         required: true,
     },
+    columns: {
+        type: Array,
+        default: () => [],
+    },
 });
 
 const emit = defineEmits(['drag-start', 'drag-end', 'edit', 'duplicate', 'archive', 'delete', 'details', 'move-to']);
@@ -136,16 +135,17 @@ const emit = defineEmits(['drag-start', 'drag-end', 'edit', 'duplicate', 'archiv
 const showMenu = ref(false);
 const showMoveToMenu = ref(false);
 
-// Check if task is overdue or due soon
+// Check if task is overdue or due soon (use server value if available)
 const isOverdue = computed(() => {
-    if (!props.task.due_date || props.task.status === 'done') return false;
+    if (props.task.is_overdue !== undefined) return props.task.is_overdue;
+    if (!props.task.due_date) return false;
     return new Date(props.task.due_date) < new Date();
 });
 
 const isDueSoon = computed(() => {
-    if (!props.task.due_date || props.task.status === 'done' || isOverdue.value) return false;
+    if (!props.task.due_date || isOverdue.value) return false;
     const daysUntilDue = Math.ceil((new Date(props.task.due_date) - new Date()) / (1000 * 60 * 60 * 24));
-    return daysUntilDue <= 2;
+    return daysUntilDue <= 2 && daysUntilDue >= 0;
 });
 
 // Computed: Display max 3 labels, show +N for rest
@@ -154,28 +154,17 @@ const displayLabels = computed(() => {
 });
 
 const hiddenLabelsCount = computed(() => {
-    const total = props.task.labels?.length || 0;
+    const total = props.task.labels?.length || props.task.label_count || 0;
     return Math.max(0, total - 3);
 });
 
-// Computed: Subtask progress
-const completedSubtasks = computed(() => {
-    return (props.task.subtasks || []).filter(s => s.completed).length;
-});
-
-const subtaskProgressPercent = computed(() => {
-    const total = props.task.subtasks?.length || 0;
-    if (total === 0) return 0;
-    return Math.round((completedSubtasks.value / total) * 100);
-});
-
-// T093: Available columns for "Move to..." mobile menu
+// Available columns for "Move to..." mobile menu
 const availableColumns = computed(() => {
-    return [
-        { id: 'todo', title: 'To Do' },
-        { id: 'in_progress', title: 'In Progress' },
-        { id: 'in_review', title: 'In Review' },
-        { id: 'done', title: 'Done' },
+    return props.columns.length > 0 ? props.columns : [
+        { id: 1, title: 'To Do' },
+        { id: 2, title: 'In Progress' },
+        { id: 3, title: 'In Review' },
+        { id: 4, title: 'Done' },
     ];
 });
 
@@ -190,9 +179,9 @@ const toggleMoveToMenu = () => {
     showMoveToMenu.value = !showMoveToMenu.value;
 };
 
-// T093: Move task to column (mobile alternative to drag-drop)
+// Move task to column (mobile alternative to drag-drop)
 const moveTaskToColumn = (columnId) => {
-    if (columnId !== props.task.status) {
+    if (columnId !== props.task.column_id) {
         emit('move-to', columnId);
         showMenu.value = false;
         showMoveToMenu.value = false;
