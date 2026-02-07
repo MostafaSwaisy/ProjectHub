@@ -26,12 +26,12 @@
 
 **Purpose**: Verify existing infrastructure and add missing foundation pieces
 
-- [ ] T001 Verify existing database tables (tasks, subtasks, comments, labels, activities) exist and match data-model.md
-- [ ] T002 [P] Create migration for `edited_at` column on comments table if not present in `database/migrations/2026_02_06_add_edited_at_to_comments_table.php`
-- [ ] T003 [P] Create comments Pinia store skeleton in `resources/js/stores/comments.js`
-- [ ] T004 [P] Create labels Pinia store skeleton in `resources/js/stores/labels.js`
-- [ ] T005 [P] Create useCommentEditing composable skeleton in `resources/js/composables/useCommentEditing.js`
-- [ ] T006 Run migration to add edited_at column with index
+- [x] T001 Verify existing database tables (tasks, subtasks, comments, labels, activities) exist and match data-model.md
+- [x] T002 [P] Create migration for `edited_at` column on comments table if not present in `database/migrations/2026_02_06_add_edited_at_to_comments_table.php`
+- [x] T003 [P] Create comments Pinia store skeleton in `resources/js/stores/comments.js`
+- [x] T004 [P] Create labels Pinia store skeleton in `resources/js/stores/labels.js`
+- [x] T005 [P] Create useCommentEditing composable skeleton in `resources/js/composables/useCommentEditing.js`
+- [x] T006 Run migration to add edited_at column with index
 
 ---
 
