@@ -18,7 +18,11 @@ class ColumnFactory extends Factory
     public function definition(): array
     {
         return [
-            'board_id' => Board::factory(),
+            // Note: Board::factory() would auto-create 5 default columns via Board::boot()
+            // Avoid using Board::factory() here to prevent duplicates.
+            // Instead, provide board_id explicitly when using this factory.
+            // Example: Column::factory(['board_id' => $board->id])->create();
+            'board_id' => null, // Must be provided explicitly
             'title' => fake()->word(),
             'position' => fake()->numberBetween(1, 10),
             'wip_limit' => 0,

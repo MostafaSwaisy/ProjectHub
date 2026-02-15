@@ -119,41 +119,32 @@ class DashboardTestSeeder extends Seeder
                 'title' => $project->title . ' Board',
             ]);
 
-            // Create standard kanban columns
-            $backlog = Column::create([
-                'board_id' => $board->id,
-                'title' => 'Backlog',
-                'position' => 1,
-                'wip_limit' => 0,
-            ]);
+            // Board::boot() should auto-create 5 default columns
+            // Use firstOrCreate to get existing or create if missing
+            $backlog = Column::firstOrCreate(
+                ['board_id' => $board->id, 'title' => 'Backlog'],
+                ['position' => 1, 'wip_limit' => 0]
+            );
 
-            $todo = Column::create([
-                'board_id' => $board->id,
-                'title' => 'To Do',
-                'position' => 2,
-                'wip_limit' => 5,
-            ]);
+            $todo = Column::firstOrCreate(
+                ['board_id' => $board->id, 'title' => 'To Do'],
+                ['position' => 2, 'wip_limit' => 5]
+            );
 
-            $inProgress = Column::create([
-                'board_id' => $board->id,
-                'title' => 'In Progress',
-                'position' => 3,
-                'wip_limit' => 3,
-            ]);
+            $inProgress = Column::firstOrCreate(
+                ['board_id' => $board->id, 'title' => 'In Progress'],
+                ['position' => 3, 'wip_limit' => 3]
+            );
 
-            $review = Column::create([
-                'board_id' => $board->id,
-                'title' => 'Review',
-                'position' => 4,
-                'wip_limit' => 5,
-            ]);
+            $review = Column::firstOrCreate(
+                ['board_id' => $board->id, 'title' => 'Review'],
+                ['position' => 4, 'wip_limit' => 5]
+            );
 
-            $done = Column::create([
-                'board_id' => $board->id,
-                'title' => 'Done',
-                'position' => 5,
-                'wip_limit' => 0,
-            ]);
+            $done = Column::firstOrCreate(
+                ['board_id' => $board->id, 'title' => 'Completed'],
+                ['position' => 5, 'wip_limit' => 0]
+            );
 
             // Create tasks for this board
             $this->createTasks($project, $backlog, $todo, $inProgress, $review, $done, $teamMember1, $teamMember2, $teamMember3);
