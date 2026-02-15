@@ -15,6 +15,8 @@ class TaskDetailResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $user = $request->user();
+
         return [
             'id' => $this->id,
             'column_id' => $this->column_id,
@@ -34,6 +36,8 @@ class TaskDetailResource extends JsonResource
             'comments' => CommentResource::collection($this->whenLoaded('comments')),
             'progress' => $this->progress,
             'is_overdue' => $this->isOverdue(),
+            'can_update' => $user ? $user->can('update', $this->resource) : false,
+            'can_delete' => $user ? $user->can('delete', $this->resource) : false,
             'created_at' => $this->created_at?->toISOString(),
             'updated_at' => $this->updated_at?->toISOString(),
         ];

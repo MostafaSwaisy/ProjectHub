@@ -29,7 +29,14 @@
       "Bash(npm run dev:*)",
       "Bash(curl:*)",
       "mcp__plugin_laravel-boost_laravel-boost__tinker",
-      "Bash(python -m json.tool:*)"
+      "Bash(python -m json.tool:*)",
+      "Bash(if [ -d \"D:\\\\GGProject\\\\ProjectHub\\\\specs\\\\003-projects-management\\\\checklists\" ])",
+      "Bash(then ls -la \"D:\\\\GGProject\\\\ProjectHub\\\\specs\\\\003-projects-management\\\\checklists\")",
+      "Bash(else echo \"No checklists directory\")",
+      "Bash(fi)",
+      "Bash(if [ -d \"d:/GGProject/ProjectHub/specs/003-projects-management/checklists\" ])",
+      "Bash(then echo \"EXISTS\")",
+      "Bash(else echo \"NOT_FOUND\")"
     ]
   }
 }
