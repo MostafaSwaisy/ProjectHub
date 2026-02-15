@@ -68,14 +68,14 @@ export const useTaskFiltering = (tasksRef) => {
     };
 
     /**
-     * Filter tasks by status (column)
+     * Filter tasks by column ID
      */
     const getTasksByStatus = computed(() => {
-        return (status) => {
+        return (columnId) => {
             if (!tasksRef || !tasksRef.value) return [];
 
             return tasksRef.value
-                .filter(task => task.status === status)
+                .filter(task => task.column_id === columnId)
                 .filter(matchesAllFilters)
                 .sort((a, b) => sortTasks(a, b));
         };

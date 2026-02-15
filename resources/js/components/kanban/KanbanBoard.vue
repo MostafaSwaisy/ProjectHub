@@ -56,7 +56,7 @@
         <TaskModal
             v-if="kanbanStore.isTaskModalOpen"
             :task="editingTask"
-            :project-id="projectId"
+            :columns="kanbanStore.columns"
             @save="onTaskSaved"
             @close="kanbanStore.closeTaskModal"
         />
@@ -128,6 +128,13 @@ const selectedTask = computed(() => {
 
 // Lifecycle
 onMounted(async () => {
+    // Fetch board with columns first
+    try {
+        await kanbanStore.fetchBoard(props.projectId);
+    } catch (error) {
+        console.error('Failed to fetch board:', error);
+    }
+
     // Fetch tasks for the project
     try {
         await tasksStore.fetchTasks(props.projectId);
