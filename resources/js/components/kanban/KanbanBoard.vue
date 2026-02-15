@@ -239,11 +239,13 @@ const onTaskDropped = async (event) => {
     const { toColumn, taskId } = event;
 
     try {
-        // Update task status
-        await tasksStore.changeTaskStatus(props.projectId, taskId, toColumn);
+        // Calculate position (append to end of target column)
+        const tasksInColumn = tasksStore.tasks.filter(t => t.column_id === toColumn);
+        const position = tasksInColumn.length;
+
+        await tasksStore.moveTask(taskId, toColumn, position);
     } catch (error) {
         console.error('Failed to move task:', error);
-        // Error handling is done in the store
     }
 };
 
@@ -252,8 +254,11 @@ const onMoveToTask = async (event) => {
     const { taskId, toColumn } = event;
 
     try {
-        // Update task status (same as drag-drop, but initiated by mobile menu)
-        await tasksStore.changeTaskStatus(props.projectId, taskId, toColumn);
+        // Calculate position (append to end of target column)
+        const tasksInColumn = tasksStore.tasks.filter(t => t.column_id === toColumn);
+        const position = tasksInColumn.length;
+
+        await tasksStore.moveTask(taskId, toColumn, position);
     } catch (error) {
         console.error('Failed to move task:', error);
     }

@@ -229,7 +229,7 @@ export const useTasksStore = defineStore('tasks', () => {
         };
 
         try {
-            const response = await axios.patch(`/api/tasks/${taskId}/move`, {
+            const response = await axios.post(`/api/tasks/${taskId}/move`, {
                 column_id: columnId,
                 position: position,
             });
