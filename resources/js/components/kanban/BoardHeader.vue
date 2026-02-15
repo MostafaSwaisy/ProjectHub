@@ -59,7 +59,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useKanbanStore } from '../../stores/kanban';
 import LabelManager from './LabelManager.vue';
 import FilterBar from './FilterBar.vue';
@@ -79,6 +79,13 @@ const emit = defineEmits(['add-task', 'filters-changed']);
 
 const kanbanStore = useKanbanStore();
 const showLabelManager = ref(false);
+
+// Expose kanbanStore computed for template
+const hasActiveFilters = computed(() => kanbanStore.hasActiveFilters);
+
+const clearFilters = () => {
+    kanbanStore.clearAllFilters();
+};
 
 // Methods
 const onFiltersChanged = (filters) => {

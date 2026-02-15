@@ -60,13 +60,34 @@
 <script setup>
 import { computed } from 'vue';
 import { useTasksStore } from '../../stores/tasks';
+import { useKanbanStore } from '../../stores/kanban';
 
 const tasksStore = useTasksStore();
+const kanbanStore = useKanbanStore();
 
-// Computed stats from store
-const totalTasks = computed(() => tasksStore.taskCount);
-const inProgressTasks = computed(() => tasksStore.inProgressCount);
-const completedTasks = computed(() => tasksStore.completedCount);
+// Helper: find column ID by title (case-insensitive partial match)
+const findColumnId = (keyword) => {
+    const col = kanbanStore.columns.find(c =>
+        c.title.toLowerCase().includes(keyword.toLowerCase())
+    );
+    return col ? col.id : null;
+};
+
+// Computed stats based on column placement
+const totalTasks = computed(() => tasksStore.tasks.length);
+
+const inProgressTasks = computed(() => {
+    const colId = findColumnId('progress');
+    if (!colId) return 0;
+    return tasksStore.tasks.filter(t => t.column_id === colId).length;
+});
+
+const completedTasks = computed(() => {
+    const colId = findColumnId('completed') || findColumnId('done');
+    if (!colId) return 0;
+    return tasksStore.tasks.filter(t => t.column_id === colId).length;
+});
+
 const overdueCount = computed(() => tasksStore.overdueCount);
 </script>
 
