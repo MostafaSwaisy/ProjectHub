@@ -138,4 +138,15 @@ class Task extends Model
     {
         return $this->labels()->count();
     }
+
+    /**
+     * Check if the task is overdue.
+     * Method version for explicit calls (in addition to is_overdue accessor).
+     *
+     * @return bool
+     */
+    public function isOverdue(): bool
+    {
+        return $this->is_overdue;
+    }
 }

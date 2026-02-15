@@ -42,8 +42,8 @@ class LabelPolicy
      */
     private function isProjectOwner(User $user, Project $project): bool
     {
-        // Check if user is the project creator
-        if ($project->user_id === $user->id) {
+        // Check if user is the project instructor
+        if ($project->instructor_id === $user->id) {
             return true;
         }
 

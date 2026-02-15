@@ -102,8 +102,8 @@ class TaskController extends Controller
         $validated = $request->validated();
         $columnId = $validated['column_id'];
 
-        // Get the column and authorize
-        $column = Column::findOrFail($columnId);
+        // Get the column with relationships for authorization
+        $column = Column::with('board.project')->findOrFail($columnId);
         $this->authorize('create', $column);
 
         // Get the next position
@@ -136,6 +136,9 @@ class TaskController extends Controller
      */
     public function show(Task $task)
     {
+        // Load relationships for authorization
+        $task->load('column.board.project');
+
         $this->authorize('view', $task);
 
         $task->load(['assignee', 'labels', 'subtasks', 'comments.user']);
@@ -153,6 +156,9 @@ class TaskController extends Controller
      */
     public function update(Task $task, UpdateTaskRequest $request)
     {
+        // Load relationships for authorization
+        $task->load('column.board.project');
+
         $this->authorize('update', $task);
 
         $validated = $request->validated();
@@ -194,6 +200,9 @@ class TaskController extends Controller
      */
     public function destroy(Task $task)
     {
+        // Load relationships for authorization
+        $task->load('column.board.project');
+
         $this->authorize('delete', $task);
 
         // Log activity before deletion
@@ -221,6 +230,9 @@ class TaskController extends Controller
      */
     public function move(Task $task, MoveTaskRequest $request)
     {
+        // Load relationships for authorization
+        $task->load('column.board.project');
+
         $this->authorize('update', $task);
 
         $validated = $request->validated();
