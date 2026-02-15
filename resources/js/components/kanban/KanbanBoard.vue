@@ -259,8 +259,20 @@ const onMoveToTask = async (event) => {
     }
 };
 
-const onFiltersChanged = () => {
-    // Filters are automatically applied by the useTaskFiltering composable
+const onFiltersChanged = (filters) => {
+    // Update kanban store with filters from FilterBar
+    if (filters.search !== undefined) {
+        kanbanStore.setSearchQuery(filters.search);
+    }
+    if (filters.label_ids) {
+        kanbanStore.selectedLabels = filters.label_ids;
+    }
+    if (filters.priorities) {
+        kanbanStore.selectedPriorities = filters.priorities;
+    }
+    if (filters.assignee_id !== undefined) {
+        kanbanStore.selectedAssignees = filters.assignee_id !== null ? [filters.assignee_id] : [];
+    }
 };
 </script>
 

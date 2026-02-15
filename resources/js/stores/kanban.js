@@ -164,7 +164,11 @@ export const useKanbanStore = defineStore('kanban', () => {
 
             if (board && board.columns) {
                 boardId.value = board.id;
-                columns.value = board.columns.sort((a, b) => a.position - b.position);
+                // Remove duplicates by id and sort by position
+                const uniqueColumns = Array.from(
+                    new Map(board.columns.map(col => [col.id, col])).values()
+                );
+                columns.value = uniqueColumns.sort((a, b) => a.position - b.position);
             }
 
             return board;
