@@ -14,8 +14,6 @@
 - Q: What happens to tasks when a project is archived? → A: Tasks remain unchanged but are hidden from dashboard statistics
 - Q: Should there be a confirmation dialog for delete? → A: Yes, with option to type project name for critical projects
 - Q: Can project members be promoted to instructor? → A: Not in this phase - transfer ownership is out of scope
-- Q: How should concurrent edit conflicts be detected and handled? → A: Optimistic locking with `updated_at` timestamp comparison
-- Q: What should the default role be when adding a new team member? → A: Viewer (read-only by default, least privilege)
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -76,7 +74,7 @@ As a project manager, I want to edit my project's details, so that I can keep pr
 4. **Given** I am a project member (not instructor), **When** I try to edit the project, **Then** I can edit title, description, and status but cannot delete or transfer ownership
 5. **Given** I update the timeline status to "At Risk", **When** I save, **Then** the project card shows an orange "At Risk" badge
 6. **Given** I clear the title field, **When** I try to save, **Then** I see a validation error and the save is prevented
-7. **Given** another user has updated the project (detected via `updated_at` timestamp mismatch), **When** I try to save my changes, **Then** I see a conflict warning with option to overwrite (force save) or refresh (reload latest data and discard my changes)
+7. **Given** another user has updated the project, **When** I try to save my changes, **Then** I see a conflict warning with option to overwrite or refresh
 
 ---
 
@@ -174,7 +172,7 @@ As a project instructor, I want to add and remove team members from my project, 
 
 1. **Given** I am on the project edit modal, **When** I click "Manage Team", **Then** I see a section showing current team members with their roles
 2. **Given** I am in the team management section, **When** I click "Add Member", **Then** I see a search input to find users by name or email
-3. **Given** I search for a user, **When** I click on their name in results, **Then** they are added to the project as a "Viewer" role (read-only by default)
+3. **Given** I search for a user, **When** I click on their name in results, **Then** they are added to the project as a "member" role
 4. **Given** I view a team member, **When** I see their entry, **Then** I see their avatar, name, email, and role (Instructor/Editor/Viewer)
 5. **Given** I am the project instructor, **When** I click the remove button next to a member, **Then** they are removed from the project after confirmation
 6. **Given** I am a project member, **When** I try to add/remove members, **Then** I see an error "Only the project owner can manage team members"
