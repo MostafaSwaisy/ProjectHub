@@ -95,20 +95,20 @@
 
 ### Implementation for User Story 1
 
-- [ ] T031 [US1] Enhance TaskController@store with activity logging in `app/Http/Controllers/TaskController.php`
-- [ ] T032 [US1] Enhance TaskController@update with activity logging in `app/Http/Controllers/TaskController.php`
-- [ ] T033 [US1] Enhance TaskController@destroy with cascade delete and activity logging in `app/Http/Controllers/TaskController.php`
-- [ ] T034 [US1] Update TaskResource with subtask_count, comment_count, progress, is_overdue in `app/Http/Resources/TaskResource.php`
-- [ ] T035 [P] [US1] Create TaskDetailResource for full task view with relationships in `app/Http/Resources/TaskDetailResource.php`
-- [ ] T036 [US1] Implement fetchTask action with full details in tasks store `resources/js/stores/tasks.js`
-- [ ] T037 [US1] Implement createTask action with optimistic update in tasks store `resources/js/stores/tasks.js`
-- [ ] T038 [US1] Implement updateTask action with optimistic update in tasks store `resources/js/stores/tasks.js`
-- [ ] T039 [US1] Implement deleteTask action with optimistic removal in tasks store `resources/js/stores/tasks.js`
-- [ ] T040 [US1] Enhance TaskModal.vue with all form fields (title, description, priority, due_date, assignee) in `resources/js/components/kanban/TaskModal.vue`
-- [ ] T041 [US1] Enhance TaskDetailModal.vue with full task view and edit mode in `resources/js/components/kanban/TaskDetailModal.vue`
-- [ ] T042 [US1] Add delete confirmation dialog to TaskDetailModal.vue
-- [ ] T043 [US1] Wire TaskCard click to open TaskDetailModal in `resources/js/components/kanban/TaskCard.vue`
-- [ ] T044 [US1] Add permission checks for edit/delete buttons based on TaskPolicy
+- [x] T031 [US1] Enhance TaskController@store with activity logging in `app/Http/Controllers/TaskController.php`
+- [x] T032 [US1] Enhance TaskController@update with activity logging in `app/Http/Controllers/TaskController.php`
+- [x] T033 [US1] Enhance TaskController@destroy with cascade delete and activity logging in `app/Http/Controllers/TaskController.php`
+- [x] T034 [US1] Update TaskResource with subtask_count, comment_count, progress, is_overdue in `app/Http/Resources/TaskResource.php`
+- [x] T035 [P] [US1] Create TaskDetailResource for full task view with relationships in `app/Http/Resources/TaskDetailResource.php`
+- [x] T036 [US1] Implement fetchTask action with full details in tasks store `resources/js/stores/tasks.js`
+- [x] T037 [US1] Implement createTask action with optimistic update in tasks store `resources/js/stores/tasks.js`
+- [x] T038 [US1] Implement updateTask action with optimistic update in tasks store `resources/js/stores/tasks.js`
+- [x] T039 [US1] Implement deleteTask action with optimistic removal in tasks store `resources/js/stores/tasks.js`
+- [x] T040 [US1] Enhance TaskModal.vue with all form fields (title, description, priority, due_date, assignee) in `resources/js/components/kanban/TaskModal.vue`
+- [x] T041 [US1] Enhance TaskDetailModal.vue with full task view and edit mode in `resources/js/components/kanban/TaskDetailModal.vue`
+- [x] T042 [US1] Add delete confirmation dialog to TaskDetailModal.vue
+- [x] T043 [US1] Wire TaskCard click to open TaskDetailModal in `resources/js/components/kanban/TaskCard.vue`
+- [x] T044 [US1] Add permission checks for edit/delete buttons based on TaskPolicy
 
 **Checkpoint**: User Story 1 complete - task CRUD fully functional
 
@@ -122,15 +122,15 @@
 
 ### Implementation for User Story 2
 
-- [ ] T045 [US2] Enhance TaskController@move with WIP limit validation and activity logging in `app/Http/Controllers/TaskController.php`
-- [ ] T046 [US2] Implement moveTask action with optimistic update and rollback in tasks store `resources/js/stores/tasks.js`
-- [ ] T047 [US2] Enhance useDragDrop composable with WIP limit check in `resources/js/composables/useDragDrop.js`
-- [ ] T048 [US2] Add visual WIP limit indicator to KanbanColumn.vue in `resources/js/components/kanban/KanbanColumn.vue`
-- [ ] T049 [US2] Show warning toast when WIP limit exceeded during drag
-- [ ] T050 [US2] Implement reorderTasks action for within-column reordering in tasks store `resources/js/stores/tasks.js`
-- [ ] T051 [US2] Add "Move to..." menu option on TaskCard.vue for mobile support in `resources/js/components/kanban/TaskCard.vue`
-- [ ] T052 [US2] Implement column selection submenu in TaskCard actions menu
-- [ ] T053 [US2] Add drag handle styling and visual feedback during drag
+- [x] T045 [US2] Enhance TaskController@move with WIP limit validation and activity logging in `app/Http/Controllers/TaskController.php`
+- [x] T046 [US2] Implement moveTask action with optimistic update and rollback in tasks store `resources/js/stores/tasks.js`
+- [x] T047 [US2] Enhance useDragDrop composable with WIP limit check in `resources/js/composables/useDragDrop.js`
+- [x] T048 [US2] Add visual WIP limit indicator to KanbanColumn.vue in `resources/js/components/kanban/KanbanColumn.vue`
+- [x] T049 [US2] Show warning toast when WIP limit exceeded during drag
+- [x] T050 [US2] Implement reorderTasks action for within-column reordering in tasks store `resources/js/stores/tasks.js`
+- [x] T051 [US2] Add "Move to..." menu option on TaskCard.vue for mobile support in `resources/js/components/kanban/TaskCard.vue`
+- [x] T052 [US2] Implement column selection submenu in TaskCard actions menu
+- [x] T053 [US2] Add drag handle styling and visual feedback during drag
 
 **Checkpoint**: User Story 2 complete - drag-and-drop fully functional
 
@@ -144,18 +144,18 @@
 
 ### Implementation for User Story 3
 
-- [ ] T054 [US3] Implement SubtaskController@index to list subtasks for a task in `app/Http/Controllers/SubtaskController.php`
-- [ ] T055 [US3] Implement SubtaskController@store to create subtask with activity logging in `app/Http/Controllers/SubtaskController.php`
-- [ ] T056 [US3] Implement SubtaskController@update to toggle completion and edit title in `app/Http/Controllers/SubtaskController.php`
-- [ ] T057 [US3] Implement SubtaskController@destroy to delete subtask in `app/Http/Controllers/SubtaskController.php`
-- [ ] T058 [US3] Implement SubtaskController@reorder for drag-to-reorder in `app/Http/Controllers/SubtaskController.php`
-- [ ] T059 [P] [US3] Create SubtaskList.vue component with checkbox list in `resources/js/components/kanban/SubtaskList.vue`
-- [ ] T060 [US3] Add subtask input field with Enter key submission in SubtaskList.vue
-- [ ] T061 [US3] Implement subtask drag-to-reorder with drag handles in SubtaskList.vue
-- [ ] T062 [US3] Add delete button on subtask hover in SubtaskList.vue
-- [ ] T063 [US3] Implement optimistic toggle for subtask completion in SubtaskList.vue
-- [ ] T064 [US3] Integrate SubtaskList into TaskDetailModal.vue
-- [ ] T065 [US3] Add subtask progress indicator (2/5) and progress bar to TaskCard.vue in `resources/js/components/kanban/TaskCard.vue`
+- [x] T054 [US3] Implement SubtaskController@index to list subtasks for a task in `app/Http/Controllers/SubtaskController.php`
+- [x] T055 [US3] Implement SubtaskController@store to create subtask with activity logging in `app/Http/Controllers/SubtaskController.php`
+- [x] T056 [US3] Implement SubtaskController@update to toggle completion and edit title in `app/Http/Controllers/SubtaskController.php`
+- [x] T057 [US3] Implement SubtaskController@destroy to delete subtask in `app/Http/Controllers/SubtaskController.php`
+- [x] T058 [US3] Implement SubtaskController@reorder for drag-to-reorder in `app/Http/Controllers/SubtaskController.php`
+- [x] T059 [P] [US3] Create SubtaskList.vue component with checkbox list in `resources/js/components/kanban/SubtaskList.vue`
+- [x] T060 [US3] Add subtask input field with Enter key submission in SubtaskList.vue
+- [x] T061 [US3] Implement subtask drag-to-reorder with drag handles in SubtaskList.vue
+- [x] T062 [US3] Add delete button on subtask hover in SubtaskList.vue
+- [x] T063 [US3] Implement optimistic toggle for subtask completion in SubtaskList.vue
+- [x] T064 [US3] Integrate SubtaskList into TaskDetailModal.vue
+- [x] T065 [US3] Add subtask progress indicator (2/5) and progress bar to TaskCard.vue in `resources/js/components/kanban/TaskCard.vue`
 
 **Checkpoint**: User Story 3 complete - subtask management fully functional
 
@@ -169,23 +169,23 @@
 
 ### Implementation for User Story 4
 
-- [ ] T066 [US4] Implement CommentController@index with pagination in `app/Http/Controllers/CommentController.php`
-- [ ] T067 [US4] Implement CommentController@store with activity logging in `app/Http/Controllers/CommentController.php`
-- [ ] T068 [US4] Implement CommentController@update with 15-min window enforcement in `app/Http/Controllers/CommentController.php`
-- [ ] T069 [US4] Implement CommentController@destroy in `app/Http/Controllers/CommentController.php`
-- [ ] T070 [US4] Implement fetchComments action in comments store `resources/js/stores/comments.js`
-- [ ] T071 [US4] Implement addComment action with optimistic update in comments store `resources/js/stores/comments.js`
-- [ ] T072 [US4] Implement updateComment action in comments store `resources/js/stores/comments.js`
-- [ ] T073 [US4] Implement deleteComment action in comments store `resources/js/stores/comments.js`
-- [ ] T074 [US4] Implement isEditable and timeUntilLocked in useCommentEditing composable `resources/js/composables/useCommentEditing.js`
-- [ ] T075 [P] [US4] Create CommentSection.vue component with comment list in `resources/js/components/kanban/CommentSection.vue`
-- [ ] T076 [US4] Add comment input textarea with submit button in CommentSection.vue
-- [ ] T077 [US4] Show relative timestamps (5 min ago, 2 hours ago) on comments
-- [ ] T078 [US4] Add edit/delete buttons that hide after 15-minute window
-- [ ] T079 [US4] Show "Edited" indicator when comment has been modified
-- [ ] T080 [US4] Implement inline comment editing mode in CommentSection.vue
-- [ ] T081 [US4] Integrate CommentSection into TaskDetailModal.vue
-- [ ] T082 [US4] Add comment count badge to TaskCard.vue
+- [x] T066 [US4] Implement CommentController@index with pagination in `app/Http/Controllers/CommentController.php`
+- [x] T067 [US4] Implement CommentController@store with activity logging in `app/Http/Controllers/CommentController.php`
+- [x] T068 [US4] Implement CommentController@update with 15-min window enforcement in `app/Http/Controllers/CommentController.php`
+- [x] T069 [US4] Implement CommentController@destroy in `app/Http/Controllers/CommentController.php`
+- [x] T070 [US4] Implement fetchComments action in comments store `resources/js/stores/comments.js`
+- [x] T071 [US4] Implement addComment action with optimistic update in comments store `resources/js/stores/comments.js`
+- [x] T072 [US4] Implement updateComment action in comments store `resources/js/stores/comments.js`
+- [x] T073 [US4] Implement deleteComment action in comments store `resources/js/stores/comments.js`
+- [x] T074 [US4] Implement isEditable and timeUntilLocked in useCommentEditing composable `resources/js/composables/useCommentEditing.js`
+- [x] T075 [P] [US4] Create CommentSection.vue component with comment list in `resources/js/components/kanban/CommentSection.vue`
+- [x] T076 [US4] Add comment input textarea with submit button in CommentSection.vue
+- [x] T077 [US4] Show relative timestamps (5 min ago, 2 hours ago) on comments
+- [x] T078 [US4] Add edit/delete buttons that hide after 15-minute window
+- [x] T079 [US4] Show "Edited" indicator when comment has been modified
+- [x] T080 [US4] Implement inline comment editing mode in CommentSection.vue
+- [x] T081 [US4] Integrate CommentSection into TaskDetailModal.vue
+- [x] T082 [US4] Add comment count badge to TaskCard.vue
 
 **Checkpoint**: User Story 4 complete - comments fully functional
 
@@ -199,22 +199,22 @@
 
 ### Implementation for User Story 5
 
-- [ ] T083 [US5] Implement LabelController@index to list project labels in `app/Http/Controllers/LabelController.php`
-- [ ] T084 [US5] Implement LabelController@store to create label in `app/Http/Controllers/LabelController.php`
-- [ ] T085 [US5] Implement LabelController@update to edit label in `app/Http/Controllers/LabelController.php`
-- [ ] T086 [US5] Implement LabelController@destroy to delete label (cascade from tasks) in `app/Http/Controllers/LabelController.php`
-- [ ] T087 [US5] Implement TaskController@syncLabels to assign labels to task in `app/Http/Controllers/TaskController.php`
-- [ ] T088 [US5] Implement fetchLabels action in labels store `resources/js/stores/labels.js`
-- [ ] T089 [US5] Implement createLabel action in labels store `resources/js/stores/labels.js`
-- [ ] T090 [US5] Implement updateLabel action in labels store `resources/js/stores/labels.js`
-- [ ] T091 [US5] Implement deleteLabel action in labels store `resources/js/stores/labels.js`
-- [ ] T092 [P] [US5] Create LabelManager.vue with preset color palette (12 colors) in `resources/js/components/kanban/LabelManager.vue`
-- [ ] T093 [US5] Add create label form with name input and color swatches in LabelManager.vue
-- [ ] T094 [US5] Add edit and delete actions for existing labels in LabelManager.vue
-- [ ] T095 [P] [US5] Create LabelSelector.vue for assigning labels to tasks in `resources/js/components/kanban/LabelSelector.vue`
-- [ ] T096 [US5] Integrate LabelSelector into TaskDetailModal.vue
-- [ ] T097 [US5] Display up to 3 labels on TaskCard.vue with "+N" overflow indicator in `resources/js/components/kanban/TaskCard.vue`
-- [ ] T098 [US5] Add label management section to project settings or board header
+- [x] T083 [US5] Implement LabelController@index to list project labels in `app/Http/Controllers/LabelController.php`
+- [x] T084 [US5] Implement LabelController@store to create label in `app/Http/Controllers/LabelController.php`
+- [x] T085 [US5] Implement LabelController@update to edit label in `app/Http/Controllers/LabelController.php`
+- [x] T086 [US5] Implement LabelController@destroy to delete label (cascade from tasks) in `app/Http/Controllers/LabelController.php`
+- [x] T087 [US5] Implement TaskController@syncLabels to assign labels to task in `app/Http/Controllers/TaskController.php`
+- [x] T088 [US5] Implement fetchLabels action in labels store `resources/js/stores/labels.js`
+- [x] T089 [US5] Implement createLabel action in labels store `resources/js/stores/labels.js`
+- [x] T090 [US5] Implement updateLabel action in labels store `resources/js/stores/labels.js`
+- [x] T091 [US5] Implement deleteLabel action in labels store `resources/js/stores/labels.js`
+- [x] T092 [P] [US5] Create LabelManager.vue with preset color palette (12 colors) in `resources/js/components/kanban/LabelManager.vue`
+- [x] T093 [US5] Add create label form with name input and color swatches in LabelManager.vue
+- [x] T094 [US5] Add edit and delete actions for existing labels in LabelManager.vue
+- [x] T095 [P] [US5] Create LabelSelector.vue for assigning labels to tasks in `resources/js/components/kanban/LabelSelector.vue`
+- [x] T096 [US5] Integrate LabelSelector into TaskDetailModal.vue
+- [x] T097 [US5] Display up to 3 labels on TaskCard.vue with "+N" overflow indicator in `resources/js/components/kanban/TaskCard.vue`
+- [x] T098 [US5] Add label management section to project settings or board header
 
 **Checkpoint**: User Story 5 complete - labels fully functional
 
@@ -228,23 +228,23 @@
 
 ### Implementation for User Story 6
 
-- [ ] T099 [US6] Enhance TaskController@index with search and filter parameters in `app/Http/Controllers/TaskController.php`
-- [ ] T100 [US6] Add filter by labels (comma-separated IDs) to TaskController@index
-- [ ] T101 [US6] Add filter by assignee to TaskController@index
-- [ ] T102 [US6] Add filter by priority to TaskController@index
-- [ ] T103 [US6] Add filter by due date range (overdue, today, this_week) to TaskController@index
-- [ ] T104 [P] [US6] Create FilterBar.vue component in `resources/js/components/kanban/FilterBar.vue`
-- [ ] T105 [US6] Add search input with 300ms debounce in FilterBar.vue
-- [ ] T106 [US6] Add label filter multiselect dropdown in FilterBar.vue
-- [ ] T107 [US6] Add assignee filter dropdown in FilterBar.vue
-- [ ] T108 [US6] Add priority filter checkboxes in FilterBar.vue
-- [ ] T109 [US6] Add due date filter (overdue, due today, due this week) in FilterBar.vue
-- [ ] T110 [US6] Add "Clear All Filters" button with active filter count badge
-- [ ] T111 [US6] Implement URL query param sync for filters (useRoute, router.push)
-- [ ] T112 [US6] Implement filter state restoration from URL on component mount
-- [ ] T113 [US6] Enhance useTaskFiltering composable with URL sync in `resources/js/composables/useTaskFiltering.js`
-- [ ] T114 [US6] Integrate FilterBar into BoardHeader.vue in `resources/js/components/kanban/BoardHeader.vue`
-- [ ] T115 [US6] Show "No tasks found" empty state when filters return no results
+- [x] T099 [US6] Enhance TaskController@index with search and filter parameters in `app/Http/Controllers/TaskController.php`
+- [x] T100 [US6] Add filter by labels (comma-separated IDs) to TaskController@index
+- [x] T101 [US6] Add filter by assignee to TaskController@index
+- [x] T102 [US6] Add filter by priority to TaskController@index
+- [x] T103 [US6] Add filter by due date range (overdue, today, this_week) to TaskController@index
+- [x] T104 [P] [US6] Create FilterBar.vue component in `resources/js/components/kanban/FilterBar.vue`
+- [x] T105 [US6] Add search input with 300ms debounce in FilterBar.vue
+- [x] T106 [US6] Add label filter multiselect dropdown in FilterBar.vue
+- [x] T107 [US6] Add assignee filter dropdown in FilterBar.vue
+- [x] T108 [US6] Add priority filter checkboxes in FilterBar.vue
+- [x] T109 [US6] Add due date filter (overdue, due today, due this week) in FilterBar.vue
+- [x] T110 [US6] Add "Clear All Filters" button with active filter count badge
+- [x] T111 [US6] Implement URL query param sync for filters (useRoute, router.push)
+- [x] T112 [US6] Implement filter state restoration from URL on component mount
+- [x] T113 [US6] Enhance useTaskFiltering composable with URL sync in `resources/js/composables/useTaskFiltering.js`
+- [x] T114 [US6] Integrate FilterBar into BoardHeader.vue in `resources/js/components/kanban/BoardHeader.vue`
+- [x] T115 [US6] Show "No tasks found" empty state when filters return no results
 
 **Checkpoint**: User Story 6 complete - filtering and search fully functional
 
@@ -258,16 +258,16 @@
 
 ### Implementation for User Story 7
 
-- [ ] T116 [US7] Enhance TaskResource to include assignee with avatar_url in `app/Http/Resources/TaskResource.php`
-- [ ] T117 [US7] Add project members endpoint for assignee dropdown (use existing ProjectController@members or create)
-- [ ] T118 [P] [US7] Create AssigneeSelector.vue dropdown component in `resources/js/components/kanban/AssigneeSelector.vue`
-- [ ] T119 [US7] Show project members in AssigneeSelector dropdown
-- [ ] T120 [US7] Add "Unassigned" option to AssigneeSelector
-- [ ] T121 [US7] Integrate AssigneeSelector into TaskModal.vue
-- [ ] T122 [US7] Integrate AssigneeSelector into TaskDetailModal.vue
-- [ ] T123 [US7] Display assignee avatar on TaskCard.vue in `resources/js/components/kanban/TaskCard.vue`
-- [ ] T124 [US7] Add "Assigned to me" quick filter option in FilterBar.vue
-- [ ] T125 [US7] Implement assignTask action in tasks store `resources/js/stores/tasks.js`
+- [x] T116 [US7] Enhance TaskResource to include assignee with avatar_url in `app/Http/Resources/TaskResource.php`
+- [x] T117 [US7] Add project members endpoint for assignee dropdown (use existing ProjectController@members or create)
+- [x] T118 [P] [US7] Create AssigneeSelector.vue dropdown component in `resources/js/components/kanban/AssigneeSelector.vue`
+- [x] T119 [US7] Show project members in AssigneeSelector dropdown
+- [x] T120 [US7] Add "Unassigned" option to AssigneeSelector
+- [x] T121 [US7] Integrate AssigneeSelector into TaskModal.vue
+- [x] T122 [US7] Integrate AssigneeSelector into TaskDetailModal.vue
+- [x] T123 [US7] Display assignee avatar on TaskCard.vue in `resources/js/components/kanban/TaskCard.vue`
+- [x] T124 [US7] Add "Assigned to me" quick filter option in FilterBar.vue
+- [x] T125 [US7] Implement assignTask action in tasks store `resources/js/stores/tasks.js`
 
 **Checkpoint**: User Story 7 complete - task assignment fully functional
 
@@ -281,14 +281,14 @@
 
 ### Implementation for User Story 8
 
-- [ ] T126 [US8] Enhance TaskResource with formatted due date and urgency level in `app/Http/Resources/TaskResource.php`
-- [ ] T127 [P] [US8] Create DatePicker.vue component in `resources/js/components/common/DatePicker.vue`
-- [ ] T128 [US8] Integrate DatePicker into TaskModal.vue for due_date field
-- [ ] T129 [US8] Integrate DatePicker into TaskDetailModal.vue
-- [ ] T130 [US8] Display relative due date on TaskCard.vue (Today, Tomorrow, in 5 days, Overdue)
-- [ ] T131 [US8] Style due date badge: red for overdue, orange for due soon (<=3 days), gray for future
-- [ ] T132 [US8] Add due date sorting option to board (sort by due date ascending)
-- [ ] T133 [US8] Log due date changes in activity trail
+- [x] T126 [US8] Enhance TaskResource with formatted due date and urgency level in `app/Http/Resources/TaskResource.php`
+- [x] T127 [P] [US8] Create DatePicker.vue component in `resources/js/components/common/DatePicker.vue`
+- [x] T128 [US8] Integrate DatePicker into TaskModal.vue for due_date field
+- [x] T129 [US8] Integrate DatePicker into TaskDetailModal.vue
+- [x] T130 [US8] Display relative due date on TaskCard.vue (Today, Tomorrow, in 5 days, Overdue)
+- [x] T131 [US8] Style due date badge: red for overdue, orange for due soon (<=3 days), gray for future
+- [x] T132 [US8] Add due date sorting option to board (sort by due date ascending)
+- [x] T133 [US8] Log due date changes in activity trail
 
 **Checkpoint**: User Story 8 complete - due date management fully functional
 
@@ -302,16 +302,16 @@
 
 ### Implementation for User Story 9
 
-- [ ] T134 [US9] Implement ActivityController@index to list task activities in `app/Http/Controllers/ActivityController.php`
-- [ ] T135 [US9] Implement ActivityController@projectActivities for project-wide activities in `app/Http/Controllers/ActivityController.php`
-- [ ] T136 [US9] Create ActivityObserver to log all task-related events in `app/Observers/ActivityObserver.php`
-- [ ] T137 [US9] Register ActivityObserver for Task, Subtask, Comment models in `app/Providers/AppServiceProvider.php`
-- [ ] T138 [P] [US9] Create ActivityFeed.vue component in `resources/js/components/kanban/ActivityFeed.vue`
-- [ ] T139 [US9] Display activity type with appropriate icon (created, moved, assigned, commented)
-- [ ] T140 [US9] Show user avatar and relative timestamp for each activity
-- [ ] T141 [US9] Add "Load more" pagination for activities
-- [ ] T142 [US9] Integrate ActivityFeed into TaskDetailModal.vue (separate tab or section)
-- [ ] T143 [US9] Format activity messages (e.g., "John moved task to In Progress - 5 min ago")
+- [x] T134 [US9] Implement ActivityController@index to list task activities in `app/Http/Controllers/ActivityController.php`
+- [x] T135 [US9] Implement ActivityController@projectActivities for project-wide activities in `app/Http/Controllers/ActivityController.php`
+- [x] T136 [US9] Create ActivityObserver to log all task-related events in `app/Observers/ActivityObserver.php`
+- [x] T137 [US9] Register ActivityObserver for Task, Subtask, Comment models in `app/Providers/AppServiceProvider.php`
+- [x] T138 [P] [US9] Create ActivityFeed.vue component in `resources/js/components/kanban/ActivityFeed.vue`
+- [x] T139 [US9] Display activity type with appropriate icon (created, moved, assigned, commented)
+- [x] T140 [US9] Show user avatar and relative timestamp for each activity
+- [x] T141 [US9] Add "Load more" pagination for activities
+- [x] T142 [US9] Integrate ActivityFeed into TaskDetailModal.vue (separate tab or section)
+- [x] T143 [US9] Format activity messages (e.g., "John moved task to In Progress - 5 min ago")
 
 **Checkpoint**: User Story 9 complete - activity trail fully functional
 
@@ -325,14 +325,14 @@
 
 ### Implementation for User Story 10
 
-- [ ] T144 [US10] Create BoardController@stats endpoint for board statistics in `app/Http/Controllers/BoardController.php`
-- [ ] T145 [US10] Calculate task counts per column, overdue count, completion percentage
-- [ ] T146 [P] [US10] Create BoardStats.vue component in `resources/js/components/kanban/BoardStats.vue`
-- [ ] T147 [US10] Display total tasks, in progress, completed counts in BoardStats.vue
-- [ ] T148 [US10] Highlight overdue count in red when > 0
-- [ ] T149 [US10] Show completion percentage with progress bar
-- [ ] T150 [US10] Integrate BoardStats into BoardHeader.vue
-- [ ] T151 [US10] Add refresh button to update stats
+- [x] T144 [US10] Create BoardController@stats endpoint for board statistics in `app/Http/Controllers/BoardController.php`
+- [x] T145 [US10] Calculate task counts per column, overdue count, completion percentage
+- [x] T146 [P] [US10] Create BoardStats.vue component in `resources/js/components/kanban/BoardStats.vue`
+- [x] T147 [US10] Display total tasks, in progress, completed counts in BoardStats.vue
+- [x] T148 [US10] Highlight overdue count in red when > 0
+- [x] T149 [US10] Show completion percentage with progress bar
+- [x] T150 [US10] Integrate BoardStats into BoardHeader.vue
+- [x] T151 [US10] Add refresh button to update stats
 
 **Checkpoint**: User Story 10 complete - board statistics fully functional
 
@@ -342,17 +342,17 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T152 [P] Mobile responsive design for KanbanBoard at 768px breakpoint
-- [ ] T153 [P] Mobile responsive design for TaskDetailModal at 768px breakpoint
-- [ ] T154 [P] Mobile responsive design for FilterBar at 768px breakpoint
-- [ ] T155 Add loading skeletons for task cards while fetching
-- [ ] T156 Implement error boundary and retry logic for API failures
-- [ ] T157 Add keyboard navigation (arrow keys between cards, Enter to open)
-- [ ] T158 Performance optimization - lazy load comments and activities on modal open
-- [ ] T159 Bundle size audit - ensure <50KB additional JS
-- [ ] T160 Add "Refresh" button to BoardHeader with "Last updated" indicator
-- [ ] T161 Run quickstart.md validation for all user flows
-- [ ] T162 Final accessibility audit (ARIA labels, focus management)
+- [x] T152 [P] Mobile responsive design for KanbanBoard at 768px breakpoint
+- [x] T153 [P] Mobile responsive design for TaskDetailModal at 768px breakpoint
+- [x] T154 [P] Mobile responsive design for FilterBar at 768px breakpoint
+- [x] T155 Add loading skeletons for task cards while fetching
+- [x] T156 Implement error boundary and retry logic for API failures
+- [x] T157 Add keyboard navigation (arrow keys between cards, Enter to open)
+- [x] T158 Performance optimization - lazy load comments and activities on modal open
+- [x] T159 Bundle size audit - ensure <50KB additional JS
+- [x] T160 Add "Refresh" button to BoardHeader with "Last updated" indicator
+- [x] T161 Run quickstart.md validation for all user flows
+- [x] T162 Final accessibility audit (ARIA labels, focus management)
 
 ---
 

@@ -27,27 +27,55 @@ class TaskController extends Controller
         $query = Task::with(['assignee', 'labels', 'subtasks'])
             ->withCount(['subtasks', 'labels']);
 
-        // Apply column filter
-        if ($request->has('column_id')) {
-            $query->where('column_id', $request->input('column_id'));
+        // T099: Apply search filter (title, description, task ID)
+        if ($request->has('search') && $search = $request->input('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%")
+                  ->orWhere('id', '=', $search);
+            });
         }
 
-        // Apply assignee filter
+        // T100: Apply label filter (comma-separated IDs)
+        if ($request->has('label_ids') && $labelIds = $request->input('label_ids')) {
+            $labelIdsArray = is_array($labelIds) ? $labelIds : explode(',', $labelIds);
+            $query->whereHas('labels', function ($q) use ($labelIdsArray) {
+                $q->whereIn('labels.id', $labelIdsArray);
+            });
+        }
+
+        // T101: Apply assignee filter
         if ($request->has('assignee_id')) {
             $query->where('assignee_id', $request->input('assignee_id'));
         }
 
-        // Apply priority filter
+        // T102: Apply priority filter
         if ($request->has('priority')) {
             $query->where('priority', $request->input('priority'));
         }
 
-        // Apply due_date filter (tasks due on or after given date)
-        if ($request->has('due_date')) {
-            $query->where('due_date', '>=', $request->input('due_date'));
+        // T103: Apply due date range filter with presets
+        if ($request->has('due_date_range')) {
+            $range = $request->input('due_date_range');
+            $today = now()->startOfDay();
+
+            switch ($range) {
+                case 'overdue':
+                    $query->where('due_date', '<', $today);
+                    break;
+                case 'today':
+                    $query->whereDate('due_date', $today);
+                    break;
+                case 'this_week':
+                    $query->whereBetween('due_date', [
+                        $today,
+                        now()->endOfWeek()
+                    ]);
+                    break;
+            }
         }
 
-        // Apply due_date range filter
+        // Custom due_date range filter
         if ($request->has('due_date_from') && $request->has('due_date_to')) {
             $query->whereBetween('due_date', [
                 $request->input('due_date_from'),

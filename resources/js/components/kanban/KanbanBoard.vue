@@ -3,6 +3,7 @@
     <div class="kanban-board-wrapper">
         <!-- Board Header -->
         <BoardHeader
+            :project-id="projectId"
             :is-archived="isArchived"
             @add-task="openCreateModal"
             @filters-changed="onFiltersChanged"
