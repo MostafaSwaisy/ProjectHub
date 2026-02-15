@@ -156,6 +156,9 @@ onMounted(() => {
     } else if (props.columnId) {
         // Set initial column for new task
         formData.value.column_id = props.columnId;
+    } else if (props.columns.length > 0) {
+        // Default to first column when creating a new task
+        formData.value.column_id = props.columns[0].id;
     }
 });
 
