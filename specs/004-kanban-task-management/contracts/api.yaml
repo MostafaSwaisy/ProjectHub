@@ -1,0 +1,1028 @@
+openapi: 3.0.3
+info:
+  title: Kanban Board & Task Management API
+  description: REST API for managing Kanban boards, tasks, subtasks, comments, and labels
+  version: 1.0.0
+  contact:
+    name: ProjectHub Team
+
+servers:
+  - url: /api
+    description: API base path
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Tasks
+    description: Task CRUD and movement operations
+  - name: Subtasks
+    description: Subtask management within tasks
+  - name: Comments
+    description: Task comment operations
+  - name: Labels
+    description: Project label management
+  - name: Activities
+    description: Activity log operations
+  - name: Boards
+    description: Kanban board operations
+
+paths:
+  # ============== TASK ENDPOINTS ==============
+  /tasks:
+    get:
+      tags: [Tasks]
+      summary: List tasks with filters
+      parameters:
+        - name: column_id
+          in: query
+          schema:
+            type: integer
+          description: Filter by column
+        - name: assignee_id
+          in: query
+          schema:
+            type: integer
+          description: Filter by assignee
+        - name: priority
+          in: query
+          schema:
+            type: string
+            enum: [low, medium, high, critical]
+          description: Filter by priority
+        - name: label_ids
+          in: query
+          schema:
+            type: string
+          description: Comma-separated label IDs
+        - name: due_date_from
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Due date range start
+        - name: due_date_to
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Due date range end
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Search in title and description
+      responses:
+        '200':
+          description: List of tasks
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Task'
+
+    post:
+      tags: [Tasks]
+      summary: Create a new task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTaskRequest'
+      responses:
+        '201':
+          description: Task created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Task'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /tasks/{taskId}:
+    parameters:
+      - name: taskId
+        in: path
+        required: true
+        schema:
+          type: integer
+
+    get:
+      tags: [Tasks]
+      summary: Get task details
+      responses:
+        '200':
+          description: Task details with relationships
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/TaskDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      tags: [Tasks]
+      summary: Update task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTaskRequest'
+      responses:
+        '200':
+          description: Task updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Task'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+    delete:
+      tags: [Tasks]
+      summary: Delete task
+      responses:
+        '204':
+          description: Task deleted
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /tasks/{taskId}/move:
+    post:
+      tags: [Tasks]
+      summary: Move task to another column
+      parameters:
+        - name: taskId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MoveTaskRequest'
+      responses:
+        '200':
+          description: Task moved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Task'
+        '422':
+          description: WIP limit exceeded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Column has reached its WIP limit"
+
+  /tasks/{taskId}/labels:
+    post:
+      tags: [Tasks]
+      summary: Assign labels to task
+      parameters:
+        - name: taskId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                label_ids:
+                  type: array
+                  items:
+                    type: integer
+              required: [label_ids]
+      responses:
+        '200':
+          description: Labels assigned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Task'
+
+  # ============== SUBTASK ENDPOINTS ==============
+  /tasks/{taskId}/subtasks:
+    parameters:
+      - name: taskId
+        in: path
+        required: true
+        schema:
+          type: integer
+
+    get:
+      tags: [Subtasks]
+      summary: List subtasks for a task
+      responses:
+        '200':
+          description: List of subtasks
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Subtask'
+
+    post:
+      tags: [Subtasks]
+      summary: Create a subtask
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSubtaskRequest'
+      responses:
+        '201':
+          description: Subtask created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Subtask'
+
+  /tasks/{taskId}/subtasks/{subtaskId}:
+    parameters:
+      - name: taskId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: subtaskId
+        in: path
+        required: true
+        schema:
+          type: integer
+
+    patch:
+      tags: [Subtasks]
+      summary: Update subtask (title or completion)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSubtaskRequest'
+      responses:
+        '200':
+          description: Subtask updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Subtask'
+
+    delete:
+      tags: [Subtasks]
+      summary: Delete subtask
+      responses:
+        '204':
+          description: Subtask deleted
+
+  /tasks/{taskId}/subtasks/reorder:
+    post:
+      tags: [Subtasks]
+      summary: Reorder subtasks
+      parameters:
+        - name: taskId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                subtask_ids:
+                  type: array
+                  items:
+                    type: integer
+                  description: Subtask IDs in new order
+              required: [subtask_ids]
+      responses:
+        '200':
+          description: Subtasks reordered
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Subtask'
+
+  # ============== COMMENT ENDPOINTS ==============
+  /tasks/{taskId}/comments:
+    parameters:
+      - name: taskId
+        in: path
+        required: true
+        schema:
+          type: integer
+
+    get:
+      tags: [Comments]
+      summary: List comments for a task
+      responses:
+        '200':
+          description: List of comments
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Comment'
+
+    post:
+      tags: [Comments]
+      summary: Add a comment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCommentRequest'
+      responses:
+        '201':
+          description: Comment created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Comment'
+
+  /comments/{commentId}:
+    parameters:
+      - name: commentId
+        in: path
+        required: true
+        schema:
+          type: integer
+
+    patch:
+      tags: [Comments]
+      summary: Edit comment (within 15-minute window)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                body:
+                  type: string
+                  minLength: 1
+              required: [body]
+      responses:
+        '200':
+          description: Comment updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Comment'
+        '403':
+          description: Edit window expired or not author
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Comments can only be edited within 15 minutes of creation"
+
+    delete:
+      tags: [Comments]
+      summary: Delete comment
+      responses:
+        '204':
+          description: Comment deleted
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  # ============== LABEL ENDPOINTS ==============
+  /projects/{projectId}/labels:
+    parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+
+    get:
+      tags: [Labels]
+      summary: List project labels
+      responses:
+        '200':
+          description: List of labels
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Label'
+
+    post:
+      tags: [Labels]
+      summary: Create a label (project owner only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateLabelRequest'
+      responses:
+        '201':
+          description: Label created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Label'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /projects/{projectId}/labels/{labelId}:
+    parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: labelId
+        in: path
+        required: true
+        schema:
+          type: integer
+
+    put:
+      tags: [Labels]
+      summary: Update label (project owner only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateLabelRequest'
+      responses:
+        '200':
+          description: Label updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Label'
+
+    delete:
+      tags: [Labels]
+      summary: Delete label (project owner only)
+      description: Removes label from all tasks
+      responses:
+        '204':
+          description: Label deleted
+
+  # ============== ACTIVITY ENDPOINTS ==============
+  /tasks/{taskId}/activities:
+    get:
+      tags: [Activities]
+      summary: List activities for a task
+      parameters:
+        - name: taskId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+          description: Max activities to return
+      responses:
+        '200':
+          description: List of activities
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Activity'
+
+  /projects/{projectId}/activities:
+    get:
+      tags: [Activities]
+      summary: List all activities for a project
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+        - name: type
+          in: query
+          schema:
+            type: string
+          description: Filter by activity type
+      responses:
+        '200':
+          description: List of activities
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Activity'
+
+  # ============== BOARD ENDPOINTS (EXISTS) ==============
+  /projects/{projectId}/boards:
+    parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+
+    get:
+      tags: [Boards]
+      summary: List boards for a project
+      responses:
+        '200':
+          description: List of boards with columns and tasks
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Board'
+
+    post:
+      tags: [Boards]
+      summary: Create a new board
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  maxLength: 255
+              required: [title]
+      responses:
+        '201':
+          description: Board created with default columns
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Board'
+
+  /projects/{projectId}/boards/{boardId}:
+    parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: boardId
+        in: path
+        required: true
+        schema:
+          type: integer
+
+    get:
+      tags: [Boards]
+      summary: Get board with full hierarchy
+      responses:
+        '200':
+          description: Board with columns and tasks
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/BoardDetail'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  responses:
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "Resource not found"
+
+    Forbidden:
+      description: Access denied
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "This action is unauthorized"
+
+    ValidationError:
+      description: Validation failed
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "The given data was invalid"
+              errors:
+                type: object
+                additionalProperties:
+                  type: array
+                  items:
+                    type: string
+
+  schemas:
+    # ============== REQUEST SCHEMAS ==============
+    CreateTaskRequest:
+      type: object
+      properties:
+        column_id:
+          type: integer
+        title:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+          nullable: true
+        assignee_id:
+          type: integer
+          nullable: true
+        priority:
+          type: string
+          enum: [low, medium, high, critical]
+          default: medium
+        due_date:
+          type: string
+          format: date
+          nullable: true
+      required: [column_id, title]
+
+    UpdateTaskRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+          nullable: true
+        assignee_id:
+          type: integer
+          nullable: true
+        priority:
+          type: string
+          enum: [low, medium, high, critical]
+        due_date:
+          type: string
+          format: date
+          nullable: true
+
+    MoveTaskRequest:
+      type: object
+      properties:
+        column_id:
+          type: integer
+        position:
+          type: integer
+          minimum: 0
+      required: [column_id, position]
+
+    CreateSubtaskRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 255
+      required: [title]
+
+    UpdateSubtaskRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 255
+        is_completed:
+          type: boolean
+
+    CreateCommentRequest:
+      type: object
+      properties:
+        body:
+          type: string
+          minLength: 1
+        parent_id:
+          type: integer
+          nullable: true
+          description: Parent comment ID for replies
+      required: [body]
+
+    CreateLabelRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 50
+        color:
+          type: string
+          pattern: "^#[0-9A-Fa-f]{6}$"
+          example: "#FF5733"
+      required: [name, color]
+
+    # ============== RESPONSE SCHEMAS ==============
+    Task:
+      type: object
+      properties:
+        id:
+          type: integer
+        column_id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+          nullable: true
+        assignee:
+          $ref: '#/components/schemas/User'
+          nullable: true
+        priority:
+          type: string
+          enum: [low, medium, high, critical]
+        due_date:
+          type: string
+          format: date
+          nullable: true
+        position:
+          type: integer
+        subtask_count:
+          type: integer
+        completed_subtask_count:
+          type: integer
+        progress:
+          type: integer
+          description: Percentage 0-100
+        label_count:
+          type: integer
+        labels:
+          type: array
+          items:
+            $ref: '#/components/schemas/Label'
+        is_overdue:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    TaskDetail:
+      allOf:
+        - $ref: '#/components/schemas/Task'
+        - type: object
+          properties:
+            subtasks:
+              type: array
+              items:
+                $ref: '#/components/schemas/Subtask'
+            comments:
+              type: array
+              items:
+                $ref: '#/components/schemas/Comment'
+            comment_count:
+              type: integer
+
+    Subtask:
+      type: object
+      properties:
+        id:
+          type: integer
+        task_id:
+          type: integer
+        title:
+          type: string
+        is_completed:
+          type: boolean
+        position:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+
+    Comment:
+      type: object
+      properties:
+        id:
+          type: integer
+        task_id:
+          type: integer
+        user:
+          $ref: '#/components/schemas/User'
+        parent_id:
+          type: integer
+          nullable: true
+        body:
+          type: string
+        edited_at:
+          type: string
+          format: date-time
+          nullable: true
+        is_editable:
+          type: boolean
+          description: True if within 15-minute edit window and is author
+        replies:
+          type: array
+          items:
+            $ref: '#/components/schemas/Comment'
+        created_at:
+          type: string
+          format: date-time
+
+    Label:
+      type: object
+      properties:
+        id:
+          type: integer
+        project_id:
+          type: integer
+        name:
+          type: string
+        color:
+          type: string
+          description: Hex color code
+        created_at:
+          type: string
+          format: date-time
+
+    Activity:
+      type: object
+      properties:
+        id:
+          type: integer
+        user:
+          $ref: '#/components/schemas/User'
+        type:
+          type: string
+          description: Activity type (task.created, task.moved, etc.)
+        subject_type:
+          type: string
+        subject_id:
+          type: integer
+        data:
+          type: object
+          description: Event-specific metadata
+        created_at:
+          type: string
+          format: date-time
+
+    Board:
+      type: object
+      properties:
+        id:
+          type: integer
+        project_id:
+          type: integer
+        title:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    BoardDetail:
+      allOf:
+        - $ref: '#/components/schemas/Board'
+        - type: object
+          properties:
+            columns:
+              type: array
+              items:
+                $ref: '#/components/schemas/Column'
+
+    Column:
+      type: object
+      properties:
+        id:
+          type: integer
+        board_id:
+          type: integer
+        title:
+          type: string
+        position:
+          type: integer
+        wip_limit:
+          type: integer
+          description: 0 means unlimited
+        tasks:
+          type: array
+          items:
+            $ref: '#/components/schemas/Task'
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        avatar_url:
+          type: string
+          nullable: true

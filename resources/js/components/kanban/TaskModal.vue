@@ -49,14 +49,17 @@
                     </select>
                 </div>
 
-                <!-- Status Field -->
-                <div class="form-group">
-                    <label for="status">Status</label>
-                    <select v-model="formData.status" id="status" class="form-input">
-                        <option value="todo">To Do</option>
-                        <option value="in_progress">In Progress</option>
-                        <option value="in_review">In Review</option>
-                        <option value="done">Done</option>
+                <!-- Column Field -->
+                <div v-if="columns.length > 0" class="form-group">
+                    <label for="column_id">Column</label>
+                    <select v-model="formData.column_id" id="column_id" class="form-input">
+                        <option
+                            v-for="column in columns"
+                            :key="column.id"
+                            :value="column.id"
+                        >
+                            {{ column.title }}
+                        </option>
                     </select>
                 </div>
 
@@ -97,6 +100,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useTasksStore } from '../../stores/tasks';
+import { useLabelsStore } from '../../stores/labels';
 import LabelSelector from './LabelSelector.vue';
 
 const props = defineProps({
@@ -104,34 +108,35 @@ const props = defineProps({
         type: Object,
         default: null,
     },
-    projectId: {
+    columnId: {
         type: [String, Number],
-        required: true,
+        default: null,
+    },
+    columns: {
+        type: Array,
+        default: () => [],
     },
 });
 
 const emit = defineEmits(['save', 'close']);
 
 const tasksStore = useTasksStore();
+const labelsStore = useLabelsStore();
 
 // Form state
 const formData = ref({
     title: '',
     description: '',
     priority: 'medium',
-    status: 'todo',
+    column_id: null,
     due_date: '',
     labels: [],
 });
 
 const errors = ref({});
-const availableLabels = ref([
-    { id: 1, name: 'Bug', color: '#EF4444' },
-    { id: 2, name: 'Feature', color: '#FF6B35' },
-    { id: 3, name: 'Enhancement', color: '#4F46E5' },
-    { id: 4, name: 'Documentation', color: '#22C55E' },
-    { id: 5, name: 'Urgent', color: '#EC4899' },
-]);
+
+// Use labels from store
+const availableLabels = computed(() => labelsStore.labels);
 
 // Computed: Check if editing
 const isEditing = computed(() => props.task !== null);
@@ -144,10 +149,16 @@ onMounted(() => {
             title: props.task.title || '',
             description: props.task.description || '',
             priority: props.task.priority || 'medium',
-            status: props.task.status || 'todo',
+            column_id: props.task.column_id,
             due_date: props.task.due_date || '',
             labels: (props.task.labels || []).map(l => l.id),
         };
+    } else if (props.columnId) {
+        // Set initial column for new task
+        formData.value.column_id = props.columnId;
+    } else if (props.columns.length > 0) {
+        // Default to first column when creating a new task
+        formData.value.column_id = props.columns[0].id;
     }
 });
 
@@ -172,10 +183,10 @@ const submitForm = async () => {
     try {
         if (isEditing.value) {
             // Update existing task
-            await tasksStore.updateTask(props.projectId, props.task.id, formData.value);
+            await tasksStore.updateTask(props.task.id, formData.value);
         } else {
             // Create new task
-            await tasksStore.createTask(props.projectId, formData.value);
+            await tasksStore.createTask(formData.value);
         }
 
         emit('save');

@@ -1,18 +1,17 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
+import axios from 'axios';
 
 /**
  * T045: Kanban Board Store
  * Manages kanban board state including columns, filters, and UI state
  */
 export const useKanbanStore = defineStore('kanban', () => {
-    // Board columns definition - Standard kanban workflow
-    const columns = ref([
-        { id: 'todo', title: 'To Do', color: 'var(--gray-400)', order: 1 },
-        { id: 'in_progress', title: 'In Progress', color: 'var(--blue-primary)', order: 2 },
-        { id: 'in_review', title: 'In Review', color: 'var(--orange-primary)', order: 3 },
-        { id: 'done', title: 'Done', color: 'var(--green-primary)', order: 4 },
-    ]);
+    // Board columns - Will be loaded from API
+    const columns = ref([]);
+    const boardId = ref(null);
+    const loading = ref(false);
+    const error = ref(null);
 
     // Filter state
     const searchQuery = ref('');
@@ -152,6 +151,53 @@ export const useKanbanStore = defineStore('kanban', () => {
         }
     };
 
+    // Actions: Fetch board with columns
+    const fetchBoard = async (projectId) => {
+        loading.value = true;
+        error.value = null;
+        try {
+            // First, get the list of boards to find the board ID
+            const listResponse = await axios.get(`/api/projects/${projectId}/boards`);
+
+            // Handle paginated response
+            let boards = listResponse.data.data || listResponse.data;
+
+            // Get the first board ID
+            let firstBoardId = null;
+            if (Array.isArray(boards) && boards.length > 0) {
+                firstBoardId = boards[0].id;
+            } else if (boards && boards.id) {
+                firstBoardId = boards.id;
+            }
+
+            if (!firstBoardId) {
+                return null;
+            }
+
+            // Now fetch the specific board with its columns
+            const boardResponse = await axios.get(`/api/projects/${projectId}/boards/${firstBoardId}`);
+            const board = boardResponse.data.data || boardResponse.data;
+
+            if (board && board.columns) {
+                boardId.value = board.id;
+
+                // Remove duplicates by id and sort by position
+                const uniqueColumns = Array.from(
+                    new Map(board.columns.map(col => [col.id, col])).values()
+                );
+                columns.value = uniqueColumns.sort((a, b) => a.position - b.position);
+            }
+
+            return board;
+        } catch (err) {
+            error.value = err.response?.data?.message || err.message;
+            console.error('Failed to fetch board:', err);
+            throw err;
+        } finally {
+            loading.value = false;
+        }
+    };
+
     // Actions: Reset board state
     const resetBoardState = () => {
         searchQuery.value = '';
@@ -171,6 +217,9 @@ export const useKanbanStore = defineStore('kanban', () => {
     return {
         // State
         columns,
+        boardId,
+        loading,
+        error,
         searchQuery,
         selectedLabels,
         selectedAssignees,
@@ -188,6 +237,7 @@ export const useKanbanStore = defineStore('kanban', () => {
         hasActiveFilters,
         filterSummary,
         // Actions
+        fetchBoard,
         setSearchQuery,
         toggleLabelFilter,
         toggleAssigneeFilter,

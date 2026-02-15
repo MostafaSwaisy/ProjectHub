@@ -6,7 +6,16 @@
             <div class="column-title-group">
                 <div class="column-indicator" :style="{ backgroundColor: column.color }"></div>
                 <h3 class="column-title">{{ column.title }}</h3>
-                <span class="task-count">{{ tasks.length }}</span>
+                <span class="task-count" :class="wipCountClass">
+                    {{ tasks.length }}<span v-if="column.wip_limit > 0">/{{ column.wip_limit }}</span>
+                </span>
+            </div>
+            <!-- WIP Limit Warning -->
+            <div v-if="isAtWipLimit" class="wip-warning">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2L2 22h20L12 2zm0 15a1.5 1.5 0 110 3 1.5 1.5 0 010-3zm-1-2h2v-6h-2v6z"/>
+                </svg>
+                <span>WIP limit reached</span>
             </div>
         </div>
 
@@ -23,6 +32,7 @@
                     v-for="task in tasks"
                     :key="task.id"
                     :task="task"
+                    :columns="allColumns"
                     @drag-start="handleTaskDragStart($event, task)"
                     @drag-end="handleTaskDragEnd"
                     @edit="$emit('edit-task', task.id)"
@@ -59,6 +69,10 @@ const props = defineProps({
         type: Array,
         default: () => [],
     },
+    allColumns: {
+        type: Array,
+        default: () => [],
+    },
 });
 
 const emit = defineEmits([
@@ -76,6 +90,25 @@ const kanbanStore = useKanbanStore();
 // Computed: Check if this column is the drag target
 const isDragTarget = computed(() => {
     return kanbanStore.draggedOverColumn === props.column.id;
+});
+
+// Computed: Check if at WIP limit
+const isAtWipLimit = computed(() => {
+    if (!props.column.wip_limit || props.column.wip_limit === 0) return false;
+    return props.tasks.length >= props.column.wip_limit;
+});
+
+// Computed: Check if near WIP limit (80% or more)
+const isNearWipLimit = computed(() => {
+    if (!props.column.wip_limit || props.column.wip_limit === 0) return false;
+    return props.tasks.length >= props.column.wip_limit * 0.8;
+});
+
+// Computed: WIP count styling class
+const wipCountClass = computed(() => {
+    if (isAtWipLimit.value) return 'wip-at-limit';
+    if (isNearWipLimit.value) return 'wip-near-limit';
+    return '';
 });
 
 // Methods
@@ -182,6 +215,36 @@ const handleMoveTask = (taskId, toColumn) => {
     padding: 2px 8px;
     border-radius: 12px;
     font-weight: var(--font-medium);
+    transition: all var(--transition-normal);
+}
+
+.task-count.wip-near-limit {
+    background: rgba(255, 107, 53, 0.2);
+    color: var(--orange-primary);
+}
+
+.task-count.wip-at-limit {
+    background: rgba(239, 68, 68, 0.2);
+    color: var(--red-primary);
+}
+
+/* WIP Limit Warning */
+.wip-warning {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    margin-top: var(--spacing-xs);
+    padding: 4px 8px;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: var(--radius-sm);
+    font-size: var(--text-xs);
+    color: var(--red-primary);
+    animation: fadeIn var(--transition-normal) ease-out;
+}
+
+.wip-warning svg {
+    flex-shrink: 0;
 }
 
 /* Column Body */

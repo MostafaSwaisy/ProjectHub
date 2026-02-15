@@ -3,6 +3,8 @@
     <div class="kanban-board-wrapper">
         <!-- Board Header -->
         <BoardHeader
+            :project-id="projectId"
+            :is-archived="isArchived"
             @add-task="openCreateModal"
             @filters-changed="onFiltersChanged"
         />
@@ -27,6 +29,8 @@
                         :key="column.id"
                         :column="column"
                         :tasks="getTasksByStatus(column.id)"
+                        :all-columns="kanbanStore.columns"
+                        :is-archived="isArchived"
                         @edit-task="editTask"
                         @duplicate-task="duplicateTask"
                         @archive-task="archiveTask"
@@ -53,7 +57,7 @@
         <TaskModal
             v-if="kanbanStore.isTaskModalOpen"
             :task="editingTask"
-            :project-id="projectId"
+            :columns="kanbanStore.columns"
             @save="onTaskSaved"
             @close="kanbanStore.closeTaskModal"
         />
@@ -66,6 +70,13 @@
             @edit="editTask(selectedTask.id)"
             @delete="deleteTask(selectedTask.id)"
         />
+
+        <!-- Toast Notification -->
+        <transition name="toast">
+            <div v-if="toastMessage" class="toast-notification" :class="toastType">
+                <p>{{ toastMessage }}</p>
+            </div>
+        </transition>
 
         <!-- Confirmation Dialog for Delete -->
         <div v-if="showDeleteConfirm" class="confirmation-dialog" @click.self="showDeleteConfirm = false">
@@ -97,6 +108,10 @@ const props = defineProps({
         type: [String, Number],
         required: true,
     },
+    isArchived: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 const tasksStore = useTasksStore();
@@ -106,21 +121,38 @@ const { getTasksByStatus } = useTaskFiltering(computed(() => tasksStore.tasks));
 // Local state
 const showDeleteConfirm = ref(false);
 const taskToDelete = ref(null);
+const toastMessage = ref('');
+const toastType = ref('error');
+let toastTimer = null;
+
+const showToast = (message, type = 'error') => {
+    toastMessage.value = message;
+    toastType.value = type;
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { toastMessage.value = ''; }, 3000);
+};
 
 // Computed: Get editing task
 const editingTask = computed(() => {
     if (!kanbanStore.editingTaskId) return null;
-    return tasksStore.getTaskById.value(kanbanStore.editingTaskId);
+    return tasksStore.getTaskById(kanbanStore.editingTaskId);
 });
 
 // Computed: Get selected task for details modal
 const selectedTask = computed(() => {
     if (!kanbanStore.editingTaskId) return null;
-    return tasksStore.getTaskById.value(kanbanStore.editingTaskId);
+    return tasksStore.getTaskById(kanbanStore.editingTaskId);
 });
 
 // Lifecycle
 onMounted(async () => {
+    // Fetch board with columns first
+    try {
+        await kanbanStore.fetchBoard(props.projectId);
+    } catch (error) {
+        console.error('Failed to fetch board:', error);
+    }
+
     // Fetch tasks for the project
     try {
         await tasksStore.fetchTasks(props.projectId);
@@ -166,14 +198,20 @@ onBeforeUnmount(() => {
 
 // Methods
 const openCreateModal = () => {
+    // T055: Prevent creating tasks in archived projects
+    if (props.isArchived) return;
     kanbanStore.openCreateTaskModal();
 };
 
 const editTask = (taskId) => {
+    // T055: Prevent editing tasks in archived projects
+    if (props.isArchived) return;
     kanbanStore.openEditTaskModal(taskId);
 };
 
 const deleteTask = (taskId) => {
+    // T055: Prevent deleting tasks in archived projects
+    if (props.isArchived) return;
     taskToDelete.value = taskId;
     showDeleteConfirm.value = true;
 };
@@ -182,7 +220,7 @@ const confirmDelete = async () => {
     if (!taskToDelete.value) return;
 
     try {
-        await tasksStore.deleteTask(props.projectId, taskToDelete.value);
+        await tasksStore.deleteTask(taskToDelete.value);
         showDeleteConfirm.value = false;
         taskToDelete.value = null;
     } catch (error) {
@@ -192,7 +230,17 @@ const confirmDelete = async () => {
 
 const duplicateTask = async (taskId) => {
     try {
-        await tasksStore.duplicateTask(props.projectId, taskId);
+        const original = tasksStore.getTaskById(taskId);
+        if (!original) return;
+        await tasksStore.createTask({
+            column_id: original.column_id,
+            title: `${original.title} (copy)`,
+            description: original.description || '',
+            priority: original.priority,
+            due_date: original.due_date,
+            assignee_id: original.assignee_id,
+        });
+        showToast('Task duplicated', 'success');
     } catch (error) {
         console.error('Failed to duplicate task:', error);
     }
@@ -200,7 +248,8 @@ const duplicateTask = async (taskId) => {
 
 const archiveTask = async (taskId) => {
     try {
-        await tasksStore.changeTaskStatus(props.projectId, taskId, 'archived');
+        await tasksStore.deleteTask(taskId);
+        showToast('Task archived', 'success');
     } catch (error) {
         console.error('Failed to archive task:', error);
     }
@@ -215,15 +264,26 @@ const openTaskDetails = (taskId) => {
     kanbanStore.openTaskDetails(taskId);
 };
 
+const handleMoveError = (error) => {
+    const data = error.response?.data;
+    if (data?.message === 'Column WIP limit exceeded') {
+        showToast(`WIP limit reached (${data.current_count}/${data.wip_limit}). Remove a task first.`);
+    } else {
+        showToast(data?.message || 'Failed to move task');
+    }
+};
+
 const onTaskDropped = async (event) => {
     const { toColumn, taskId } = event;
 
     try {
-        // Update task status
-        await tasksStore.changeTaskStatus(props.projectId, taskId, toColumn);
+        // Calculate position (append to end of target column)
+        const tasksInColumn = tasksStore.tasks.filter(t => t.column_id === toColumn);
+        const position = tasksInColumn.length;
+
+        await tasksStore.moveTask(taskId, toColumn, position);
     } catch (error) {
-        console.error('Failed to move task:', error);
-        // Error handling is done in the store
+        handleMoveError(error);
     }
 };
 
@@ -232,15 +292,30 @@ const onMoveToTask = async (event) => {
     const { taskId, toColumn } = event;
 
     try {
-        // Update task status (same as drag-drop, but initiated by mobile menu)
-        await tasksStore.changeTaskStatus(props.projectId, taskId, toColumn);
+        // Calculate position (append to end of target column)
+        const tasksInColumn = tasksStore.tasks.filter(t => t.column_id === toColumn);
+        const position = tasksInColumn.length;
+
+        await tasksStore.moveTask(taskId, toColumn, position);
     } catch (error) {
-        console.error('Failed to move task:', error);
+        handleMoveError(error);
     }
 };
 
-const onFiltersChanged = () => {
-    // Filters are automatically applied by the useTaskFiltering composable
+const onFiltersChanged = (filters) => {
+    // Update kanban store with filters from FilterBar
+    if (filters.search !== undefined) {
+        kanbanStore.setSearchQuery(filters.search);
+    }
+    if (filters.label_ids) {
+        kanbanStore.selectedLabels = filters.label_ids;
+    }
+    if (filters.priorities) {
+        kanbanStore.selectedPriorities = filters.priorities;
+    }
+    if (filters.assignee_id !== undefined) {
+        kanbanStore.selectedAssignees = filters.assignee_id !== null ? [filters.assignee_id] : [];
+    }
 };
 </script>
 
@@ -443,6 +518,53 @@ const onFiltersChanged = () => {
 
 .btn-delete:hover {
     background: var(--red-light);
+}
+
+/* Toast Notification */
+.toast-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 20px;
+    border-radius: var(--radius-md);
+    z-index: 2000;
+    animation: toastSlideIn 0.3s ease-out;
+    max-width: 400px;
+    box-shadow: var(--shadow-lg);
+}
+
+.toast-notification.error {
+    background: rgba(239, 68, 68, 0.95);
+    color: white;
+    border: 1px solid rgba(239, 68, 68, 0.5);
+}
+
+.toast-notification.success {
+    background: rgba(34, 197, 94, 0.95);
+    color: white;
+    border: 1px solid rgba(34, 197, 94, 0.5);
+}
+
+.toast-notification p {
+    margin: 0;
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+}
+
+.toast-enter-active,
+.toast-leave-active {
+    transition: all 0.3s ease;
+}
+
+.toast-enter-from,
+.toast-leave-to {
+    opacity: 0;
+    transform: translateX(100px);
+}
+
+@keyframes toastSlideIn {
+    from { opacity: 0; transform: translateX(100px); }
+    to { opacity: 1; transform: translateX(0); }
 }
 
 /* Mobile Responsive */

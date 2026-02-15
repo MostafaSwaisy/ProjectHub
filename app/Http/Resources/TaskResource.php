@@ -22,16 +22,18 @@ class TaskResource extends JsonResource
             'assignee_id' => $this->assignee_id,
             'assignee' => new UserResource($this->whenLoaded('assignee')),
             'priority' => $this->priority,
-            'due_date' => $this->due_date,
+            'due_date' => $this->due_date?->toDateString(),
             'position' => $this->position,
             'subtask_count' => $this->subtasks_count ?? $this->subtasks()->count(),
             'completed_subtask_count' => $this->completed_subtask_count,
+            'comment_count' => $this->comments_count ?? $this->comments()->count(),
             'label_count' => $this->labels_count ?? $this->labels()->count(),
             'labels' => LabelResource::collection($this->whenLoaded('labels')),
+            'subtasks' => SubtaskResource::collection($this->whenLoaded('subtasks')),
             'progress' => $this->progress,
-            'is_overdue' => $this->isOverdue(),
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'is_overdue' => $this->is_overdue,
+            'created_at' => $this->created_at?->toISOString(),
+            'updated_at' => $this->updated_at?->toISOString(),
         ];
     }
 }

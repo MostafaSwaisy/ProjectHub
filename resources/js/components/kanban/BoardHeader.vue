@@ -1,35 +1,13 @@
 <template>
     <!-- T051: Board Header with search and add task button -->
     <div class="board-header">
-        <!-- Search and Filters -->
-        <div class="search-filters">
-            <div class="search-box">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <path d="m21 21-4.35-4.35"></path>
-                </svg>
-                <input
-                    v-model="searchQuery"
-                    type="text"
-                    placeholder="Search tasks..."
-                    @input="updateSearch"
-                    class="search-input"
-                />
-                <button
-                    v-if="searchQuery"
-                    @click="clearSearch"
-                    class="clear-btn"
-                >
-                    ✕
-                </button>
-            </div>
-
-            <!-- Active Filters Display -->
-            <div v-if="hasActiveFilters" class="active-filters">
-                <span class="filter-label">Filters:</span>
-                <span class="filter-summary">{{ filterSummary }}</span>
-            </div>
-        </div>
+        <!-- T114: Filter Bar Integration -->
+        <FilterBar
+            v-if="projectId"
+            :project-id="projectId"
+            :project-members="projectMembers"
+            @filters-changed="onFiltersChanged"
+        />
 
         <!-- Action Buttons -->
         <div class="actions">
@@ -41,6 +19,17 @@
                 Clear Filters
             </button>
             <button
+                @click="showLabelManager = true"
+                class="btn btn-secondary"
+                title="Manage project labels"
+            >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                    <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                </svg>
+                Labels
+            </button>
+            <button
                 @click="openAddTaskModal"
                 class="btn btn-primary"
             >
@@ -50,46 +39,57 @@
                 Add Task
             </button>
         </div>
+
+        <!-- Label Manager Modal -->
+        <div v-if="showLabelManager" class="modal-backdrop" @click.self="showLabelManager = false">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Label Management</h2>
+                    <button class="close-btn" @click="showLabelManager = false">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <LabelManager />
+            </div>
+        </div>
     </div>
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { ref, computed } from 'vue';
 import { useKanbanStore } from '../../stores/kanban';
+import LabelManager from './LabelManager.vue';
+import FilterBar from './FilterBar.vue';
+
+const props = defineProps({
+    projectId: {
+        type: [String, Number],
+        default: null,
+    },
+    projectMembers: {
+        type: Array,
+        default: () => [],
+    },
+});
 
 const emit = defineEmits(['add-task', 'filters-changed']);
 
 const kanbanStore = useKanbanStore();
+const showLabelManager = ref(false);
 
-// Computed: Get search query from store
-const searchQuery = computed({
-    get() {
-        return kanbanStore.searchQuery;
-    },
-    set(value) {
-        kanbanStore.setSearchQuery(value);
-    },
-});
-
-// Computed: Check if filters are active
+// Expose kanbanStore computed for template
 const hasActiveFilters = computed(() => kanbanStore.hasActiveFilters);
-
-// Computed: Get filter summary
-const filterSummary = computed(() => kanbanStore.filterSummary);
-
-// Methods
-const updateSearch = () => {
-    emit('filters-changed');
-};
-
-const clearSearch = () => {
-    kanbanStore.setSearchQuery('');
-    emit('filters-changed');
-};
 
 const clearFilters = () => {
     kanbanStore.clearAllFilters();
-    emit('filters-changed');
+};
+
+// Methods
+const onFiltersChanged = (filters) => {
+    emit('filters-changed', filters);
 };
 
 const openAddTaskModal = () => {
@@ -110,83 +110,7 @@ const openAddTaskModal = () => {
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Search and Filters Section */
-.search-filters {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-md);
-}
-
-.search-box {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-md);
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: var(--radius-md);
-    padding: var(--spacing-sm) var(--spacing-md);
-    transition: all var(--transition-normal);
-}
-
-.search-box:focus-within {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 107, 53, 0.5);
-    box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.1);
-}
-
-.search-box svg {
-    color: var(--text-secondary);
-    flex-shrink: 0;
-}
-
-.search-input {
-    flex: 1;
-    background: none;
-    border: none;
-    color: var(--text-primary);
-    font-size: var(--text-sm);
-    font-family: inherit;
-    outline: none;
-}
-
-.search-input::placeholder {
-    color: var(--text-secondary);
-}
-
-.clear-btn {
-    background: none;
-    border: none;
-    color: var(--text-secondary);
-    cursor: pointer;
-    font-size: var(--text-base);
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all var(--transition-normal);
-}
-
-.clear-btn:hover {
-    color: var(--text-primary);
-}
-
-/* Active Filters Display */
-.active-filters {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-    font-size: var(--text-sm);
-}
-
-.filter-label {
-    color: var(--text-secondary);
-    font-weight: var(--font-medium);
-}
-
-.filter-summary {
-    color: var(--orange-primary);
-    font-weight: var(--font-medium);
-}
+/* Filter Bar will handle its own styles */
 
 /* Actions Section */
 .actions {
@@ -236,6 +160,64 @@ const openAddTaskModal = () => {
     border-color: rgba(255, 255, 255, 0.3);
 }
 
+/* Modal Styles */
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.modal-content {
+    background: rgba(30, 30, 40, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    max-width: 600px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modal-header h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.close-btn:hover {
+    color: var(--text-primary);
+}
+
 /* Mobile Responsive */
 @media (max-width: 639px) {
     .board-header {
@@ -258,6 +240,10 @@ const openAddTaskModal = () => {
 
     .search-input {
         font-size: 16px; /* Prevents zoom on iOS */
+    }
+
+    .modal-content {
+        max-height: 95vh;
     }
 }
 </style>

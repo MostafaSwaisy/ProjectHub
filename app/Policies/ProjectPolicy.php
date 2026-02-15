@@ -58,6 +58,7 @@ class ProjectPolicy
      * Determine if the user can update the project.
      * - Admins can update all projects
      * - Instructors can update their own projects
+     * - Editors (members with editor role) can update project details
      */
     public function update(User $user, Project $project): bool
     {
@@ -67,7 +68,13 @@ class ProjectPolicy
         }
 
         // Instructor can update their own projects
-        if ($user->role && $user->role->name === 'instructor' && $user->id === $project->instructor_id) {
+        if ($user->id === $project->instructor_id) {
+            return true;
+        }
+
+        // Check if user is a member with 'editor' role
+        $membership = $project->members()->where('user_id', $user->id)->first();
+        if ($membership && $membership->pivot->role === 'editor') {
             return true;
         }
 
@@ -108,5 +115,23 @@ class ProjectPolicy
     public function forceDelete(User $user, Project $project): bool
     {
         return $this->delete($user, $project);
+    }
+
+    /**
+     * Determine if the user can archive/unarchive the project.
+     * - Only the project instructor (owner) can archive
+     */
+    public function archive(User $user, Project $project): bool
+    {
+        return $user->id === $project->instructor_id;
+    }
+
+    /**
+     * Determine if the user can manage team members.
+     * - Only the project instructor (owner) can manage members
+     */
+    public function manageMembers(User $user, Project $project): bool
+    {
+        return $user->id === $project->instructor_id;
     }
 }

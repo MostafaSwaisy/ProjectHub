@@ -59,31 +59,31 @@
                     </div>
                 </div>
 
-                <!-- Assignees -->
-                <div v-if="task.assignees && task.assignees.length > 0" class="detail-section">
+                <!-- Assignee -->
+                <div v-if="task.assignee" class="detail-section">
                     <h4>Assigned To</h4>
-                    <div class="assignees-list">
-                        <div v-for="assignee in task.assignees" :key="assignee.id" class="assignee-item">
-                            <div class="assignee-avatar">{{ getInitials(assignee.name) }}</div>
-                            <span>{{ assignee.name }}</span>
-                        </div>
+                    <div class="assignee-item">
+                        <div class="assignee-avatar">{{ getInitials(task.assignee.name) }}</div>
+                        <span>{{ task.assignee.name }}</span>
                     </div>
                 </div>
 
-                <!-- Subtasks -->
-                <div v-if="task.subtasks && task.subtasks.length > 0" class="detail-section">
-                    <h4>Subtasks ({{ completedSubtasks }}/{{ task.subtasks.length }})</h4>
-                    <div class="subtasks-list">
-                        <div v-for="subtask in task.subtasks" :key="subtask.id" class="subtask-item">
-                            <input
-                                :checked="subtask.completed"
-                                type="checkbox"
-                                :id="`subtask-${subtask.id}`"
-                                @change="toggleSubtask(subtask.id)"
-                            />
-                            <label :for="`subtask-${subtask.id}`">{{ subtask.title }}</label>
-                        </div>
-                    </div>
+                <!-- Subtasks Section -->
+                <div class="detail-section">
+                    <h4>Subtasks</h4>
+                    <SubtaskList
+                        :task-id="task.id"
+                        @updated="$emit('updated')"
+                    />
+                </div>
+
+                <!-- Comments Section -->
+                <div class="detail-section">
+                    <h4>Comments</h4>
+                    <CommentList
+                        :task-id="task.id"
+                        @updated="$emit('updated')"
+                    />
                 </div>
 
                 <!-- Created and Updated Info -->
@@ -108,6 +108,8 @@
 
 <script setup>
 import { computed } from 'vue';
+import SubtaskList from './SubtaskList.vue';
+import CommentList from './CommentList.vue';
 
 const props = defineProps({
     task: {
@@ -116,12 +118,7 @@ const props = defineProps({
     },
 });
 
-const emit = defineEmits(['close', 'edit', 'delete']);
-
-// Computed
-const completedSubtasks = computed(() => {
-    return (props.task.subtasks || []).filter(s => s.completed).length;
-});
+const emit = defineEmits(['close', 'edit', 'delete', 'updated']);
 
 // Methods
 const formatStatus = (status) => {
@@ -157,11 +154,6 @@ const getInitials = (name) => {
         .join('')
         .toUpperCase()
         .substring(0, 2);
-};
-
-const toggleSubtask = (subtaskId) => {
-    // This would typically emit to parent or trigger an API call
-    console.log('Toggle subtask:', subtaskId);
 };
 
 const confirmDelete = () => {

@@ -22,7 +22,7 @@ class ColumnPolicy
         }
 
         // Instructor who owns the project can create tasks
-        if ($user->role && $user->role->name === 'instructor' && $user->id === $project->instructor_id) {
+        if ($user->id === $project->instructor_id) {
             return true;
         }
 

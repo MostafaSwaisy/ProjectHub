@@ -46,6 +46,7 @@ class DashboardController extends Controller
     {
         return DB::table('projects')
             ->leftJoin('project_members', 'projects.id', '=', 'project_members.project_id')
+            ->where('projects.is_archived', false) // T054: Exclude archived projects
             ->where(function ($query) use ($userId) {
                 $query->where('projects.instructor_id', $userId)
                     ->orWhere('project_members.user_id', $userId);
@@ -67,6 +68,7 @@ class DashboardController extends Controller
             ->join('boards', 'columns.board_id', '=', 'boards.id')
             ->join('projects', 'boards.project_id', '=', 'projects.id')
             ->leftJoin('project_members', 'projects.id', '=', 'project_members.project_id')
+            ->where('projects.is_archived', false) // T054: Exclude archived projects
             ->where(function ($query) use ($userId) {
                 $query->where('projects.instructor_id', $userId)
                     ->orWhere('project_members.user_id', $userId);
@@ -87,6 +89,7 @@ class DashboardController extends Controller
         $projectIds = DB::table('projects')
             ->select('projects.id')
             ->leftJoin('project_members as pm', 'projects.id', '=', 'pm.project_id')
+            ->where('projects.is_archived', false) // T054: Exclude archived projects
             ->where(function ($query) use ($userId) {
                 $query->where('projects.instructor_id', $userId)
                     ->orWhere('pm.user_id', $userId);
@@ -114,6 +117,7 @@ class DashboardController extends Controller
             ->join('boards', 'columns.board_id', '=', 'boards.id')
             ->join('projects', 'boards.project_id', '=', 'projects.id')
             ->leftJoin('project_members', 'projects.id', '=', 'project_members.project_id')
+            ->where('projects.is_archived', false) // T054: Exclude archived projects
             ->where(function ($query) use ($userId) {
                 $query->where('projects.instructor_id', $userId)
                     ->orWhere('project_members.user_id', $userId);

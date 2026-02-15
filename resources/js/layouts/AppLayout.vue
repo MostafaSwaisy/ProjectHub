@@ -24,6 +24,9 @@
             class="mobile-overlay"
             @click="layoutStore.setSidebarCollapsed(true)"
         ></div>
+
+        <!-- Toast Notifications -->
+        <Toast />
     </div>
 </template>
 
@@ -32,6 +35,7 @@ import { onMounted, onUnmounted } from 'vue'
 import { useLayoutStore } from '../stores/layout'
 import TopNavbar from '../components/layout/TopNavbar.vue'
 import Sidebar from '../components/layout/Sidebar.vue'
+import Toast from '../components/shared/Toast.vue'
 
 const layoutStore = useLayoutStore()
 

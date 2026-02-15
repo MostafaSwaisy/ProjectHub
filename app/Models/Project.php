@@ -19,11 +19,13 @@ class Project extends Model
         'instructor_id',
         'timeline_status',
         'budget_status',
+        'is_archived',
     ];
 
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'is_archived' => 'boolean',
     ];
 
     /**
@@ -114,5 +116,34 @@ class Project extends Model
             'id'
         )->join('boards', 'columns.board_id', '=', 'boards.id')
             ->where('boards.project_id', $this->id);
+    }
+
+    /**
+     * Scope to filter only active (non-archived) projects
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('is_archived', false);
+    }
+
+    /**
+     * Scope to filter only archived projects
+     */
+    public function scopeArchived($query)
+    {
+        return $query->where('is_archived', true);
+    }
+
+    /**
+     * Scope to get projects for a specific user (as instructor or member)
+     */
+    public function scopeForUser($query, $userId)
+    {
+        return $query->where(function ($q) use ($userId) {
+            $q->where('instructor_id', $userId)
+                ->orWhereHas('members', function ($memberQuery) use ($userId) {
+                    $memberQuery->where('user_id', $userId);
+                });
+        });
     }
 }

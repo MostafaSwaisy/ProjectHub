@@ -6,6 +6,8 @@ use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
 use App\Http\Requests\MoveTaskRequest;
 use App\Http\Resources\TaskResource;
+use App\Http\Resources\TaskDetailResource;
+use App\Models\Activity;
 use App\Models\Task;
 use App\Models\Column;
 use Illuminate\Http\Request;
@@ -25,27 +27,62 @@ class TaskController extends Controller
         $query = Task::with(['assignee', 'labels', 'subtasks'])
             ->withCount(['subtasks', 'labels']);
 
-        // Apply column filter
-        if ($request->has('column_id')) {
-            $query->where('column_id', $request->input('column_id'));
+        // CRITICAL: Filter by project_id to only show tasks for the current project
+        if ($request->has('project_id') && $projectId = $request->input('project_id')) {
+            $query->whereHas('column.board', function ($q) use ($projectId) {
+                $q->where('project_id', $projectId);
+            });
         }
 
-        // Apply assignee filter
+        // T099: Apply search filter (title, description, task ID)
+        if ($request->has('search') && $search = $request->input('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%")
+                  ->orWhere('id', '=', $search);
+            });
+        }
+
+        // T100: Apply label filter (comma-separated IDs)
+        if ($request->has('label_ids') && $labelIds = $request->input('label_ids')) {
+            $labelIdsArray = is_array($labelIds) ? $labelIds : explode(',', $labelIds);
+            $query->whereHas('labels', function ($q) use ($labelIdsArray) {
+                $q->whereIn('labels.id', $labelIdsArray);
+            });
+        }
+
+        // T101: Apply assignee filter
         if ($request->has('assignee_id')) {
             $query->where('assignee_id', $request->input('assignee_id'));
         }
 
-        // Apply priority filter
+        // T102: Apply priority filter
         if ($request->has('priority')) {
             $query->where('priority', $request->input('priority'));
         }
 
-        // Apply due_date filter (tasks due on or after given date)
-        if ($request->has('due_date')) {
-            $query->where('due_date', '>=', $request->input('due_date'));
+        // T103: Apply due date range filter with presets
+        if ($request->has('due_date_range')) {
+            $range = $request->input('due_date_range');
+            $today = now()->startOfDay();
+
+            switch ($range) {
+                case 'overdue':
+                    $query->where('due_date', '<', $today);
+                    break;
+                case 'today':
+                    $query->whereDate('due_date', $today);
+                    break;
+                case 'this_week':
+                    $query->whereBetween('due_date', [
+                        $today,
+                        now()->endOfWeek()
+                    ]);
+                    break;
+            }
         }
 
-        // Apply due_date range filter
+        // Custom due_date range filter
         if ($request->has('due_date_from') && $request->has('due_date_to')) {
             $query->whereBetween('due_date', [
                 $request->input('due_date_from'),
@@ -72,8 +109,8 @@ class TaskController extends Controller
         $validated = $request->validated();
         $columnId = $validated['column_id'];
 
-        // Get the column and authorize
-        $column = Column::findOrFail($columnId);
+        // Get the column with relationships for authorization
+        $column = Column::with('board.project')->findOrFail($columnId);
         $this->authorize('create', $column);
 
         // Get the next position
@@ -84,6 +121,11 @@ class TaskController extends Controller
         $task = Task::create([
             ...$validated,
             'position' => $nextPosition,
+        ]);
+
+        // Log activity
+        $this->logActivity($task, 'task.created', [
+            'task_title' => $task->title,
         ]);
 
         // Load relationships with eager loading
@@ -97,16 +139,19 @@ class TaskController extends Controller
      * Display a single task with all relationships (subtasks, comments, labels).
      *
      * @param Task $task
-     * @return JsonResponse
+     * @return TaskDetailResource
      */
     public function show(Task $task)
     {
+        // Load relationships for authorization
+        $task->load('column.board.project');
+
         $this->authorize('view', $task);
 
-        $task->load(['assignee', 'labels', 'subtasks']);
-        $task->loadCount(['subtasks', 'labels']);
+        $task->load(['assignee', 'labels', 'subtasks', 'comments.user']);
+        $task->loadCount(['subtasks', 'labels', 'comments']);
 
-        return new TaskResource($task);
+        return new TaskDetailResource($task);
     }
 
     /**
@@ -118,9 +163,34 @@ class TaskController extends Controller
      */
     public function update(Task $task, UpdateTaskRequest $request)
     {
+        // Load relationships for authorization
+        $task->load('column.board.project');
+
         $this->authorize('update', $task);
 
-        $task->update($request->validated());
+        $validated = $request->validated();
+        $oldValues = $task->only(array_keys($validated));
+
+        $task->update($validated);
+
+        // Build changes array for activity log
+        $changes = [];
+        foreach ($validated as $key => $newValue) {
+            if (isset($oldValues[$key]) && $oldValues[$key] !== $newValue) {
+                $changes[$key] = [
+                    'old' => $oldValues[$key],
+                    'new' => $newValue,
+                ];
+            }
+        }
+
+        // Log activity if there were changes
+        if (!empty($changes)) {
+            $this->logActivity($task, 'task.updated', [
+                'task_title' => $task->title,
+                'changes' => $changes,
+            ]);
+        }
 
         // Reload relationships with eager loading
         $task->load(['assignee', 'labels', 'subtasks']);
@@ -137,7 +207,21 @@ class TaskController extends Controller
      */
     public function destroy(Task $task)
     {
+        // Load relationships for authorization
+        $task->load('column.board.project');
+
         $this->authorize('delete', $task);
+
+        // Log activity before deletion
+        $this->logActivity($task, 'task.deleted', [
+            'task_title' => $task->title,
+            'task_id' => $task->id,
+        ]);
+
+        // Delete related data (subtasks, comments, labels pivot)
+        $task->subtasks()->delete();
+        $task->comments()->delete();
+        $task->labels()->detach();
 
         $task->delete();
 
@@ -153,11 +237,18 @@ class TaskController extends Controller
      */
     public function move(Task $task, MoveTaskRequest $request)
     {
+        // Load relationships for authorization
+        $task->load('column.board.project');
+
         $this->authorize('update', $task);
 
         $validated = $request->validated();
         $newColumnId = $validated['column_id'];
         $newPosition = $validated['position'];
+
+        // Store original column for activity logging
+        $oldColumnId = $task->column_id;
+        $oldColumn = $task->column;
 
         // Get the new column
         $newColumn = Column::findOrFail($newColumnId);
@@ -183,6 +274,15 @@ class TaskController extends Controller
         $task->position = $newPosition;
         $task->save();
 
+        // Log activity if column changed
+        if ($oldColumnId !== $newColumnId) {
+            $this->logActivity($task, 'task.moved', [
+                'task_title' => $task->title,
+                'from_column' => $oldColumn?->title,
+                'to_column' => $newColumn->title,
+            ]);
+        }
+
         // Reorder tasks in target column based on positions
         $this->reorderTasksInColumn($newColumn);
 
@@ -205,6 +305,78 @@ class TaskController extends Controller
 
         foreach ($tasks as $index => $task) {
             $task->update(['position' => $index]);
+        }
+    }
+
+    /**
+     * Sync labels for a task.
+     *
+     * @param Task $task
+     * @param Request $request
+     * @return TaskResource
+     */
+    public function syncLabels(Task $task, Request $request)
+    {
+        $this->authorize('update', $task);
+
+        $request->validate([
+            'label_ids' => 'required|array',
+            'label_ids.*' => 'integer|exists:labels,id',
+        ]);
+
+        $labelIds = $request->input('label_ids');
+
+        // Get current labels for activity logging
+        $currentLabelIds = $task->labels()->pluck('labels.id')->toArray();
+
+        // Sync labels
+        $task->labels()->sync($labelIds);
+
+        // Log activity for new labels
+        $addedLabels = array_diff($labelIds, $currentLabelIds);
+        $removedLabels = array_diff($currentLabelIds, $labelIds);
+
+        foreach ($addedLabels as $labelId) {
+            $label = $task->labels()->find($labelId);
+            if ($label) {
+                $this->logActivity($task, 'label.assigned', [
+                    'label_id' => $labelId,
+                    'label_name' => $label->name,
+                ]);
+            }
+        }
+
+        foreach ($removedLabels as $labelId) {
+            $this->logActivity($task, 'label.removed', [
+                'label_id' => $labelId,
+            ]);
+        }
+
+        // Reload relationships
+        $task->load(['assignee', 'labels', 'subtasks']);
+        $task->loadCount(['subtasks', 'labels']);
+
+        return new TaskResource($task);
+    }
+
+    /**
+     * Log an activity for the task.
+     */
+    private function logActivity(Task $task, string $type, array $data = []): void
+    {
+        $column = $task->column;
+        $board = $column?->board;
+        $projectId = $board?->project_id;
+
+        if ($projectId) {
+            Activity::create([
+                'user_id' => auth()->id(),
+                'project_id' => $projectId,
+                'type' => $type,
+                'subject_type' => Task::class,
+                'subject_id' => $task->id,
+                'data' => $data,
+            ]);
         }
     }
 }

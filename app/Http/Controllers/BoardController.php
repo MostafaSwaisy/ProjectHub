@@ -53,9 +53,9 @@ class BoardController extends Controller
      * @param Board $board
      * @return JsonResponse
      */
-    public function show(Board $board): JsonResponse
+    public function show(Project $project, Board $board): JsonResponse
     {
-        $this->authorize('view', $board->project);
+        $this->authorize('view', $project);
 
         $board->load(['columns.tasks']);
 
@@ -69,9 +69,9 @@ class BoardController extends Controller
      * @param UpdateBoardRequest $request
      * @return JsonResponse
      */
-    public function update(Board $board, UpdateBoardRequest $request): JsonResponse
+    public function update(Project $project, Board $board, UpdateBoardRequest $request): JsonResponse
     {
-        $this->authorize('update', $board->project);
+        $this->authorize('update', $project);
 
         $board->update($request->validated());
 
@@ -87,9 +87,9 @@ class BoardController extends Controller
      * @param Board $board
      * @return JsonResponse
      */
-    public function destroy(Board $board): JsonResponse
+    public function destroy(Project $project, Board $board): JsonResponse
     {
-        $this->authorize('delete', $board->project);
+        $this->authorize('delete', $project);
 
         $board->delete();
 
