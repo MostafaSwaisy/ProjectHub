@@ -159,9 +159,6 @@ export const useKanbanStore = defineStore('kanban', () => {
             // First, get the list of boards to find the board ID
             const listResponse = await axios.get(`/api/projects/${projectId}/boards`);
 
-            // Debug: Log the list response
-            console.log('Boards List API Response:', listResponse.data);
-
             // Handle paginated response
             let boards = listResponse.data.data || listResponse.data;
 
@@ -169,14 +166,11 @@ export const useKanbanStore = defineStore('kanban', () => {
             let firstBoardId = null;
             if (Array.isArray(boards) && boards.length > 0) {
                 firstBoardId = boards[0].id;
-                console.log(`Found ${boards.length} boards, using first board ID: ${firstBoardId}`);
             } else if (boards && boards.id) {
                 firstBoardId = boards.id;
-                console.log(`Found single board ID: ${firstBoardId}`);
             }
 
             if (!firstBoardId) {
-                console.warn('No board found for project');
                 return null;
             }
 
@@ -184,18 +178,14 @@ export const useKanbanStore = defineStore('kanban', () => {
             const boardResponse = await axios.get(`/api/projects/${projectId}/boards/${firstBoardId}`);
             const board = boardResponse.data.data || boardResponse.data;
 
-            console.log('Board Details API Response:', board);
-
             if (board && board.columns) {
                 boardId.value = board.id;
-                console.log(`Board ${board.id} has ${board.columns.length} columns:`, board.columns);
 
                 // Remove duplicates by id and sort by position
                 const uniqueColumns = Array.from(
                     new Map(board.columns.map(col => [col.id, col])).values()
                 );
                 columns.value = uniqueColumns.sort((a, b) => a.position - b.position);
-                console.log('Final unique columns:', columns.value);
             }
 
             return board;
