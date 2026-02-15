@@ -27,6 +27,13 @@ class TaskController extends Controller
         $query = Task::with(['assignee', 'labels', 'subtasks'])
             ->withCount(['subtasks', 'labels']);
 
+        // CRITICAL: Filter by project_id to only show tasks for the current project
+        if ($request->has('project_id') && $projectId = $request->input('project_id')) {
+            $query->whereHas('column.board', function ($q) use ($projectId) {
+                $q->where('project_id', $projectId);
+            });
+        }
+
         // T099: Apply search filter (title, description, task ID)
         if ($request->has('search') && $search = $request->input('search')) {
             $query->where(function ($q) use ($search) {

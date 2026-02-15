@@ -42,11 +42,15 @@ export const useTasksStore = defineStore('tasks', () => {
     });
 
     // Actions: Fetch all tasks with filters
-    const fetchTasks = async (filters = {}) => {
+    const fetchTasks = async (projectId, filters = {}) => {
         loading.value = true;
         error.value = null;
         try {
             const params = new URLSearchParams();
+
+            // CRITICAL: Add project_id filter to only fetch tasks for this project
+            if (projectId) params.append('project_id', projectId);
+
             if (filters.column_id) params.append('column_id', filters.column_id);
             if (filters.assignee_id) params.append('assignee_id', filters.assignee_id);
             if (filters.priority) params.append('priority', filters.priority);
