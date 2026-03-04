@@ -65,7 +65,7 @@
 
         <!-- Task Details Modal -->
         <TaskDetailModal
-            v-if="kanbanStore.showTaskDetails"
+            v-if="kanbanStore.showTaskDetails && selectedTask"
             :task="selectedTask"
             @close="kanbanStore.closeTaskDetails"
             @edit="editTask(selectedTask.id)"
@@ -145,8 +145,8 @@ const editingTask = computed(() => {
 
 // Computed: Get selected task for details modal
 const selectedTask = computed(() => {
-    if (!kanbanStore.editingTaskId) return null;
-    return tasksStore.getTaskById(kanbanStore.editingTaskId);
+    if (!kanbanStore.detailTaskId) return null;
+    return tasksStore.getTaskById(kanbanStore.detailTaskId);
 });
 
 // Lifecycle

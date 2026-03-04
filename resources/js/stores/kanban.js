@@ -26,6 +26,7 @@ export const useKanbanStore = defineStore('kanban', () => {
     const isTaskModalOpen = ref(false);
     const editingTaskId = ref(null);
     const showTaskDetails = ref(false);
+    const detailTaskId = ref(null);
 
     // Sorting preferences
     const sortBy = ref('created_at'); // 'created_at', 'due_date', 'priority'
@@ -120,6 +121,10 @@ export const useKanbanStore = defineStore('kanban', () => {
     };
 
     const openEditTaskModal = (taskId) => {
+        // Close detail modal first if open
+        showTaskDetails.value = false;
+        detailTaskId.value = null;
+
         editingTaskId.value = taskId;
         isTaskModalOpen.value = true;
     };
@@ -131,13 +136,13 @@ export const useKanbanStore = defineStore('kanban', () => {
 
     // Actions: Task details
     const openTaskDetails = (taskId) => {
-        editingTaskId.value = taskId;
+        detailTaskId.value = taskId;
         showTaskDetails.value = true;
     };
 
     const closeTaskDetails = () => {
         showTaskDetails.value = false;
-        editingTaskId.value = null;
+        detailTaskId.value = null;
     };
 
     // Actions: Sorting
@@ -210,6 +215,7 @@ export const useKanbanStore = defineStore('kanban', () => {
         isTaskModalOpen.value = false;
         editingTaskId.value = null;
         showTaskDetails.value = false;
+        detailTaskId.value = null;
         sortBy.value = 'created_at';
         sortOrder.value = 'asc';
     };
@@ -229,6 +235,7 @@ export const useKanbanStore = defineStore('kanban', () => {
         draggedOverColumn,
         isTaskModalOpen,
         editingTaskId,
+        detailTaskId,
         showTaskDetails,
         sortBy,
         sortOrder,
