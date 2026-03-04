@@ -107,15 +107,9 @@ class Project extends Model
 
     public function tasks()
     {
-        return $this->hasManyThrough(
-            Task::class,
-            Column::class,
-            'board_id',
-            'column_id',
-            'id',
-            'id'
-        )->join('boards', 'columns.board_id', '=', 'boards.id')
-            ->where('boards.project_id', $this->id);
+        return Task::whereHas('column.board', function ($query) {
+            $query->where('project_id', $this->id);
+        });
     }
 
     /**

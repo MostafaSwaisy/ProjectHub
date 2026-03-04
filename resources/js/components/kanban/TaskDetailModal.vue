@@ -26,8 +26,8 @@
                 <div class="detail-grid">
                     <div class="detail-item">
                         <h4>Status</h4>
-                        <div class="status-badge" :class="`status-${task.status}`">
-                            {{ formatStatus(task.status) }}
+                        <div class="status-badge" :class="`status-${taskStatus}`">
+                            {{ formatStatus(taskStatus) }}
                         </div>
                     </div>
                     <div class="detail-item">
@@ -119,6 +119,11 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['close', 'edit', 'delete', 'updated']);
+
+// Derive status from column name since task.status may not exist
+const taskStatus = computed(() => {
+    return props.task.column?.name || props.task.status || 'unknown';
+});
 
 // Methods
 const formatStatus = (status) => {
