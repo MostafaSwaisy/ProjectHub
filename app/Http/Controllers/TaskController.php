@@ -29,6 +29,12 @@ class TaskController extends Controller
 
         // CRITICAL: Filter by project_id to only show tasks for the current project
         if ($request->has('project_id') && $projectId = $request->input('project_id')) {
+            // Verify user has access to this project
+            $project = \App\Models\Project::findOrFail($projectId);
+            if ($project->instructor_id !== auth()->id() && !$project->members()->where('user_id', auth()->id())->exists()) {
+                abort(403, 'Unauthorized access to project.');
+            }
+
             $query->whereHas('column.board', function ($q) use ($projectId) {
                 $q->where('project_id', $projectId);
             });

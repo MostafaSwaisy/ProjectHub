@@ -69,9 +69,9 @@ Route::post('tasks/{task}/labels', [TaskController::class, 'syncLabels'])->middl
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('tasks/{task}/subtasks', [SubtaskController::class, 'index'])->name('subtasks.index');
     Route::post('tasks/{task}/subtasks', [SubtaskController::class, 'store'])->name('subtasks.store');
+    Route::post('tasks/{task}/subtasks/reorder', [SubtaskController::class, 'reorder'])->name('subtasks.reorder');
     Route::patch('tasks/{task}/subtasks/{subtask}', [SubtaskController::class, 'update'])->name('subtasks.update');
     Route::delete('tasks/{task}/subtasks/{subtask}', [SubtaskController::class, 'destroy'])->name('subtasks.destroy');
-    Route::post('tasks/{task}/subtasks/reorder', [SubtaskController::class, 'reorder'])->name('subtasks.reorder');
 });
 
 // Comment Routes (shallow nesting)

@@ -11,6 +11,7 @@ use App\Models\Task;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Str;
 
 class CommentController extends Controller
 {
@@ -43,7 +44,7 @@ class CommentController extends Controller
         // Log activity
         $this->logActivity($task, 'comment.created', [
             'comment_id' => $comment->id,
-            'excerpt' => \Str::limit($comment->body, 50),
+            'excerpt' => Str::limit($comment->body, 50),
         ]);
 
         return (new CommentResource($comment))
@@ -87,6 +88,14 @@ class CommentController extends Controller
             ], 403);
         }
 
+        // Log activity before deletion
+        $task = $comment->task;
+        if ($task) {
+            $this->logActivity($task, 'comment.deleted', [
+                'comment_id' => $comment->id,
+            ]);
+        }
+
         $comment->delete();
 
         return response()->json(null, 204);
@@ -106,8 +115,8 @@ class CommentController extends Controller
                 'user_id' => auth()->id(),
                 'project_id' => $projectId,
                 'type' => $type,
-                'subject_type' => Comment::class,
-                'subject_id' => $data['comment_id'] ?? null,
+                'subject_type' => Task::class,
+                'subject_id' => $task->id,
                 'data' => $data,
             ]);
         }

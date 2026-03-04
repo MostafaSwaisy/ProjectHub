@@ -40,7 +40,7 @@ export const useTaskFiltering = (tasksRef) => {
     const matchesAssigneeFilter = (task) => {
         if (kanbanStore.selectedAssignees.length === 0) return true;
 
-        const taskAssigneeIds = (task.assignees || []).map(a => a.id);
+        const taskAssigneeIds = task.assignee ? [task.assignee.id] : [];
         return kanbanStore.selectedAssignees.some(assigneeId =>
             taskAssigneeIds.includes(assigneeId)
         );
@@ -136,11 +136,9 @@ export const useTaskFiltering = (tasksRef) => {
 
         const assigneesMap = new Map();
         tasksRef.value.forEach(task => {
-            (task.assignees || []).forEach(assignee => {
-                if (!assigneesMap.has(assignee.id)) {
-                    assigneesMap.set(assignee.id, assignee);
-                }
-            });
+            if (task.assignee && !assigneesMap.has(task.assignee.id)) {
+                assigneesMap.set(task.assignee.id, task.assignee);
+            }
         });
 
         return Array.from(assigneesMap.values());

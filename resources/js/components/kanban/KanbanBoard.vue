@@ -4,6 +4,7 @@
         <!-- Board Header -->
         <BoardHeader
             :project-id="projectId"
+            :project-members="projectMembers"
             :is-archived="isArchived"
             @add-task="openCreateModal"
             @filters-changed="onFiltersChanged"
@@ -94,6 +95,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+import axios from 'axios';
 import { useTasksStore } from '../../stores/tasks';
 import { useKanbanStore } from '../../stores/kanban';
 import { useTaskFiltering } from '../../composables/useTaskFiltering';
@@ -117,6 +119,9 @@ const props = defineProps({
 const tasksStore = useTasksStore();
 const kanbanStore = useKanbanStore();
 const { getTasksByStatus } = useTaskFiltering(computed(() => tasksStore.tasks));
+
+// Project members for assignee filter
+const projectMembers = ref([]);
 
 // Local state
 const showDeleteConfirm = ref(false);
@@ -160,6 +165,14 @@ onMounted(async () => {
         console.error('Failed to fetch tasks:', error);
         // Load mock data if API fails (for development/testing)
         loadMockData();
+    }
+
+    // Fetch project members for assignee filter
+    try {
+        const response = await axios.get(`/api/projects/${props.projectId}/members`);
+        projectMembers.value = response.data.data || response.data;
+    } catch (error) {
+        console.error('Failed to fetch project members:', error);
     }
 });
 

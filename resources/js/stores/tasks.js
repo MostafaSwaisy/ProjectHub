@@ -306,7 +306,7 @@ export const useTasksStore = defineStore('tasks', () => {
             // Send reorder request to server (batch update)
             await Promise.all(
                 taskIds.map((taskId, index) =>
-                    axios.patch(`/api/tasks/${taskId}/move`, {
+                    axios.post(`/api/tasks/${taskId}/move`, {
                         column_id: columnId,
                         position: index,
                     })

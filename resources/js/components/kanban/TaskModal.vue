@@ -84,6 +84,8 @@
                 </div>
 
                 <!-- Form Actions -->
+                <p v-if="errors.submit" class="error-message submit-error">{{ errors.submit }}</p>
+
                 <div class="form-actions">
                     <button type="button" class="btn btn-secondary" @click="$emit('close')">
                         Cancel
@@ -174,6 +176,10 @@ const validateForm = () => {
         errors.value.title = 'Title must be less than 200 characters';
     }
 
+    if (!isEditing.value && !formData.value.column_id) {
+        errors.value.column_id = 'Column is required';
+    }
+
     return Object.keys(errors.value).length === 0;
 };
 
@@ -181,12 +187,20 @@ const submitForm = async () => {
     if (!validateForm()) return;
 
     try {
+        let taskId;
         if (isEditing.value) {
             // Update existing task
             await tasksStore.updateTask(props.task.id, formData.value);
+            taskId = props.task.id;
         } else {
             // Create new task
-            await tasksStore.createTask(formData.value);
+            const newTask = await tasksStore.createTask(formData.value);
+            taskId = newTask?.id;
+        }
+
+        // Sync labels if any selected
+        if (formData.value.labels?.length > 0 && taskId) {
+            await tasksStore.syncLabels(taskId, formData.value.labels);
         }
 
         emit('save');
