@@ -105,4 +105,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('tasks/{task}/restore', [TrashController::class, 'restore'])->withTrashed()->name('tasks.restore');
     Route::post('tasks/{task}/subtasks/{subtask}/restore', [TrashController::class, 'restore'])->withTrashed()->name('subtasks.restore');
     Route::post('comments/{comment}/restore', [TrashController::class, 'restore'])->withTrashed()->name('comments.restore');
+
+    // Force delete routes
+    Route::delete('projects/{project}/force', [TrashController::class, 'forceDelete'])->name('trash.forceDelete');
+    Route::delete('projects/{project}/boards/{board}/force', [TrashController::class, 'forceDelete'])->name('boards.forceDelete');
+    Route::delete('tasks/{task}/force', [TrashController::class, 'forceDelete'])->withTrashed()->name('tasks.forceDelete');
+    Route::delete('tasks/{task}/subtasks/{subtask}/force', [TrashController::class, 'forceDelete'])->withTrashed()->name('subtasks.forceDelete');
+    Route::delete('comments/{comment}/force', [TrashController::class, 'forceDelete'])->withTrashed()->name('comments.forceDelete');
 });

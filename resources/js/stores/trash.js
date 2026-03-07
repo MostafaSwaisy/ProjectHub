@@ -155,6 +155,51 @@ export const useTrashStore = defineStore('trash', () => {
         }
     };
 
+    // Actions: Force delete a trash item
+    const forceDeleteItem = async (projectId, type, id) => {
+        loading.value = true;
+        error.value = null;
+
+        try {
+            const payload = {
+                type,
+                id,
+            };
+
+            await axios.delete(`/api/projects/${projectId}/force`, { data: payload });
+
+            // Remove the force-deleted item from the trash list
+            items.value = items.value.filter(item => !(item.type === type && item.id === id));
+
+            return {
+                success: true,
+            };
+        } catch (err) {
+            // Handle 403 Forbidden - permission denied
+            if (err.response?.status === 403) {
+                error.value = 'You do not have permission to permanently delete this item.';
+                console.error('Permission denied for force delete:', err);
+
+                return {
+                    success: false,
+                    permissionDenied: true,
+                    error: error.value,
+                };
+            }
+
+            error.value = err.response?.data?.message || 'Failed to permanently delete item';
+            console.error('Error force deleting item:', err);
+
+            return {
+                success: false,
+                permissionDenied: false,
+                error: error.value,
+            };
+        } finally {
+            loading.value = false;
+        }
+    };
+
     return {
         // State
         items,
@@ -177,5 +222,6 @@ export const useTrashStore = defineStore('trash', () => {
         clearItems,
         clearOrphanedItem,
         restoreItem,
+        forceDeleteItem,
     };
 });

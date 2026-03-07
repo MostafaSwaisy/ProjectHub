@@ -8,6 +8,7 @@ use App\Models\Board;
 use App\Models\Column;
 use App\Models\Subtask;
 use App\Models\Comment;
+use App\Models\Activity;
 use App\Http\Resources\TrashItemResource;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
@@ -336,6 +337,163 @@ class TrashController extends Controller
                     'model_instance' => $model,
                 ]),
                 'message' => 'Item restored successfully.',
+            ]);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'message' => 'Item not found.',
+            ], 404);
+        }
+    }
+
+    /**
+     * Permanently delete a soft-deleted item from the trash.
+     *
+     * Authorization: Project owner OR (task assignee for tasks only).
+     * Cascades force-delete to all children via HasCascadeSoftDeletes trait.
+     *
+     * @param Request $request
+     * @param Project $project
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function forceDelete(Request $request, Project $project)
+    {
+        // Authorize the action
+        $this->authorize('update', $project);
+
+        // Validate request
+        $validated = $request->validate([
+            'type' => 'required|in:task,subtask,comment,board,column',
+            'id' => 'required|integer',
+        ]);
+
+        $type = $validated['type'];
+        $id = $validated['id'];
+        $currentUser = auth()->user();
+        $isProjectOwner = $project->instructor_id === $currentUser->id;
+
+        try {
+            $model = null;
+
+            // Fetch the trashed model
+            switch ($type) {
+                case 'task':
+                    $model = Task::withTrashed()->findOrFail($id);
+
+                    // Verify task belongs to this project
+                    if (!$model->column || $model->column->board->project_id !== $project->id) {
+                        return response()->json([
+                            'message' => 'Task not found in this project.',
+                        ], 404);
+                    }
+
+                    // Authorization: project owner OR task assignee
+                    $isTaskAssignee = $model->assigned_to === $currentUser->id;
+                    if (!$isProjectOwner && !$isTaskAssignee) {
+                        return response()->json([
+                            'message' => 'Unauthorized to permanently delete this task.',
+                        ], 403);
+                    }
+                    break;
+
+                case 'subtask':
+                    $model = Subtask::withTrashed()->findOrFail($id);
+
+                    // Verify subtask belongs to this project
+                    if (!$model->task || !$model->task->column || $model->task->column->board->project_id !== $project->id) {
+                        return response()->json([
+                            'message' => 'Subtask not found in this project.',
+                        ], 404);
+                    }
+
+                    // Authorization: project owner only
+                    if (!$isProjectOwner) {
+                        return response()->json([
+                            'message' => 'Unauthorized to permanently delete this subtask.',
+                        ], 403);
+                    }
+                    break;
+
+                case 'comment':
+                    $model = Comment::withTrashed()->findOrFail($id);
+
+                    // Verify comment belongs to this project
+                    if (!$model->task || !$model->task->column || $model->task->column->board->project_id !== $project->id) {
+                        return response()->json([
+                            'message' => 'Comment not found in this project.',
+                        ], 404);
+                    }
+
+                    // Authorization: project owner only
+                    if (!$isProjectOwner) {
+                        return response()->json([
+                            'message' => 'Unauthorized to permanently delete this comment.',
+                        ], 403);
+                    }
+                    break;
+
+                case 'board':
+                    $model = Board::withTrashed()->findOrFail($id);
+
+                    // Verify board belongs to this project
+                    if ($model->project_id !== $project->id) {
+                        return response()->json([
+                            'message' => 'Board not found in this project.',
+                        ], 404);
+                    }
+
+                    // Authorization: project owner only
+                    if (!$isProjectOwner) {
+                        return response()->json([
+                            'message' => 'Unauthorized to permanently delete this board.',
+                        ], 403);
+                    }
+                    break;
+
+                case 'column':
+                    $model = Column::withTrashed()->findOrFail($id);
+
+                    // Verify column belongs to this project
+                    if (!$model->board || $model->board->project_id !== $project->id) {
+                        return response()->json([
+                            'message' => 'Column not found in this project.',
+                        ], 404);
+                    }
+
+                    // Authorization: project owner only
+                    if (!$isProjectOwner) {
+                        return response()->json([
+                            'message' => 'Unauthorized to permanently delete this column.',
+                        ], 403);
+                    }
+                    break;
+            }
+
+            // Ensure the model exists
+            if (!$model) {
+                return response()->json([
+                    'message' => 'Item not found in trash.',
+                ], 404);
+            }
+
+            // Permanently delete the model (cascades via trait)
+            $model->forceDelete();
+
+            // Create activity log
+            Activity::create([
+                'user_id' => auth()->id(),
+                'project_id' => $project->id,
+                'type' => 'force_deleted',
+                'subject_type' => get_class($model),
+                'subject_id' => $id,
+                'data' => [
+                    'item_type' => $type,
+                    'item_title' => $model->title ?? substr($model->body ?? 'N/A', 0, 50),
+                ],
+            ]);
+
+            // Return success response
+            return response()->json([
+                'message' => 'Item permanently deleted.',
             ]);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([

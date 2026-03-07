@@ -142,11 +142,20 @@
                             </svg>
                             {{ restoreLoadingMap[`${item.type}-${item.id}`] ? 'Restoring...' : 'Restore' }}
                         </button>
-                        <button class="action-btn delete-btn" title="Permanently delete this item">
-                            <svg fill="currentColor" viewBox="0 0 20 20">
+                        <button
+                            v-if="canForceDelete(item)"
+                            class="action-btn delete-btn"
+                            title="Permanently delete this item"
+                            @click="handlePermanentDelete(item)"
+                            :disabled="deleteLoadingMap[`${item.type}-${item.id}`]"
+                        >
+                            <svg v-if="!deleteLoadingMap[`${item.type}-${item.id}`]" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
                             </svg>
-                            Delete
+                            <svg v-else class="spinner-icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0110 2v.5a1 1 0 00.82.995l.12.007a1 1 0 10.12-1.992l-.12-.007zm4.457 1.605a1 1 0 00-1.414 0l-.353.354a1 1 0 101.414 1.414l.353-.354zM18 10a1 1 0 00-1-1h-.5a1 1 0 000 2h.5a1 1 0 001-1zM1.046 11.3a1 1 0 011.414-.12l.353.12a1 1 0 11-1.414 1.414l-.354-.353zm5.339 5.339a1 1 0 101.414-1.414l-.354-.354a1 1 0 00-1.414 1.414l.354.354z" clip-rule="evenodd" />
+                            </svg>
+                            {{ deleteLoadingMap[`${item.type}-${item.id}`] ? 'Deleting...' : 'Delete' }}
                         </button>
                     </div>
                 </div>
@@ -171,6 +180,46 @@
                 >
                     Next
                 </button>
+            </div>
+        </div>
+
+        <!-- Permanent Delete Confirmation Modal -->
+        <div v-if="showDeleteConfirmModal" class="modal-overlay" @click="cancelDeleteConfirm">
+            <div class="modal-content" @click.stop>
+                <div class="modal-header">
+                    <h3>Permanently Delete {{ pendingDelete?.type }}</h3>
+                    <button class="modal-close" @click="cancelDeleteConfirm">
+                        <svg fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="warning-box">
+                        <svg class="warning-icon" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                        </svg>
+                        <p class="warning-text">This action cannot be undone. The item will be permanently deleted from the database.</p>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button
+                        class="btn btn-secondary"
+                        @click="cancelDeleteConfirm"
+                        :disabled="deleteConfirmLoading"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        class="btn btn-danger"
+                        @click="confirmDeleteItem"
+                        :disabled="deleteConfirmLoading"
+                    >
+                        {{ deleteConfirmLoading ? 'Deleting...' : 'Yes, Delete Permanently' }}
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -261,6 +310,11 @@ const orphanModalLoading = ref(false);
 const selectedColumn = ref(null);
 const pendingRestore = ref(null); // Pending restore data
 
+// Delete confirmation modal state
+const showDeleteConfirmModal = ref(false);
+const deleteConfirmLoading = ref(false);
+const pendingDelete = ref(null); // Pending delete data
+
 // Toast notification state
 const toastMessage = ref('');
 const toastType = ref('success'); // 'success' or 'error'
@@ -268,6 +322,9 @@ const showToast = ref(false);
 
 // Restore button loading states
 const restoreLoadingMap = ref({});
+
+// Delete button loading states
+const deleteLoadingMap = ref({});
 
 // Computed
 const items = computed(() => trashStore.items);
@@ -281,6 +338,13 @@ const isRestoring = computed(() => {
     if (!pendingRestore.value) return false;
     return restoreLoadingMap.value[`${pendingRestore.value.type}-${pendingRestore.value.id}`] || false;
 });
+
+// Check if current user can force delete an item
+const canForceDelete = (item) => {
+    // In a real app, this would check user permissions from the API response
+    // For now, we'll always show the button and let the backend handle authorization
+    return true;
+};
 
 // Methods
 const formatDate = (dateString) => {
@@ -396,6 +460,55 @@ const cancelOrphanModal = () => {
     showOrphanModal.value = false;
     pendingRestore.value = null;
     selectedColumn.value = null;
+};
+
+// Handle permanent delete button click
+const handlePermanentDelete = (item) => {
+    pendingDelete.value = {
+        type: item.type,
+        id: item.id,
+        title: item.title,
+    };
+    showDeleteConfirmModal.value = true;
+};
+
+// Confirm and execute permanent delete
+const confirmDeleteItem = async () => {
+    if (!pendingDelete.value) {
+        showToastNotification('No item selected', 'error');
+        return;
+    }
+
+    const key = `${pendingDelete.value.type}-${pendingDelete.value.id}`;
+    deleteLoadingMap.value[key] = true;
+    deleteConfirmLoading.value = true;
+
+    try {
+        const result = await trashStore.forceDeleteItem(props.projectId, pendingDelete.value.type, pendingDelete.value.id);
+
+        if (result.success) {
+            showToastNotification(`${pendingDelete.value.type.charAt(0).toUpperCase() + pendingDelete.value.type.slice(1)} permanently deleted!`, 'success');
+            showDeleteConfirmModal.value = false;
+            pendingDelete.value = null;
+        } else if (result.permissionDenied) {
+            showToastNotification('You do not have permission to permanently delete this item', 'error');
+        } else {
+            showToastNotification(result.error || 'Failed to permanently delete item', 'error');
+        }
+    } catch (err) {
+        console.error('Error permanently deleting item:', err);
+        showToastNotification('Failed to permanently delete item', 'error');
+    } finally {
+        deleteLoadingMap.value[key] = false;
+        deleteConfirmLoading.value = false;
+    }
+};
+
+// Cancel delete confirmation
+const cancelDeleteConfirm = () => {
+    showDeleteConfirmModal.value = false;
+    pendingDelete.value = null;
+    deleteConfirmLoading.value = false;
 };
 
 // Lifecycle
@@ -885,9 +998,45 @@ onMounted(() => {
     border-color: rgba(255, 255, 255, 0.2);
 }
 
+.btn-danger {
+    background: #ef4444;
+    color: white;
+    border-color: #ef4444;
+}
+
+.btn-danger:hover:not(:disabled) {
+    background: #dc2626;
+    border-color: #dc2626;
+}
+
 .btn:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+}
+
+/* Warning Box */
+.warning-box {
+    display: flex;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: var(--radius-md);
+    align-items: flex-start;
+}
+
+.warning-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    min-width: 1.5rem;
+    color: #ef4444;
+    flex-shrink: 0;
+}
+
+.warning-text {
+    color: #fca5a5;
+    margin: 0;
+    font-size: var(--text-sm);
 }
 
 /* Toast Notification */
