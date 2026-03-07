@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateBoardRequest;
 use App\Http\Resources\BoardResource;
 use App\Models\Board;
 use App\Models\Project;
+use App\Models\Activity;
 use Illuminate\Http\JsonResponse;
 
 class BoardController extends Controller
@@ -91,6 +92,17 @@ class BoardController extends Controller
     {
         $this->authorize('delete', $project);
 
+        // Log activity before deletion
+        Activity::create([
+            'user_id' => auth()->id(),
+            'project_id' => $project->id,
+            'type' => 'deleted',
+            'subject_type' => Board::class,
+            'subject_id' => $board->id,
+            'data' => ['title' => $board->title],
+        ]);
+
+        // Delete the board (cascade will handle related records)
         $board->delete();
 
         return response()->json(null, 204);

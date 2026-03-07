@@ -219,16 +219,12 @@ class TaskController extends Controller
         $this->authorize('delete', $task);
 
         // Log activity before deletion
-        $this->logActivity($task, 'task.deleted', [
+        $this->logActivity($task, 'deleted', [
             'task_title' => $task->title,
             'task_id' => $task->id,
         ]);
 
-        // Delete related data (subtasks, comments, labels pivot)
-        $task->subtasks()->delete();
-        $task->comments()->delete();
-        $task->labels()->detach();
-
+        // Delete the task (SoftDeletes trait + HasCascadeSoftDeletes handle cascade)
         $task->delete();
 
         return response()->noContent();

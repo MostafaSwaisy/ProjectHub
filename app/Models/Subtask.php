@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\User;
 
 class Subtask extends Model
 {
@@ -16,6 +17,7 @@ class Subtask extends Model
         'title',
         'is_completed',
         'position',
+        'deleted_by',
     ];
 
     protected $casts = [
@@ -28,5 +30,10 @@ class Subtask extends Model
     public function task(): BelongsTo
     {
         return $this->belongsTo(Task::class);
+    }
+
+    public function deletedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'deleted_by');
     }
 }

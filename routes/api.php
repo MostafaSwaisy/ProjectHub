@@ -12,6 +12,7 @@ use App\Http\Controllers\LabelController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\SubtaskController;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\TrashController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -94,4 +95,9 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('tasks/{task}/activities', [ActivityController::class, 'index'])->name('activities.task');
     Route::get('projects/{project}/activities', [ActivityController::class, 'projectActivities'])->name('activities.project');
+});
+
+// Trash Routes
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('projects/{project}/trash', [TrashController::class, 'index'])->name('trash.index');
 });

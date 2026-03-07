@@ -76,6 +76,13 @@ class SubtaskController extends Controller
      */
     public function destroy(Task $task, Subtask $subtask): JsonResponse
     {
+        // Log activity before deletion
+        $this->logActivity($task, 'deleted', [
+            'subtask_id' => $subtask->id,
+            'title' => $subtask->title,
+        ]);
+
+        // Delete the subtask (SoftDeletes trait handles it)
         $subtask->delete();
 
         return response()->json(null, 204);

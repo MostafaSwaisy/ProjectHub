@@ -23,6 +23,7 @@ class Task extends Model
         'priority',
         'due_date',
         'position',
+        'deleted_by',
     ];
 
     protected $casts = [
@@ -71,6 +72,11 @@ class Task extends Model
     {
         return $this->hasMany(Activity::class, 'subject_id')
             ->where('subject_type', self::class);
+    }
+
+    public function deletedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'deleted_by');
     }
 
     /**

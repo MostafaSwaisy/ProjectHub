@@ -53,15 +53,15 @@
 
 ### Implementation for User Story 1
 
-- [ ] T015 [US1] Update `destroy()` method in `app/Http/Controllers/TaskController.php` — remove manual cascade delete code for subtasks/comments/labels (trait handles cascade), add activity log entry with type `deleted`, set `deleted_by` before delete
-- [ ] T016 [P] [US1] Update `destroy()` method in `app/Http/Controllers/SubtaskController.php` — remove manual delete, let SoftDeletes handle it, add activity log entry
-- [ ] T017 [P] [US1] Update `destroy()` method in `app/Http/Controllers/CommentController.php` — let SoftDeletes handle delete, activity log already exists (update type to `deleted`)
-- [ ] T018 [P] [US1] Update `destroy()` method in `app/Http/Controllers/ProjectController.php` — let SoftDeletes + cascade handle deletion, add activity log entry with type `deleted`
-- [ ] T019 [P] [US1] Update `destroy()` method in `app/Http/Controllers/BoardController.php` — let SoftDeletes + cascade handle deletion, add activity log entry
-- [ ] T020 [P] [US1] Update `destroy()` method in `app/Http/Controllers/LabelController.php` — let SoftDeletes handle delete, remove manual `detach` from tasks (label is soft-deleted, not removed)
-- [ ] T021 [US1] Update frontend `resources/js/stores/tasks.js` — ensure `deleteTask` action removes task from local state on successful API response (no behavior change needed, just verify)
-- [ ] T022 [US1] Update frontend `resources/js/stores/kanban.js` — ensure deleted task is removed from column's task list in local state after delete
-- [ ] T023 [US1] Update subtask progress calculation in `app/Http/Resources/TaskResource.php` and `app/Http/Resources/TaskDetailResource.php` — use `subtasks()->count()` which now auto-excludes soft-deleted subtasks (FR-017)
+- [x] T015 [US1] Update `destroy()` method in `app/Http/Controllers/TaskController.php` — remove manual cascade delete code for subtasks/comments/labels (trait handles cascade), add activity log entry with type `deleted`, set `deleted_by` before delete
+- [x] T016 [P] [US1] Update `destroy()` method in `app/Http/Controllers/SubtaskController.php` — remove manual delete, let SoftDeletes handle it, add activity log entry
+- [x] T017 [P] [US1] Update `destroy()` method in `app/Http/Controllers/CommentController.php` — let SoftDeletes handle delete, activity log already exists (update type to `deleted`)
+- [x] T018 [P] [US1] Update `destroy()` method in `app/Http/Controllers/ProjectController.php` — let SoftDeletes + cascade handle deletion, add activity log entry with type `deleted`
+- [x] T019 [P] [US1] Update `destroy()` method in `app/Http/Controllers/BoardController.php` — let SoftDeletes + cascade handle deletion, add activity log entry
+- [x] T020 [P] [US1] Update `destroy()` method in `app/Http/Controllers/LabelController.php` — let SoftDeletes handle delete, remove manual `detach` from tasks (label is soft-deleted, not removed)
+- [x] T021 [US1] Update frontend `resources/js/stores/tasks.js` — ensure `deleteTask` action removes task from local state on successful API response (no behavior change needed, just verify)
+- [x] T022 [US1] Update frontend `resources/js/stores/kanban.js` — ensure deleted task is removed from column's task list in local state after delete
+- [x] T023 [US1] Update subtask progress calculation in `app/Http/Resources/TaskResource.php` and `app/Http/Resources/TaskDetailResource.php` — use `subtasks()->count()` which now auto-excludes soft-deleted subtasks (FR-017)
 
 **Checkpoint**: All delete operations are now soft deletes with cascade. Tasks disappear from board but remain in database.
 
@@ -75,12 +75,12 @@
 
 ### Implementation for User Story 2
 
-- [ ] T024 [US2] Create `TrashController` in `app/Http/Controllers/TrashController.php` — `index()` method that aggregates soft-deleted boards, columns, tasks, subtasks, comments for a project, supports `?type=` filter, paginates results, returns unified format with `deleted_at`, `deleted_by` user info, and parent context
-- [ ] T025 [US2] Create `TrashItemResource` in `app/Http/Resources/TrashItemResource.php` — unified API resource that normalizes different entity types into a consistent trash view format (id, type, title, deleted_at, deleted_by, parent info)
-- [ ] T026 [US2] Add trash route `GET /api/projects/{project}/trash` in `routes/api.php` — scoped to authenticated project members
-- [ ] T027 [US2] Create Pinia trash store in `resources/js/stores/trash.js` — actions: `fetchTrashItems(projectId, type?)`, state: `items`, `loading`, `pagination`, `activeFilter`
-- [ ] T028 [US2] Create `TrashTab.vue` component in `resources/js/components/projects/TrashTab.vue` — displays list of deleted items with entity type icon, title, deletion date, deleted-by user name, filter buttons (All, Tasks, Boards, Columns, Comments, Subtasks), empty state when no deleted items, pagination
-- [ ] T029 [US2] Add trash tab to project view — update project page/layout to include a "Trash" tab alongside existing tabs (Boards, Members), wire up route and component rendering
+- [x] T024 [US2] Create `TrashController` in `app/Http/Controllers/TrashController.php` — `index()` method that aggregates soft-deleted boards, columns, tasks, subtasks, comments for a project, supports `?type=` filter, paginates results, returns unified format with `deleted_at`, `deleted_by` user info, and parent context
+- [x] T025 [US2] Create `TrashItemResource` in `app/Http/Resources/TrashItemResource.php` — unified API resource that normalizes different entity types into a consistent trash view format (id, type, title, deleted_at, deleted_by, parent info)
+- [x] T026 [US2] Add trash route `GET /api/projects/{project}/trash` in `routes/api.php` — scoped to authenticated project members
+- [x] T027 [US2] Create Pinia trash store in `resources/js/stores/trash.js` — actions: `fetchTrashItems(projectId, type?)`, state: `items`, `loading`, `pagination`, `activeFilter`
+- [x] T028 [US2] Create `TrashTab.vue` component in `resources/js/components/projects/TrashTab.vue` — displays list of deleted items with entity type icon, title, deletion date, deleted-by user name, filter buttons (All, Tasks, Boards, Columns, Comments, Subtasks), empty state when no deleted items, pagination
+- [x] T029 [US2] Add trash tab to project view — update project page/layout to include a "Trash" tab alongside existing tabs (Boards, Members), wire up route and component rendering
 
 **Checkpoint**: Users can see all soft-deleted items in a per-project trash tab with filtering.
 

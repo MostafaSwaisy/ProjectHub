@@ -91,11 +91,12 @@ class CommentController extends Controller
         // Log activity before deletion
         $task = $comment->task;
         if ($task) {
-            $this->logActivity($task, 'comment.deleted', [
+            $this->logActivity($task, 'deleted', [
                 'comment_id' => $comment->id,
             ]);
         }
 
+        // Delete the comment (SoftDeletes trait handles it)
         $comment->delete();
 
         return response()->json(null, 204);

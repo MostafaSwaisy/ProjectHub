@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\User;
 
 class Column extends Model
 {
@@ -19,6 +20,7 @@ class Column extends Model
         'title',
         'position',
         'wip_limit',
+        'deleted_by',
     ];
 
     protected $casts = [
@@ -35,5 +37,10 @@ class Column extends Model
     public function tasks(): HasMany
     {
         return $this->hasMany(Task::class)->orderBy('position');
+    }
+
+    public function deletedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'deleted_by');
     }
 }
