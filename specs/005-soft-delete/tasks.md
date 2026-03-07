@@ -113,11 +113,11 @@
 
 ### Implementation for User Story 4
 
-- [ ] T036 [US4] Add `forceDelete()` method to `TrashController` in `app/Http/Controllers/TrashController.php` — accepts entity type and ID, verifies authorization (project owner or task assignee per FR-008), calls `forceDelete()` on the model, cascade force-delete handled by trait, logs activity with type `force_deleted`
-- [ ] T037 [US4] Add force-delete routes in `routes/api.php` — `DELETE /api/projects/{project}/force`, `DELETE /api/projects/{project}/boards/{board}/force`, `DELETE /api/tasks/{task}/force`, `DELETE /api/tasks/{task}/subtasks/{subtask}/force`, `DELETE /api/comments/{comment}/force` — all with `->withTrashed()`
-- [ ] T038 [US4] Add `forceDeleteItem(type, id)` action to trash Pinia store in `resources/js/stores/trash.js` — calls force-delete endpoint, removes item from local trash list on success, handles 403 permission errors
-- [ ] T039 [US4] Add permanent delete button and confirmation dialog to `TrashTab.vue` in `resources/js/components/projects/TrashTab.vue` — "Permanently Delete" button visible only to project owner/task assignee, uses `ConfirmDialog` from shared components with warning text, hides button for unauthorized members
-- [ ] T040 [US4] Implement authorization check helper — determine if current user is project owner or task assignee, expose via API response or computed property for frontend conditional rendering
+- [x] T036 [US4] Add `forceDelete()` method to `TrashController` in `app/Http/Controllers/TrashController.php` — accepts entity type and ID, verifies authorization (project owner or task assignee per FR-008), calls `forceDelete()` on the model, cascade force-delete handled by trait, logs activity with type `force_deleted`
+- [x] T037 [US4] Add force-delete routes in `routes/api.php` — `DELETE /api/projects/{project}/force`, `DELETE /api/projects/{project}/boards/{board}/force`, `DELETE /api/tasks/{task}/force`, `DELETE /api/tasks/{task}/subtasks/{subtask}/force`, `DELETE /api/comments/{comment}/force` — all with `->withTrashed()`
+- [x] T038 [US4] Add `forceDeleteItem(type, id)` action to trash Pinia store in `resources/js/stores/trash.js` — calls force-delete endpoint, removes item from local trash list on success, handles 403 permission errors
+- [x] T039 [US4] Add permanent delete button and confirmation dialog to `TrashTab.vue` in `resources/js/components/projects/TrashTab.vue` — "Permanently Delete" button visible only to project owner/task assignee, uses `ConfirmDialog` from shared components with warning text, hides button for unauthorized members
+- [x] T040 [US4] Implement authorization check helper — determine if current user is project owner or task assignee, expose via API response or computed property for frontend conditional rendering
 
 **Checkpoint**: Authorized users can permanently delete items with confirmation. Non-authorized members see only the restore button.
 
@@ -131,10 +131,10 @@
 
 ### Implementation for User Story 5
 
-- [ ] T041 [US5] Verify cascade soft-delete works end-to-end for Project → Board → Column → Task → Subtask/Comment — test via tinker or manual testing that deleting a project sets `deleted_at` on all descendants
-- [ ] T042 [US5] Verify cascade restore works end-to-end for Project — test that restoring a project only restores children whose `deleted_at` matches (same batch), independently-deleted children remain trashed
-- [ ] T043 [US5] Handle edge case: already-deleted children during cascade — verify `HasCascadeSoftDeletes` trait skips children that are already soft-deleted (different `deleted_at` timestamp) during cascade delete
-- [ ] T044 [US5] Update frontend `resources/js/stores/projects.js` — after project delete, update local state to remove project from list; after project restore (if accessible from a global trash view in future), re-fetch projects
+- [x] T041 [US5] Verify cascade soft-delete works end-to-end for Project → Board → Column → Task → Subtask/Comment — test via tinker or manual testing that deleting a project sets `deleted_at` on all descendants
+- [x] T042 [US5] Verify cascade restore works end-to-end for Project — test that restoring a project only restores children whose `deleted_at` matches (same batch), independently-deleted children remain trashed
+- [x] T043 [US5] Handle edge case: already-deleted children during cascade — verify `HasCascadeSoftDeletes` trait skips children that are already soft-deleted (different `deleted_at` timestamp) during cascade delete
+- [x] T044 [US5] Update frontend `resources/js/stores/projects.js` — after project delete, update local state to remove project from list; after project restore (if accessible from a global trash view in future), re-fetch projects
 
 **Checkpoint**: Full cascade chain works for project deletion and restoration with timestamp-matching logic.
 
@@ -148,11 +148,11 @@
 
 ### Implementation for User Story 6
 
-- [ ] T045 [US6] Verify subtask progress in `app/Http/Resources/TaskResource.php` correctly excludes soft-deleted subtasks — `subtasks()->count()` and `subtasks()->where('is_completed', true)->count()` should auto-exclude trashed records via SoftDeletes global scope
-- [ ] T046 [US6] Verify comments list in `app/Http/Controllers/CommentController.php` `index()` method excludes soft-deleted comments — SoftDeletes global scope should handle this automatically
-- [ ] T047 [US6] Update `resources/js/stores/subtasks.js` — ensure `deleteSubtask` action removes subtask from local state and recalculates progress count
-- [ ] T048 [US6] Update `resources/js/stores/comments.js` — ensure `deleteComment` action removes comment from local state
-- [ ] T049 [US6] Update `resources/js/components/kanban/SubtaskList.vue` — verify subtask count/progress display reflects only non-deleted subtasks (should work automatically via API response)
+- [x] T045 [US6] Verify subtask progress in `app/Http/Resources/TaskResource.php` correctly excludes soft-deleted subtasks — `subtasks()->count()` and `subtasks()->where('is_completed', true)->count()` should auto-exclude trashed records via SoftDeletes global scope
+- [x] T046 [US6] Verify comments list in `app/Http/Controllers/CommentController.php` `index()` method excludes soft-deleted comments — SoftDeletes global scope should handle this automatically
+- [x] T047 [US6] Update `resources/js/stores/subtasks.js` — ensure `deleteSubtask` action removes subtask from local state and recalculates progress count
+- [x] T048 [US6] Update `resources/js/stores/comments.js` — ensure `deleteComment` action removes comment from local state
+- [x] T049 [US6] Update `resources/js/components/kanban/SubtaskList.vue` — verify subtask count/progress display reflects only non-deleted subtasks (should work automatically via API response)
 
 **Checkpoint**: Comments and subtasks are soft-deleted, hidden from views, and progress calculations are accurate.
 
@@ -162,12 +162,12 @@
 
 **Purpose**: Board statistics, activity logging consistency, and final verification
 
-- [ ] T050 [P] Update board statistics in `app/Http/Controllers/BoardController.php` or relevant resource — ensure task counts and column counts exclude soft-deleted items (FR-016). Verify `tasks()->count()` uses SoftDeletes scope
-- [ ] T051 [P] Verify all activity log entries for soft-delete, restore, and force-delete actions use consistent `type` values (`deleted`, `restored`, `force_deleted`) across all controllers (FR-015)
-- [ ] T052 [P] Update `resources/js/components/kanban/BoardStats.vue` — ensure board stats API response already excludes deleted items (no frontend change needed if backend is correct)
-- [ ] T053 Verify `resources/js/composables/useTaskFiltering.js` — confirm task filtering/search does not surface soft-deleted tasks (should be handled by API, but verify frontend doesn't cache stale data)
-- [ ] T054 Run quickstart.md validation — execute the verification steps from `specs/005-soft-delete/quickstart.md` to confirm end-to-end soft delete, restore, and force-delete work
-- [ ] T055 Code cleanup — remove any leftover manual cascade delete code in controllers that is now handled by the `HasCascadeSoftDeletes` trait
+- [x] T050 [P] Update board statistics in `app/Http/Controllers/BoardController.php` or relevant resource — ensure task counts and column counts exclude soft-deleted items (FR-016). Verify `tasks()->count()` uses SoftDeletes scope
+- [x] T051 [P] Verify all activity log entries for soft-delete, restore, and force-delete actions use consistent `type` values (`deleted`, `restored`, `force_deleted`) across all controllers (FR-015)
+- [x] T052 [P] Update `resources/js/components/kanban/BoardStats.vue` — ensure board stats API response already excludes deleted items (no frontend change needed if backend is correct)
+- [x] T053 Verify `resources/js/composables/useTaskFiltering.js` — confirm task filtering/search does not surface soft-deleted tasks (should be handled by API, but verify frontend doesn't cache stale data)
+- [x] T054 Run quickstart.md validation — execute the verification steps from `specs/005-soft-delete/quickstart.md` to confirm end-to-end soft delete, restore, and force-delete work
+- [x] T055 Code cleanup — remove any leftover manual cascade delete code in controllers that is now handled by the `HasCascadeSoftDeletes` trait
 
 ---
 
