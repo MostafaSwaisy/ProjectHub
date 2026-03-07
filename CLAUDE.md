@@ -30,9 +30,9 @@ npm test; npm run lint
 JavaScript ES2022, Vue.js 3.4.0: Follow standard conventions
 
 ## Recent Changes
+- 005-soft-delete: Added PHP 8.2+ (Laravel 12.x), JavaScript ES2022 (Vue 3.4.0) + Laravel 12, Vue 3.4.0, Vue Router 4.3.0, Pinia 2.2.0, Axios 1.11.0, Laravel Sanctum 4.2, Tailwind CSS 4.0.0, Vite 7.0.7
 - 004-kanban-task-management: Added PHP 8.2+ (Laravel 12.x), JavaScript ES2022 (Vue 3.4.0) + Laravel 12, Vue 3.4.0, Vue Router 4.3.0, Pinia 2.2.0, Axios 1.11.0, Laravel Sanctum 4.2, Tailwind CSS 4.0.0, Vite 7.0.7
 - 003-projects-management: Added PHP 8.2+ (Laravel 11), JavaScript ES2022 (Vue 3.4.0) + Laravel 11, Vue 3.4.0, Vue Router 4.3.0, Pinia 2.2.0, Axios 1.11.0, Tailwind CSS 4.0.0, Vite 7.0.7
-- 003-projects-management: Added PHP 8.2+ (Laravel 12.x), JavaScript ES2022 (Vue 3.4.0) + Laravel Framework 12, Vue 3.4.0, Vue Router 4.3.0, Pinia 2.2.0, Axios 1.11.0, Laravel Sanctum 4.2, Tailwind CSS 4.0.0
 
 
 <!-- MANUAL ADDITIONS START -->

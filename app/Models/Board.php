@@ -6,19 +6,27 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\HasSoftDeleteUser;
+use App\Traits\HasCascadeSoftDeletes;
+use App\Models\User;
 
 class Board extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes, HasSoftDeleteUser, HasCascadeSoftDeletes;
+
+    protected $cascadeDeletes = ['columns'];
 
     protected $fillable = [
         'project_id',
         'title',
+        'deleted_by',
     ];
 
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
     ];
 
     protected static function boot()
@@ -53,5 +61,10 @@ class Board extends Model
     public function columns(): HasMany
     {
         return $this->hasMany(Column::class)->orderBy('position');
+    }
+
+    public function deletedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'deleted_by');
     }
 }

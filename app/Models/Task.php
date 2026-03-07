@@ -7,10 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\HasSoftDeleteUser;
+use App\Traits\HasCascadeSoftDeletes;
 
 class Task extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes, HasSoftDeleteUser, HasCascadeSoftDeletes;
+
+    protected $cascadeDeletes = ['subtasks', 'comments'];
 
     protected $fillable = [
         'column_id',
@@ -20,12 +25,14 @@ class Task extends Model
         'priority',
         'due_date',
         'position',
+        'deleted_by',
     ];
 
     protected $casts = [
         'due_date' => 'date',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
     ];
 
     protected $appends = [
@@ -67,6 +74,11 @@ class Task extends Model
     {
         return $this->hasMany(Activity::class, 'subject_id')
             ->where('subject_type', self::class);
+    }
+
+    public function deletedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'deleted_by');
     }
 
     /**

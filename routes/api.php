@@ -12,6 +12,7 @@ use App\Http\Controllers\LabelController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\SubtaskController;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\TrashController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -94,4 +95,21 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('tasks/{task}/activities', [ActivityController::class, 'index'])->name('activities.task');
     Route::get('projects/{project}/activities', [ActivityController::class, 'projectActivities'])->name('activities.project');
+});
+
+// Trash Routes
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('projects/{project}/trash', [TrashController::class, 'index'])->name('trash.index');
+    Route::post('projects/{project}/restore', [TrashController::class, 'restore'])->name('trash.restore');
+    Route::post('projects/{project}/boards/{board}/restore', [TrashController::class, 'restore'])->name('boards.restore');
+    Route::post('tasks/{task}/restore', [TrashController::class, 'restore'])->withTrashed()->name('tasks.restore');
+    Route::post('tasks/{task}/subtasks/{subtask}/restore', [TrashController::class, 'restore'])->withTrashed()->name('subtasks.restore');
+    Route::post('comments/{comment}/restore', [TrashController::class, 'restore'])->withTrashed()->name('comments.restore');
+
+    // Force delete routes
+    Route::delete('projects/{project}/force', [TrashController::class, 'forceDelete'])->name('trash.forceDelete');
+    Route::delete('projects/{project}/boards/{board}/force', [TrashController::class, 'forceDelete'])->name('boards.forceDelete');
+    Route::delete('tasks/{task}/force', [TrashController::class, 'forceDelete'])->withTrashed()->name('tasks.forceDelete');
+    Route::delete('tasks/{task}/subtasks/{subtask}/force', [TrashController::class, 'forceDelete'])->withTrashed()->name('subtasks.forceDelete');
+    Route::delete('comments/{comment}/force', [TrashController::class, 'forceDelete'])->withTrashed()->name('comments.forceDelete');
 });

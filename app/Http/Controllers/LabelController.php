@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateLabelRequest;
 use App\Http\Resources\LabelResource;
 use App\Models\Label;
 use App\Models\Project;
+use App\Models\Activity;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Gate;
@@ -65,7 +66,7 @@ class LabelController extends Controller
 
     /**
      * Remove the specified label.
-     * This also removes the label from all tasks.
+     * Label is soft-deleted from tasks (not removed).
      */
     public function destroy(Project $project, Label $label): JsonResponse
     {
@@ -76,8 +77,17 @@ class LabelController extends Controller
             ], 403);
         }
 
-        // Detach from all tasks first (handled by cascade, but being explicit)
-        $label->tasks()->detach();
+        // Log activity before deletion
+        Activity::create([
+            'user_id' => auth()->id(),
+            'project_id' => $project->id,
+            'type' => 'deleted',
+            'subject_type' => Label::class,
+            'subject_id' => $label->id,
+            'data' => ['name' => $label->name],
+        ]);
+
+        // Delete the label (SoftDeletes trait handles it)
         $label->delete();
 
         return response()->json(null, 204);

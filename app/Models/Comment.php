@@ -6,10 +6,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\HasSoftDeleteUser;
+use App\Models\User;
 
 class Comment extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes, HasSoftDeleteUser;
 
     protected $fillable = [
         'task_id',
@@ -17,12 +20,14 @@ class Comment extends Model
         'parent_id',
         'body',
         'edited_at',
+        'deleted_by',
     ];
 
     protected $casts = [
         'edited_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
     ];
 
     protected $appends = [
@@ -47,6 +52,11 @@ class Comment extends Model
     public function replies(): HasMany
     {
         return $this->hasMany(Comment::class, 'parent_id');
+    }
+
+    public function deletedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'deleted_by');
     }
 
     /**

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Project;
 use App\Models\Board;
+use App\Models\Activity;
 use App\Http\Resources\ProjectResource;
 use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
@@ -217,7 +218,17 @@ class ProjectController extends Controller
         // T041: Get task count for confirmation requirement
         $taskCount = $project->tasks()->count();
 
-        // Delete the project (cascade will handle related records via DB foreign keys)
+        // Log activity before deletion
+        Activity::create([
+            'user_id' => auth()->id(),
+            'project_id' => $project->id,
+            'type' => 'deleted',
+            'subject_type' => Project::class,
+            'subject_id' => $project->id,
+            'data' => ['title' => $project->title],
+        ]);
+
+        // Delete the project (cascade will handle related records)
         $project->delete();
 
         return response()->json([
