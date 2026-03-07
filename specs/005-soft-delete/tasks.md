@@ -94,12 +94,12 @@
 
 ### Implementation for User Story 3
 
-- [ ] T030 [US3] Add `restore()` method to `TrashController` in `app/Http/Controllers/TrashController.php` — accepts entity type and ID, calls `restore()` on the model, cascade restore handled by `HasCascadeSoftDeletes` trait, logs activity with type `restored`
-- [ ] T031 [US3] Add restore logic for orphaned items in `TrashController` — if a task's parent column is force-deleted, return 409 with list of available columns; accept `column_id` in request body for re-assignment before restore
-- [ ] T032 [US3] Add restore routes in `routes/api.php` — `POST /api/projects/{project}/restore`, `POST /api/projects/{project}/boards/{board}/restore`, `POST /api/tasks/{task}/restore`, `POST /api/tasks/{task}/subtasks/{subtask}/restore`, `POST /api/comments/{comment}/restore` — all with `->withTrashed()`
-- [ ] T033 [US3] Add `restoreItem(type, id)` action to trash Pinia store in `resources/js/stores/trash.js` — calls restore endpoint, removes item from local trash list on success, handles 409 (orphaned item) by showing column selection
-- [ ] T034 [US3] Add restore button and orphan-handling UI to `TrashTab.vue` in `resources/js/components/projects/TrashTab.vue` — "Restore" button on each trash item, success toast, handle 409 response with a column-selection dropdown modal
-- [ ] T035 [US3] Update `resources/js/stores/kanban.js` — after successful restore of a task, re-fetch board data or inject restored task back into the correct column's task list
+- [x] T030 [US3] Add `restore()` method to `TrashController` in `app/Http/Controllers/TrashController.php` — accepts entity type and ID, calls `restore()` on the model, cascade restore handled by `HasCascadeSoftDeletes` trait, logs activity with type `restored`
+- [x] T031 [US3] Add restore logic for orphaned items in `TrashController` — if a task's parent column is force-deleted, return 409 with list of available columns; accept `column_id` in request body for re-assignment before restore
+- [x] T032 [US3] Add restore routes in `routes/api.php` — `POST /api/projects/{project}/restore`, `POST /api/projects/{project}/boards/{board}/restore`, `POST /api/tasks/{task}/restore`, `POST /api/tasks/{task}/subtasks/{subtask}/restore`, `POST /api/comments/{comment}/restore` — all with `->withTrashed()`
+- [x] T033 [US3] Add `restoreItem(type, id)` action to trash Pinia store in `resources/js/stores/trash.js` — calls restore endpoint, removes item from local trash list on success, handles 409 (orphaned item) by showing column selection
+- [x] T034 [US3] Add restore button and orphan-handling UI to `TrashTab.vue` in `resources/js/components/projects/TrashTab.vue` — "Restore" button on each trash item, success toast, handle 409 response with a column-selection dropdown modal
+- [x] T035 [US3] Update `resources/js/stores/kanban.js` — after successful restore of a task, re-fetch board data or inject restored task back into the correct column's task list
 
 **Checkpoint**: Users can restore any deleted item. Cascade restore works. Orphaned items prompt for new parent.
 

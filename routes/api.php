@@ -100,4 +100,9 @@ Route::middleware('auth:sanctum')->group(function () {
 // Trash Routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('projects/{project}/trash', [TrashController::class, 'index'])->name('trash.index');
+    Route::post('projects/{project}/restore', [TrashController::class, 'restore'])->name('trash.restore');
+    Route::post('projects/{project}/boards/{board}/restore', [TrashController::class, 'restore'])->name('boards.restore');
+    Route::post('tasks/{task}/restore', [TrashController::class, 'restore'])->withTrashed()->name('tasks.restore');
+    Route::post('tasks/{task}/subtasks/{subtask}/restore', [TrashController::class, 'restore'])->withTrashed()->name('subtasks.restore');
+    Route::post('comments/{comment}/restore', [TrashController::class, 'restore'])->withTrashed()->name('comments.restore');
 });

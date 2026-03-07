@@ -214,6 +214,28 @@ export const useKanbanStore = defineStore('kanban', () => {
         sortOrder.value = 'asc';
     };
 
+    // Actions: Refetch board to sync with restored items
+    const refetchBoard = async (projectId) => {
+        try {
+            // Refetch the current board to get the latest state
+            if (boardId.value) {
+                const boardResponse = await axios.get(`/api/projects/${projectId}/boards/${boardId.value}`);
+                const board = boardResponse.data.data || boardResponse.data;
+
+                if (board && board.columns) {
+                    // Update columns with latest data
+                    const uniqueColumns = Array.from(
+                        new Map(board.columns.map(col => [col.id, col])).values()
+                    );
+                    columns.value = uniqueColumns.sort((a, b) => a.position - b.position);
+                }
+            }
+        } catch (err) {
+            console.error('Failed to refetch board:', err);
+            // Don't throw - this is a non-critical update
+        }
+    };
+
     return {
         // State
         columns,
@@ -238,6 +260,7 @@ export const useKanbanStore = defineStore('kanban', () => {
         filterSummary,
         // Actions
         fetchBoard,
+        refetchBoard,
         setSearchQuery,
         toggleLabelFilter,
         toggleAssigneeFilter,

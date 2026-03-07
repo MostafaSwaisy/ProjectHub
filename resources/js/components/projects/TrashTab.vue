@@ -126,13 +126,21 @@
                         </div>
                     </div>
 
-                    <!-- Action buttons (placeholder for Phase 5) -->
+                    <!-- Action buttons -->
                     <div class="item-actions">
-                        <button class="action-btn restore-btn" title="Restore this item">
-                            <svg fill="currentColor" viewBox="0 0 20 20">
+                        <button
+                            class="action-btn restore-btn"
+                            title="Restore this item"
+                            @click="handleRestore(item)"
+                            :disabled="restoreLoadingMap[`${item.type}-${item.id}`]"
+                        >
+                            <svg v-if="!restoreLoadingMap[`${item.type}-${item.id}`]" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 1119.778 5.363 1 1 0 11-1.497-1.322A5.002 5.002 0 1011 6v-2a1 1 0 011-1h-3a1 1 0 01-1-1v3z" clip-rule="evenodd" />
                             </svg>
-                            Restore
+                            <svg v-else class="spinner-icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0110 2v.5a1 1 0 00.82.995l.12.007a1 1 0 10.12-1.992l-.12-.007zm4.457 1.605a1 1 0 00-1.414 0l-.353.354a1 1 0 101.414 1.414l.353-.354zM18 10a1 1 0 00-1-1h-.5a1 1 0 000 2h.5a1 1 0 001-1zM1.046 11.3a1 1 0 011.414-.12l.353.12a1 1 0 11-1.414 1.414l-.354-.353zm5.339 5.339a1 1 0 101.414-1.414l-.354-.354a1 1 0 00-1.414 1.414l.354.354z" clip-rule="evenodd" />
+                            </svg>
+                            {{ restoreLoadingMap[`${item.type}-${item.id}`] ? 'Restoring...' : 'Restore' }}
                         </button>
                         <button class="action-btn delete-btn" title="Permanently delete this item">
                             <svg fill="currentColor" viewBox="0 0 20 20">
@@ -165,6 +173,67 @@
                 </button>
             </div>
         </div>
+
+        <!-- Orphaned Item Modal -->
+        <div v-if="showOrphanModal" class="modal-overlay" @click="cancelOrphanModal">
+            <div class="modal-content" @click.stop>
+                <div class="modal-header">
+                    <h3>Restore {{ pendingRestore?.type }}</h3>
+                    <button class="modal-close" @click="cancelOrphanModal">
+                        <svg fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <p class="modal-message">
+                        The parent {{ pendingRestore?.type === 'task' ? 'column' : 'item' }} for this {{ pendingRestore?.type }} has been deleted.
+                        Please select a new parent to restore it.
+                    </p>
+
+                    <div class="form-group">
+                        <label for="column-select" class="form-label">Select Column:</label>
+                        <select
+                            id="column-select"
+                            v-model="selectedColumn"
+                            class="form-select"
+                        >
+                            <option value="" disabled>Choose a column...</option>
+                            <option
+                                v-for="column in trashStore.availableColumns"
+                                :key="column.id"
+                                :value="column.id"
+                            >
+                                {{ column.title }}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button
+                        class="btn btn-secondary"
+                        @click="cancelOrphanModal"
+                        :disabled="orphanModalLoading"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        class="btn btn-primary"
+                        @click="confirmOrphanRestore"
+                        :disabled="!selectedColumn || orphanModalLoading"
+                    >
+                        {{ orphanModalLoading ? 'Restoring...' : 'Restore' }}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Notification -->
+        <div v-if="showToast" :class="['toast', `toast-${toastType}`]">
+            {{ toastMessage }}
+        </div>
     </div>
 </template>
 
@@ -186,6 +255,20 @@ const props = defineProps({
 const trashStore = useTrashStore();
 const currentPage = ref(1);
 
+// Orphaned item modal state
+const showOrphanModal = ref(false);
+const orphanModalLoading = ref(false);
+const selectedColumn = ref(null);
+const pendingRestore = ref(null); // Pending restore data
+
+// Toast notification state
+const toastMessage = ref('');
+const toastType = ref('success'); // 'success' or 'error'
+const showToast = ref(false);
+
+// Restore button loading states
+const restoreLoadingMap = ref({});
+
 // Computed
 const items = computed(() => trashStore.items);
 const filteredItems = computed(() => trashStore.filteredItems);
@@ -194,6 +277,10 @@ const error = computed(() => trashStore.error);
 const pagination = computed(() => trashStore.pagination);
 const activeFilter = computed(() => trashStore.activeFilter);
 const isEmpty = computed(() => trashStore.isEmpty && !loading.value);
+const isRestoring = computed(() => {
+    if (!pendingRestore.value) return false;
+    return restoreLoadingMap.value[`${pendingRestore.value.type}-${pendingRestore.value.id}`] || false;
+});
 
 // Methods
 const formatDate = (dateString) => {
@@ -227,6 +314,88 @@ const nextPage = async () => {
         currentPage.value++;
         await loadTrash();
     }
+};
+
+// Show toast notification
+const showToastNotification = (message, type = 'success') => {
+    toastMessage.value = message;
+    toastType.value = type;
+    showToast.value = true;
+
+    // Auto-hide after 3 seconds
+    setTimeout(() => {
+        showToast.value = false;
+    }, 3000);
+};
+
+// Handle restore button click
+const handleRestore = async (item) => {
+    const key = `${item.type}-${item.id}`;
+    restoreLoadingMap.value[key] = true;
+
+    try {
+        const result = await trashStore.restoreItem(props.projectId, item.type, item.id);
+
+        if (result.success) {
+            showToastNotification(`${item.type.charAt(0).toUpperCase() + item.type.slice(1)} restored successfully!`, 'success');
+        } else if (result.orphaned) {
+            // Show orphaned modal
+            pendingRestore.value = {
+                type: item.type,
+                id: item.id,
+                title: item.title,
+            };
+            selectedColumn.value = null;
+            showOrphanModal.value = true;
+        } else {
+            showToastNotification(result.error || 'Failed to restore item', 'error');
+        }
+    } catch (err) {
+        console.error('Error restoring item:', err);
+        showToastNotification('Failed to restore item', 'error');
+    } finally {
+        restoreLoadingMap.value[key] = false;
+    }
+};
+
+// Handle orphaned modal confirmation
+const confirmOrphanRestore = async () => {
+    if (!selectedColumn.value || !pendingRestore.value) {
+        showToastNotification('Please select a column', 'error');
+        return;
+    }
+
+    orphanModalLoading.value = true;
+
+    try {
+        const result = await trashStore.restoreItem(
+            props.projectId,
+            pendingRestore.value.type,
+            pendingRestore.value.id,
+            selectedColumn.value
+        );
+
+        if (result.success) {
+            showToastNotification(`${pendingRestore.value.type.charAt(0).toUpperCase() + pendingRestore.value.type.slice(1)} restored successfully!`, 'success');
+            showOrphanModal.value = false;
+            pendingRestore.value = null;
+            selectedColumn.value = null;
+        } else {
+            showToastNotification(result.error || 'Failed to restore item', 'error');
+        }
+    } catch (err) {
+        console.error('Error restoring with orphan handling:', err);
+        showToastNotification('Failed to restore item', 'error');
+    } finally {
+        orphanModalLoading.value = false;
+    }
+};
+
+// Cancel orphaned modal
+const cancelOrphanModal = () => {
+    showOrphanModal.value = false;
+    pendingRestore.value = null;
+    selectedColumn.value = null;
 };
 
 // Lifecycle
@@ -512,9 +681,18 @@ onMounted(() => {
     border-color: rgba(34, 197, 94, 0.3);
 }
 
-.restore-btn:hover {
+.restore-btn:hover:not(:disabled) {
     background: rgba(34, 197, 94, 0.2);
     border-color: #22c55e;
+}
+
+.restore-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.spinner-icon {
+    animation: spin 1s linear infinite;
 }
 
 .delete-btn {
@@ -563,6 +741,187 @@ onMounted(() => {
     font-size: var(--text-sm);
 }
 
+/* Modal Overlay */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: var(--black-primary);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-lg);
+    width: 90%;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: var(--text-lg);
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: var(--spacing-xs);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s;
+}
+
+.modal-close:hover {
+    color: var(--text-primary);
+}
+
+.modal-close svg {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.modal-body {
+    padding: var(--spacing-lg);
+}
+
+.modal-message {
+    color: var(--text-secondary);
+    margin: 0 0 var(--spacing-lg) 0;
+    font-size: var(--text-sm);
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.form-label {
+    color: var(--text-primary);
+    font-size: var(--text-sm);
+    font-weight: 500;
+}
+
+.form-select {
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.form-select:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.form-select:focus {
+    outline: none;
+    background: rgba(255, 255, 255, 0.1);
+    border-color: #667eea;
+}
+
+.modal-footer {
+    display: flex;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-lg);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    justify-content: flex-end;
+}
+
+.btn {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 500;
+}
+
+.btn-primary {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: #5568d3;
+    border-color: #5568d3;
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Toast Notification */
+.toast {
+    position: fixed;
+    bottom: var(--spacing-lg);
+    right: var(--spacing-lg);
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-radius: var(--radius-md);
+    color: white;
+    font-size: var(--text-sm);
+    z-index: 1001;
+    animation: slideIn 0.3s ease-out;
+}
+
+.toast-success {
+    background: #22c55e;
+}
+
+.toast-error {
+    background: #ef4444;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
 /* Mobile responsive */
 @media (max-width: 639px) {
     .trash-tab {
@@ -596,6 +955,15 @@ onMounted(() => {
     .filter-btn {
         font-size: var(--text-xs);
         padding: var(--spacing-xs) var(--spacing-sm);
+    }
+
+    .modal-content {
+        width: 95%;
+    }
+
+    .toast {
+        left: var(--spacing-lg);
+        right: var(--spacing-lg);
     }
 }
 </style>

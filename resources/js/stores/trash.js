@@ -18,6 +18,8 @@ export const useTrashStore = defineStore('trash', () => {
         last_page: 1,
     });
     const activeFilter = ref(null); // null for all, or: tasks, boards, columns, subtasks, comments
+    const orphanedItem = ref(null); // State for handling orphaned items
+    const availableColumns = ref([]);
 
     // Computed
     const filteredItems = computed(() => {
@@ -84,6 +86,75 @@ export const useTrashStore = defineStore('trash', () => {
         };
     };
 
+    // Actions: Clear orphaned item state
+    const clearOrphanedItem = () => {
+        orphanedItem.value = null;
+        availableColumns.value = [];
+    };
+
+    // Actions: Restore a trash item
+    const restoreItem = async (projectId, type, id, columnId = null) => {
+        loading.value = true;
+        error.value = null;
+
+        try {
+            const payload = {
+                type,
+                id,
+            };
+
+            if (columnId !== null) {
+                payload.column_id = columnId;
+            }
+
+            const response = await axios.post(`/api/projects/${projectId}/restore`, payload);
+
+            // Remove the restored item from the trash list
+            items.value = items.value.filter(item => !(item.type === type && item.id === id));
+
+            // Clear orphaned item state
+            clearOrphanedItem();
+
+            return {
+                success: true,
+                data: response.data.data,
+            };
+        } catch (err) {
+            // Handle 409 Conflict - orphaned parent
+            if (err.response?.status === 409) {
+                const data = err.response.data;
+
+                if (data.type === 'orphaned_task') {
+                    orphanedItem.value = {
+                        type,
+                        id,
+                        message: data.message,
+                    };
+                    availableColumns.value = data.available_columns || [];
+
+                    return {
+                        success: false,
+                        orphaned: true,
+                        type: data.type,
+                        message: data.message,
+                        availableColumns: data.available_columns,
+                    };
+                }
+            }
+
+            error.value = err.response?.data?.message || 'Failed to restore item';
+            console.error('Error restoring item:', err);
+
+            return {
+                success: false,
+                orphaned: false,
+                error: error.value,
+            };
+        } finally {
+            loading.value = false;
+        }
+    };
+
     return {
         // State
         items,
@@ -91,6 +162,8 @@ export const useTrashStore = defineStore('trash', () => {
         error,
         pagination,
         activeFilter,
+        orphanedItem,
+        availableColumns,
 
         // Getters
         filteredItems,
@@ -102,5 +175,7 @@ export const useTrashStore = defineStore('trash', () => {
         setFilter,
         resetFilter,
         clearItems,
+        clearOrphanedItem,
+        restoreItem,
     };
 });
