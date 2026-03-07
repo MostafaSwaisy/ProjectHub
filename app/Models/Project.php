@@ -8,10 +8,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Project extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
+
+    protected $cascadeDeletes = ['boards'];
 
     protected $fillable = [
         'title',
@@ -26,6 +29,7 @@ class Project extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'is_archived' => 'boolean',
+        'deleted_at' => 'datetime',
     ];
 
     /**

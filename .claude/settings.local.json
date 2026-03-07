@@ -36,7 +36,11 @@
       "Bash(fi)",
       "Bash(if [ -d \"d:/GGProject/ProjectHub/specs/003-projects-management/checklists\" ])",
       "Bash(then echo \"EXISTS\")",
-      "Bash(else echo \"NOT_FOUND\")"
+      "Bash(else echo \"NOT_FOUND\")",
+      "Bash(where:*)",
+      "Bash(git remote:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(npx vite build:*)"
     ]
   }
 }
