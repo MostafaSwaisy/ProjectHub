@@ -125,10 +125,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('profile/preferences', [\App\Http\Controllers\ProfileController::class, 'updatePreferences'])->name('profile.preferences.update');
 
     // User management (admin only)
-    Route::get('users', [\App\Http\Controllers\UserController::class, 'index'])->name('users.index');
-    Route::get('users/{user}', [\App\Http\Controllers\UserController::class, 'show'])->name('users.show');
-    Route::put('users/{user}', [\App\Http\Controllers\UserController::class, 'update'])->name('users.update');
-    Route::delete('users/{user}', [\App\Http\Controllers\UserController::class, 'destroy'])->name('users.destroy');
+    Route::middleware(['role:admin'])->group(function () {
+        Route::get('users', [\App\Http\Controllers\UserController::class, 'index'])->name('users.index');
+        Route::get('users/{user}', [\App\Http\Controllers\UserController::class, 'show'])->name('users.show');
+        Route::put('users/{user}', [\App\Http\Controllers\UserController::class, 'update'])->name('users.update');
+        Route::delete('users/{user}', [\App\Http\Controllers\UserController::class, 'destroy'])->name('users.destroy');
+    });
 
     // Project member management
     Route::get('projects/{project}/permissions', [ProjectController::class, 'permissions'])->name('projects.permissions');
