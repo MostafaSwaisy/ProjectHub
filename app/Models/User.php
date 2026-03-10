@@ -27,6 +27,8 @@ class User extends Authenticatable
         'email',
         'password',
         'role_id',
+        'avatar_url',
+        'bio',
     ];
 
     /**
@@ -98,5 +100,19 @@ class User extends Authenticatable
     public function preferences(): HasMany
     {
         return $this->hasMany(UserPreference::class);
+    }
+
+    /**
+     * Get the user's avatar URL with fallback to initials
+     */
+    public function getAvatarUrlAttribute(): string
+    {
+        if ($this->avatar_url) {
+            return asset('storage/avatars/' . basename($this->avatar_url));
+        }
+
+        // Generate initials-based fallback
+        $initials = substr(str_replace(' ', '', $this->name), 0, 2);
+        return "https://via.placeholder.com/150?text=" . urlencode($initials);
     }
 }
