@@ -113,3 +113,39 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('tasks/{task}/subtasks/{subtask}/force', [TrashController::class, 'forceDelete'])->withTrashed()->name('subtasks.forceDelete');
     Route::delete('comments/{comment}/force', [TrashController::class, 'forceDelete'])->withTrashed()->name('comments.forceDelete');
 });
+
+// User Management Routes (006-user-management feature)
+Route::middleware('auth:sanctum')->group(function () {
+    // Profile management (self-service)
+    Route::get('profile', [\App\Http\Controllers\ProfileController::class, 'show'])->name('profile.show');
+    Route::put('profile', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
+    Route::post('profile/avatar', [\App\Http\Controllers\ProfileController::class, 'uploadAvatar'])->name('profile.avatar.store');
+    Route::delete('profile/avatar', [\App\Http\Controllers\ProfileController::class, 'deleteAvatar'])->name('profile.avatar.destroy');
+    Route::put('profile/password', [\App\Http\Controllers\ProfileController::class, 'updatePassword'])->name('profile.password.update');
+    Route::put('profile/preferences', [\App\Http\Controllers\ProfileController::class, 'updatePreferences'])->name('profile.preferences.update');
+
+    // User management (admin only)
+    Route::get('users', [\App\Http\Controllers\UserController::class, 'index'])->name('users.index');
+    Route::get('users/{user}', [\App\Http\Controllers\UserController::class, 'show'])->name('users.show');
+    Route::put('users/{user}', [\App\Http\Controllers\UserController::class, 'update'])->name('users.update');
+    Route::delete('users/{user}', [\App\Http\Controllers\UserController::class, 'destroy'])->name('users.destroy');
+
+    // Project member management
+    Route::get('projects/{project}/permissions', [ProjectController::class, 'permissions'])->name('projects.permissions');
+    Route::get('projects/{project}/members/assignable', [ProjectController::class, 'assignableMembers'])->name('projects.members.assignable');
+
+    // Invitation routes
+    Route::get('projects/{project}/invitations', [\App\Http\Controllers\InvitationController::class, 'index'])->name('invitations.index');
+    Route::post('projects/{project}/invitations', [\App\Http\Controllers\InvitationController::class, 'store'])->name('invitations.store');
+    Route::post('projects/{project}/invitations/{invitation}/resend', [\App\Http\Controllers\InvitationController::class, 'resend'])->name('invitations.resend');
+    Route::delete('projects/{project}/invitations/{invitation}', [\App\Http\Controllers\InvitationController::class, 'destroy'])->name('invitations.destroy');
+    Route::post('invitations/{token}/accept', [\App\Http\Controllers\InvitationController::class, 'accept'])->name('invitations.accept');
+    Route::post('invitations/{token}/decline', [\App\Http\Controllers\InvitationController::class, 'decline'])->name('invitations.decline');
+    Route::get('invitations/pending', [\App\Http\Controllers\InvitationController::class, 'pending'])->name('invitations.pending');
+
+    // Notification routes
+    Route::get('notifications', [\App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('notifications/unread-count', [\App\Http\Controllers\NotificationController::class, 'unreadCount'])->name('notifications.unreadCount');
+    Route::post('notifications/{notification}/read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
+    Route::post('notifications/read-all', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
+});
