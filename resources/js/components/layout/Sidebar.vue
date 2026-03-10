@@ -78,9 +78,11 @@
 import { computed, h } from 'vue'
 import { useLayoutStore } from '../../stores/layout'
 import { useRouter } from 'vue-router'
+import { useAuth } from '../../composables/useAuth'
 
 const layoutStore = useLayoutStore()
 const router = useRouter()
+const { user } = useAuth()
 
 // Navigation items
 const navItems = computed(() => [
@@ -140,6 +142,20 @@ const navItems = computed(() => [
                 })
             ])
     },
+    ...(user.value?.role?.name === 'admin' ? [{
+        key: 'users',
+        label: 'Users',
+        path: '/users',
+        icon: () =>
+            h('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor' }, [
+                h('path', {
+                    'stroke-linecap': 'round',
+                    'stroke-linejoin': 'round',
+                    'stroke-width': '2',
+                    d: 'M17 20h5v-2a3 3 0 00-5.856-1.487M15 10a3 3 0 11-6 0 3 3 0 016 0zM15 20H3v-2a6 6 0 0112 0v2z'
+                })
+            ])
+    }] : []),
     {
         key: 'settings',
         label: 'Settings',

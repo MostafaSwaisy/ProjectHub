@@ -16,6 +16,10 @@ const ProjectsList = () => import('../pages/projects/ProjectsList.vue');
 const MyTasks = () => import('../pages/MyTasks.vue');
 const Team = () => import('../pages/Team.vue');
 const Settings = () => import('../pages/Settings.vue');
+
+// 006-user-management feature
+const Users = () => import('../pages/Users.vue');
+
 const NotFound = () => import('../pages/NotFound.vue');
 
 const routes = [
@@ -128,6 +132,16 @@ const routes = [
         meta: {
             requiresAuth: true,
             layout: 'app',
+        },
+    },
+    {
+        path: '/users',
+        name: 'users',
+        component: Users,
+        meta: {
+            requiresAuth: true,
+            layout: 'app',
+            admin: true,
         },
     },
 
