@@ -134,4 +134,51 @@ class ProjectPolicy
     {
         return $user->id === $project->instructor_id;
     }
+
+    /**
+     * Get the user's project role using the permission matrix
+     */
+    private function getUserProjectRole(User $user, Project $project): ?string
+    {
+        $membership = $project->members()->where('user_id', $user->id)->first();
+        return $membership?->pivot?->role;
+    }
+
+    /**
+     * Check if user has a specific permission in the project
+     */
+    private function hasPermission(User $user, Project $project, string $permission): bool
+    {
+        $role = $this->getUserProjectRole($user, $project);
+        if (!$role) {
+            return false;
+        }
+
+        $permissions = config('permissions.roles.' . $role . '.permissions');
+        return $permissions[$permission] ?? false;
+    }
+
+    /**
+     * Determine if the user can invite members to the project
+     */
+    public function canInvite(User $user, Project $project): bool
+    {
+        return $this->hasPermission($user, $project, 'member.invite');
+    }
+
+    /**
+     * Determine if the user can manage roles in the project
+     */
+    public function canManageRoles(User $user, Project $project): bool
+    {
+        return $this->hasPermission($user, $project, 'member.role_change');
+    }
+
+    /**
+     * Determine if the user can assign tasks in the project
+     */
+    public function canAssignTasks(User $user, Project $project): bool
+    {
+        return $this->hasPermission($user, $project, 'task.assign');
+    }
 }
