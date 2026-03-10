@@ -11,6 +11,14 @@ class ProjectMember extends Model
 {
     use HasFactory, SoftDeletes;
 
+    /**
+     * Valid project roles: owner, lead, member, viewer
+     * - owner: full control
+     * - lead: create/edit/delete tasks, assign, invite, manage labels
+     * - member: create/edit own tasks, self-assign, comment
+     * - viewer: read-only access
+     */
+
     protected $fillable = [
         'project_id',
         'user_id',
