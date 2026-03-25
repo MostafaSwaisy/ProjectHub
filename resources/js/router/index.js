@@ -19,6 +19,7 @@ const Settings = () => import('../pages/Settings.vue');
 
 // 006-user-management feature
 const Users = () => import('../pages/Users.vue');
+const Profile = () => import('../pages/Profile.vue');
 
 const NotFound = () => import('../pages/NotFound.vue');
 
@@ -142,6 +143,15 @@ const routes = [
             requiresAuth: true,
             layout: 'app',
             admin: true,
+        },
+    },
+    {
+        path: '/profile',
+        name: 'profile',
+        component: Profile,
+        meta: {
+            requiresAuth: true,
+            layout: 'app',
         },
     },
 

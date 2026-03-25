@@ -28,7 +28,7 @@
 
                 <!-- Menu Items -->
                 <nav class="dropdown-nav">
-                    <button class="menu-item" @click="navigateTo('/profile')" disabled>
+                    <button class="menu-item" @click="navigateTo('/profile')">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" class="menu-icon">
                             <path
                                 stroke-linecap="round"
