@@ -292,34 +292,116 @@ class ProjectController extends Controller
     }
 
     /**
-     * List project members
+     * List project members (T036)
      */
     public function members(Project $project)
     {
-        // Will be implemented in T072
+        // Authorize the action
+        $this->authorize('view', $project);
+
+        $members = $project->members()
+            ->with('user')
+            ->get()
+            ->map(function ($member) {
+                return [
+                    'id' => $member->user->id,
+                    'name' => $member->user->name,
+                    'email' => $member->user->email,
+                    'avatar_url' => $member->user->avatar_url,
+                    'role' => $member->role,
+                ];
+            });
+
+        return response()->json([
+            'data' => $members,
+        ]);
     }
 
     /**
-     * Add a member to the project
+     * List assignable project members (T037)
+     */
+    public function assignableMembers(Project $project)
+    {
+        // Authorize the action
+        $this->authorize('view', $project);
+
+        // Return members with roles: owner, lead, member (not viewer)
+        $members = $project->members()
+            ->with('user')
+            ->whereIn('role', ['owner', 'lead', 'member'])
+            ->get()
+            ->map(function ($member) {
+                return [
+                    'id' => $member->user->id,
+                    'name' => $member->user->name,
+                    'email' => $member->user->email,
+                    'avatar_url' => $member->user->avatar_url,
+                    'role' => $member->role,
+                ];
+            });
+
+        return response()->json([
+            'data' => $members,
+        ]);
+    }
+
+    /**
+     * Add a member to the project (T057)
      */
     public function addMember(Request $request, Project $project)
     {
-        // Will be implemented in T073
+        // Will be implemented in T057
     }
 
     /**
-     * Update a member's role
+     * Update a member's role (T057)
      */
     public function updateMember(Request $request, Project $project, $userId)
     {
-        // Will be implemented in T074
+        // Will be implemented in T057
     }
 
     /**
-     * Remove a member from the project
+     * Remove a member from the project (T039, T057)
      */
     public function removeMember(Project $project, $userId)
     {
-        // Will be implemented in T075
+        // Authorize the action
+        $this->authorize('manage', $project);
+
+        // Find and delete the member
+        $member = $project->members()->where('user_id', $userId)->first();
+
+        if (!$member) {
+            return response()->json([
+                'message' => 'Member not found',
+            ], 404);
+        }
+
+        // T039: Unassign all tasks from the removed user
+        $unassignedCount = $project->tasks()
+            ->where('assignee_id', $userId)
+            ->update(['assignee_id' => null]);
+
+        // Delete the member
+        $member->delete();
+
+        // Log activity
+        Activity::create([
+            'user_id' => auth()->id(),
+            'project_id' => $project->id,
+            'type' => 'member_removed',
+            'subject_type' => 'ProjectMember',
+            'subject_id' => $member->id,
+            'data' => [
+                'user_id' => $userId,
+                'unassigned_tasks_count' => $unassignedCount,
+            ],
+        ]);
+
+        return response()->json([
+            'message' => 'Member removed successfully',
+            'unassigned_tasks_count' => $unassignedCount,
+        ]);
     }
 }

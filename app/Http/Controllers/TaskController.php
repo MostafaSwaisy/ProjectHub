@@ -10,6 +10,7 @@ use App\Http\Resources\TaskDetailResource;
 use App\Models\Activity;
 use App\Models\Task;
 use App\Models\Column;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 
 class TaskController extends Controller
@@ -162,6 +163,7 @@ class TaskController extends Controller
 
     /**
      * Update a task (title, description, assignee, priority, due_date).
+     * T038: Handle task assignment with notifications
      *
      * @param Task $task
      * @param UpdateTaskRequest $request
@@ -176,6 +178,56 @@ class TaskController extends Controller
 
         $validated = $request->validated();
         $oldValues = $task->only(array_keys($validated));
+
+        // T038: Handle assignee change with permission and validation
+        if (isset($validated['assignee_id']) && $validated['assignee_id'] !== $task->assignee_id) {
+            // Check if user has permission to assign tasks
+            $this->authorize('assign', $task);
+
+            $newAssigneeId = $validated['assignee_id'];
+            $oldAssigneeId = $task->assignee_id;
+
+            // Validate new assignee is a project member (not viewer)
+            if ($newAssigneeId) {
+                $project = $task->column->board->project;
+                $member = $project->members()
+                    ->where('user_id', $newAssigneeId)
+                    ->whereIn('role', ['owner', 'lead', 'member'])
+                    ->first();
+
+                if (!$member) {
+                    return response()->json([
+                        'message' => 'Assignee is not a valid project member.',
+                        'errors' => ['assignee_id' => ['Invalid assignee']],
+                    ], 422);
+                }
+            }
+
+            // Create notification for new assignee
+            if ($newAssigneeId) {
+                Notification::create([
+                    'user_id' => $newAssigneeId,
+                    'type' => 'task_assigned',
+                    'data' => [
+                        'task_id' => $task->id,
+                        'task_title' => $task->title,
+                        'assigned_by' => auth()->user()->name,
+                    ],
+                ]);
+            }
+
+            // Create notification for previous assignee if unassigned
+            if ($oldAssigneeId) {
+                Notification::create([
+                    'user_id' => $oldAssigneeId,
+                    'type' => 'task_unassigned',
+                    'data' => [
+                        'task_id' => $task->id,
+                        'task_title' => $task->title,
+                    ],
+                ]);
+            }
+        }
 
         $task->update($validated);
 
