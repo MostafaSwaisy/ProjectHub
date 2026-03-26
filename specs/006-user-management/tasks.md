@@ -19,12 +19,12 @@
 
 **Purpose**: Database migrations, configuration, and shared utilities needed by all stories
 
-- [ ] T001 Create migration to add avatar_url and bio columns to users table in `database/migrations/2026_03_10_000001_add_profile_fields_to_users.php`
-- [ ] T002 [P] Create migration to update project_members role values (editor→member, add lead) in `database/migrations/2026_03_10_000002_update_project_members_roles.php`
-- [ ] T003 [P] Create migration to create invitations table in `database/migrations/2026_03_10_000003_create_invitations_table.php`
-- [ ] T004 Run all migrations and verify database schema is correct via `php artisan migrate`
-- [ ] T005 Create the permission matrix config in `config/permissions.php` defining owner/lead/member/viewer permission arrays per data-model.md Permission Matrix section
-- [ ] T006 [P] Create storage symlink for avatar uploads via `php artisan storage:link` and ensure `storage/app/public/avatars/` directory exists
+- [x] T001 Create migration to add avatar_url and bio columns to users table in `database/migrations/2026_03_10_000001_add_profile_fields_to_users.php`
+- [x] T002 [P] Create migration to update project_members role values (editor→member, add lead) in `database/migrations/2026_03_10_000002_update_project_members_roles.php`
+- [x] T003 [P] Create migration to create invitations table in `database/migrations/2026_03_10_000003_create_invitations_table.php`
+- [x] T004 Run all migrations and verify database schema is correct via `php artisan migrate`
+- [x] T005 Create the permission matrix config in `config/permissions.php` defining owner/lead/member/viewer permission arrays per data-model.md Permission Matrix section
+- [x] T006 [P] Create storage symlink for avatar uploads via `php artisan storage:link` and ensure `storage/app/public/avatars/` directory exists
 
 ---
 
@@ -34,15 +34,15 @@
 
 **CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T007 Update `app/Models/User.php` to add avatar_url, bio to fillable array and add avatar accessor with fallback URL
-- [ ] T008 [P] Create `app/Models/Invitation.php` model with fillable fields (project_id, email, role, token, status, email_sent, invited_by, accepted_at, expires_at), relationships (project, inviter), status scope methods (pending, expired), and token generation helper
-- [ ] T009 [P] Update `app/Models/ProjectMember.php` to document new valid role values (owner, lead, member, viewer) in model comments
-- [ ] T010 Update `app/Policies/ProjectPolicy.php` to use permission matrix from `config/permissions.php` instead of hardcoded role checks; add methods: canInvite, canManageRoles, canAssignTasks referencing the config
-- [ ] T011 [P] Update `app/Policies/TaskPolicy.php` to use permission matrix for task operations; add self-assign logic (Members can only assign to themselves, Owner/Lead can assign anyone)
-- [ ] T012 [P] Create `app/Policies/InvitationPolicy.php` with send (owner/lead), view (owner/lead), cancel (owner/lead), accept (matching email), decline (matching email) methods
-- [ ] T013 Update `app/Http/Middleware/RoleMiddleware.php` to support checking project-level roles in addition to system-level roles
-- [ ] T014 [P] Update `resources/js/composables/useProjectPermissions.js` to define permission matrix matching backend config (owner/lead/member/viewer) and expose hasPermission(action) helper
-- [ ] T015 Add new API routes to `routes/api.php` for: profile endpoints (GET/PUT /profile, POST/DELETE /profile/avatar, PUT /profile/password, PUT /profile/preferences), user management (GET/PUT/DELETE /users, GET /users/{id}), invitation endpoints, permissions endpoint, and assignable members endpoint
+- [x] T007 Update `app/Models/User.php` to add avatar_url, bio to fillable array and add avatar accessor with fallback URL
+- [x] T008 [P] Create `app/Models/Invitation.php` model with fillable fields (project_id, email, role, token, status, email_sent, invited_by, accepted_at, expires_at), relationships (project, inviter), status scope methods (pending, expired), and token generation helper
+- [x] T009 [P] Update `app/Models/ProjectMember.php` to document new valid role values (owner, lead, member, viewer) in model comments
+- [x] T010 Update `app/Policies/ProjectPolicy.php` to use permission matrix from `config/permissions.php` instead of hardcoded role checks; add methods: canInvite, canManageRoles, canAssignTasks referencing the config
+- [x] T011 [P] Update `app/Policies/TaskPolicy.php` to use permission matrix for task operations; add self-assign logic (Members can only assign to themselves, Owner/Lead can assign anyone)
+- [x] T012 [P] Create `app/Policies/InvitationPolicy.php` with send (owner/lead), view (owner/lead), cancel (owner/lead), accept (matching email), decline (matching email) methods
+- [x] T013 Update `app/Http/Middleware/RoleMiddleware.php` to support checking project-level roles in addition to system-level roles
+- [x] T014 [P] Update `resources/js/composables/useProjectPermissions.js` to define permission matrix matching backend config (owner/lead/member/viewer) and expose hasPermission(action) helper
+- [x] T015 Add new API routes to `routes/api.php` for: profile endpoints (GET/PUT /profile, POST/DELETE /profile/avatar, PUT /profile/password, PUT /profile/preferences), user management (GET/PUT/DELETE /users, GET /users/{id}), invitation endpoints, permissions endpoint, and assignable members endpoint
 
 **Checkpoint**: Foundation ready — user story implementation can now begin
 
@@ -56,16 +56,16 @@
 
 ### Implementation for User Story 1
 
-- [ ] T016 [P] [US1] Create `app/Http/Requests/UpdateUserRequest.php` with validation rules: name (required, max:255), email (required, unique excluding target), role_id (required, exists:roles)
-- [ ] T017 [US1] Create `app/Http/Controllers/UserController.php` with: index (paginated list with search/filter/sort per contracts/users-api.md), show (single user with projects), update (admin edit name/email/role), destroy (soft-delete, cannot delete self)
-- [ ] T018 [US1] Register UserController routes in `routes/api.php` with auth:sanctum + role:admin middleware: GET /users, GET /users/{id}, PUT /users/{id}, DELETE /users/{id}
-- [ ] T019 [P] [US1] Create `resources/js/stores/users.js` Pinia store with: users state, fetchUsers(filters, page), fetchUser(id), updateUser(id, data), deleteUser(id) actions, computed getters for loading/error state
-- [ ] T020 [P] [US1] Create `resources/js/components/users/UserFilters.vue` with search input (debounced), role dropdown filter (admin/instructor/student), status filter (active/deleted), sort controls (name/email/created_at)
-- [ ] T021 [P] [US1] Create `resources/js/components/users/UserAvatar.vue` component displaying avatar image or initials fallback using existing useAvatar.js composable, accepting user prop with name and avatar_url
-- [ ] T022 [US1] Create `resources/js/components/users/UserTable.vue` with paginated table showing columns: avatar, name, email, system role, projects count, status, created_at; row click emits select event; pagination controls at bottom
-- [ ] T023 [US1] Create `resources/js/components/users/UserDetailModal.vue` using shared Modal component; displays user info with editable fields (name, email, role dropdown); save button calls updateUser; deactivate button with confirmation calls deleteUser; no password reset (display-only note)
-- [ ] T024 [US1] Create `resources/js/pages/Users.vue` page composing UserFilters + UserTable + UserDetailModal; fetches users on mount and filter change; handles user selection and edit flow
-- [ ] T025 [US1] Add /users route to `resources/js/router/index.js` with requiresAuth meta and admin-only guard; add "Users" link to `resources/js/components/layout/Sidebar.vue` visible only to admin role
+- [x] T016 [P] [US1] Create `app/Http/Requests/UpdateUserRequest.php` with validation rules: name (required, max:255), email (required, unique excluding target), role_id (required, exists:roles)
+- [x] T017 [US1] Create `app/Http/Controllers/UserController.php` with: index (paginated list with search/filter/sort per contracts/users-api.md), show (single user with projects), update (admin edit name/email/role), destroy (soft-delete, cannot delete self)
+- [x] T018 [US1] Register UserController routes in `routes/api.php` with auth:sanctum + role:admin middleware: GET /users, GET /users/{id}, PUT /users/{id}, DELETE /users/{id}
+- [x] T019 [P] [US1] Create `resources/js/stores/users.js` Pinia store with: users state, fetchUsers(filters, page), fetchUser(id), updateUser(id, data), deleteUser(id) actions, computed getters for loading/error state
+- [x] T020 [P] [US1] Create `resources/js/components/users/UserFilters.vue` with search input (debounced), role dropdown filter (admin/instructor/student), status filter (active/deleted), sort controls (name/email/created_at)
+- [x] T021 [P] [US1] Create `resources/js/components/users/UserAvatar.vue` component displaying avatar image or initials fallback using existing useAvatar.js composable, accepting user prop with name and avatar_url
+- [x] T022 [US1] Create `resources/js/components/users/UserTable.vue` with paginated table showing columns: avatar, name, email, system role, projects count, status, created_at; row click emits select event; pagination controls at bottom
+- [x] T023 [US1] Create `resources/js/components/users/UserDetailModal.vue` using shared Modal component; displays user info with editable fields (name, email, role dropdown); save button calls updateUser; deactivate button with confirmation calls deleteUser; no password reset (display-only note)
+- [x] T024 [US1] Create `resources/js/pages/Users.vue` page composing UserFilters + UserTable + UserDetailModal; fetches users on mount and filter change; handles user selection and edit flow
+- [x] T025 [US1] Add /users route to `resources/js/router/index.js` with requiresAuth meta and admin-only guard; add "Users" link to `resources/js/components/layout/Sidebar.vue` visible only to admin role
 
 **Checkpoint**: Admin can view, search, filter, and edit users. Story 1 independently testable.
 
@@ -79,16 +79,16 @@
 
 ### Implementation for User Story 2
 
-- [ ] T026 [P] [US2] Create `app/Http/Requests/UpdateProfileRequest.php` with validation: name (required, max:255), email (required, email, unique excluding self), bio (nullable, max:500)
-- [ ] T027 [US2] Create `app/Http/Controllers/ProfileController.php` with: show (current user profile + preferences), update (name/email/bio), uploadAvatar (validate image jpg/png max 5MB, store in storage/app/public/avatars/, delete old avatar, update user.avatar_url), deleteAvatar (remove file, null avatar_url), changePassword (validate current password, new password min 8 and different from old), updatePreferences (save notification_frequency, notification_email, notification_assignments, notification_comments to user_preferences table)
-- [ ] T028 [US2] Register ProfileController routes in `routes/api.php` with auth:sanctum middleware: GET /profile, PUT /profile, POST /profile/avatar, DELETE /profile/avatar, PUT /profile/password, PUT /profile/preferences
-- [ ] T029 [P] [US2] Create `resources/js/components/profile/ProfileForm.vue` with editable fields for name, email, bio using shared Input component; save button with loading state; validation error display
-- [ ] T030 [P] [US2] Create `resources/js/components/profile/AvatarUploader.vue` with image preview, file input (accept jpg/png), upload button, remove button; shows current avatar or initials fallback; 5MB size validation on client side
-- [ ] T031 [P] [US2] Create `resources/js/components/profile/PasswordChangeForm.vue` with current password, new password, confirm password fields; client-side validation (min 8 chars, match confirmation); submit calls PUT /profile/password
-- [ ] T032 [P] [US2] Create `resources/js/components/profile/NotificationPreferences.vue` with toggles/selects for: notification_frequency (realtime/daily/weekly/none), notification_email (on/off), notification_assignments (on/off), notification_comments (on/off); auto-save on change
-- [ ] T033 [US2] Create `resources/js/pages/Profile.vue` page composing AvatarUploader + ProfileForm + PasswordChangeForm + NotificationPreferences in a tabbed or sectioned layout; fetches profile on mount
-- [ ] T034 [US2] Add /profile route to `resources/js/router/index.js` with requiresAuth meta; add "Profile" link to `resources/js/components/layout/UserMenu.vue` dropdown
-- [ ] T035 [US2] Update `resources/js/stores/auth.js` to include avatar_url and bio in user state; add updateProfile and uploadAvatar actions that call profile API and update local state
+- [x] T026 [P] [US2] Create `app/Http/Requests/UpdateProfileRequest.php` with validation: name (required, max:255), email (required, email, unique excluding self), bio (nullable, max:500)
+- [x] T027 [US2] Create `app/Http/Controllers/ProfileController.php` with: show (current user profile + preferences), update (name/email/bio), uploadAvatar (validate image jpg/png max 5MB, store in storage/app/public/avatars/, delete old avatar, update user.avatar_url), deleteAvatar (remove file, null avatar_url), changePassword (validate current password, new password min 8 and different from old), updatePreferences (save notification_frequency, notification_email, notification_assignments, notification_comments to user_preferences table)
+- [x] T028 [US2] Register ProfileController routes in `routes/api.php` with auth:sanctum middleware: GET /profile, PUT /profile, POST /profile/avatar, DELETE /profile/avatar, PUT /profile/password, PUT /profile/preferences
+- [x] T029 [P] [US2] Create `resources/js/components/profile/ProfileForm.vue` with editable fields for name, email, bio using shared Input component; save button with loading state; validation error display
+- [x] T030 [P] [US2] Create `resources/js/components/profile/AvatarUploader.vue` with image preview, file input (accept jpg/png), upload button, remove button; shows current avatar or initials fallback; 5MB size validation on client side
+- [x] T031 [P] [US2] Create `resources/js/components/profile/PasswordChangeForm.vue` with current password, new password, confirm password fields; client-side validation (min 8 chars, match confirmation); submit calls PUT /profile/password
+- [x] T032 [P] [US2] Create `resources/js/components/profile/NotificationPreferences.vue` with toggles/selects for: notification_frequency (realtime/daily/weekly/none), notification_email (on/off), notification_assignments (on/off), notification_comments (on/off); auto-save on change
+- [x] T033 [US2] Create `resources/js/pages/Profile.vue` page composing AvatarUploader + ProfileForm + PasswordChangeForm + NotificationPreferences in a tabbed or sectioned layout; fetches profile on mount
+- [x] T034 [US2] Add /profile route to `resources/js/router/index.js` with requiresAuth meta; add "Profile" link to `resources/js/components/layout/UserMenu.vue` dropdown
+- [x] T035 [US2] Update `resources/js/stores/auth.js` to include avatar_url and bio in user state; add updateProfile and uploadAvatar actions that call profile API and update local state
 
 **Checkpoint**: Users can manage their own profiles. Story 2 independently testable.
 
@@ -102,16 +102,16 @@
 
 ### Implementation for User Story 3
 
-- [ ] T036 [US3] Complete `app/Http/Controllers/ProjectController.php` members() method to return project members with user data (id, name, email, avatar_url, role) per contracts/permissions-api.md GET /projects/{project}/members
-- [ ] T037 [US3] Add assignable members endpoint to `app/Http/Controllers/ProjectController.php`: method assignableMembers() returning members with roles owner/lead/member (excluding viewers) per contracts/permissions-api.md GET /projects/{project}/members/assignable
-- [ ] T038 [US3] Update `app/Http/Controllers/TaskController.php` update() method to: check task.assign permission before allowing assignee_id change; validate assignee is a project member (not viewer); create Notification record (type: task_assigned) for new assignee; create Notification record (type: task_unassigned) for previous assignee if changed; log activity with old/new assignee data
-- [ ] T039 [US3] Add member removal task unassignment logic to `app/Http/Controllers/ProjectController.php` removeMember() method: find all tasks assigned to removed user in this project, set assignee_id to null, return unassigned_tasks_count in response
-- [ ] T040 [US3] Register new routes in `routes/api.php`: GET /projects/{project}/members/assignable with auth:sanctum middleware
+- [x] T036 [US3] Complete `app/Http/Controllers/ProjectController.php` members() method to return project members with user data (id, name, email, avatar_url, role) per contracts/permissions-api.md GET /projects/{project}/members
+- [x] T037 [US3] Add assignable members endpoint to `app/Http/Controllers/ProjectController.php`: method assignableMembers() returning members with roles owner/lead/member (excluding viewers) per contracts/permissions-api.md GET /projects/{project}/members/assignable
+- [x] T038 [US3] Update `app/Http/Controllers/TaskController.php` update() method to: check task.assign permission before allowing assignee_id change; validate assignee is a project member (not viewer); create Notification record (type: task_assigned) for new assignee; create Notification record (type: task_unassigned) for previous assignee if changed; log activity with old/new assignee data
+- [x] T039 [US3] Add member removal task unassignment logic to `app/Http/Controllers/ProjectController.php` removeMember() method: find all tasks assigned to removed user in this project, set assignee_id to null, return unassigned_tasks_count in response
+- [x] T040 [US3] Register new routes in `routes/api.php`: GET /projects/{project}/members/assignable with auth:sanctum middleware
 - [ ] T041 [US3] Update `resources/js/components/kanban/AssigneeSelector.vue` to: fetch assignable members from /projects/{project}/members/assignable; show avatars (UserAvatar component) and role badges in dropdown; for Members role show only self in dropdown; for Owner/Lead show all assignable members; emit assignment change event
-- [ ] T042 [US3] Update `resources/js/components/kanban/TaskCard.vue` to display assignee avatar (using UserAvatar component) and name on task cards when assignee_id is set
+- [x] T042 [US3] Update `resources/js/components/kanban/TaskCard.vue` to display assignee avatar (using UserAvatar component) and name on task cards when assignee_id is set
 - [ ] T043 [US3] Update `resources/js/components/kanban/TaskDetailModal.vue` to show assignee section with avatar, name, and role; include AssigneeSelector for changing assignment
 - [ ] T044 [US3] Update `resources/js/pages/MyTasks.vue` to fetch tasks filtered by assignee_id = current user; display grouped by project with priority and due date sorting
-- [ ] T045 [US3] Update `resources/js/stores/tasks.js` to handle assignee changes: call PUT /tasks/{id} with assignee_id, update local task state optimistically, show toast notification on success
+- [x] T045 [US3] Update `resources/js/stores/tasks.js` to handle assignee changes: call PUT /tasks/{id} with assignee_id, update local task state optimistically, show toast notification on success
 
 **Checkpoint**: Task assignment works with role-based restrictions and notifications. Story 3 independently testable.
 
