@@ -66,13 +66,13 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useAuth } from '../stores/auth';
+import { useAuthStore } from '../stores/auth';
 import AvatarUploader from '../components/profile/AvatarUploader.vue';
 import ProfileForm from '../components/profile/ProfileForm.vue';
 import PasswordChangeForm from '../components/profile/PasswordChangeForm.vue';
 import NotificationPreferences from '../components/profile/NotificationPreferences.vue';
 
-const authStore = useAuth();
+const authStore = useAuthStore();
 const currentUser = ref(null);
 const preferences = ref({});
 const activeTab = ref('profile');
