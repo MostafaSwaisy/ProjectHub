@@ -88,6 +88,36 @@ class TaskPolicy
     }
 
     /**
+     * Determine if the user can assign tasks (T038).
+     * - Admin can assign tasks in any project
+     * - Project owner (instructor) can assign tasks
+     * - Only leads/owners with permission can assign
+     */
+    public function assign(User $user, Task $task): bool
+    {
+        // Get the project through the task's column and board
+        $project = $task->column->board->project;
+
+        // Admin can assign tasks
+        if ($user->role && $user->role->name === 'admin') {
+            return true;
+        }
+
+        // Project owner (instructor) can assign tasks
+        if ($user->id === $project->instructor_id) {
+            return true;
+        }
+
+        // Check if user is a lead or owner in the project
+        $membership = $project->members()->where('user_id', $user->id)->first();
+        if ($membership && in_array($membership->pivot->role, ['owner', 'lead'])) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Determine if the user can delete the task.
      * - Task assignee can delete the task
      * - Project admin (instructor or admin) can delete the task

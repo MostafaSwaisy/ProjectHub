@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UpdateProfileRequest;
+use App\Models\Activity;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Storage;
@@ -31,13 +32,6 @@ class ProfileController extends Controller
         $user = $request->user();
         $user->update($request->validated());
 
-        // Log activity
-        activity()
-            ->causedBy($user)
-            ->performedOn($user)
-            ->withProperties(['action' => 'updated_profile'])
-            ->log('Updated profile');
-
         return response()->json([
             'message' => 'Profile updated successfully.',
             'data' => $user->fresh(),
@@ -56,24 +50,17 @@ class ProfileController extends Controller
         $user = $request->user();
 
         // Delete old avatar if exists
-        if ($user->avatar_url && Storage::disk('public')->exists('avatars/' . $user->avatar_url)) {
-            Storage::disk('public')->delete('avatars/' . $user->avatar_url);
+        if ($user->avatar_url && Storage::disk('public')->exists("avatars/{$user->avatar_url}")) {
+            Storage::disk('public')->delete("avatars/{$user->avatar_url}");
         }
 
         // Store new avatar
         $file = $request->file('avatar');
         $filename = $user->id . '_' . time() . '.' . $file->getClientOriginalExtension();
-        $path = Storage::disk('public')->putFileAs('avatars', $file, $filename);
+        Storage::disk('public')->putFileAs('avatars', $file, $filename);
 
         // Update user
         $user->update(['avatar_url' => $filename]);
-
-        // Log activity
-        activity()
-            ->causedBy($user)
-            ->performedOn($user)
-            ->withProperties(['action' => 'uploaded_avatar'])
-            ->log('Uploaded avatar');
 
         return response()->json([
             'message' => 'Avatar uploaded successfully.',
@@ -90,19 +77,12 @@ class ProfileController extends Controller
         $user = $request->user();
 
         // Delete avatar file if exists
-        if ($user->avatar_url && Storage::disk('public')->exists('avatars/' . $user->avatar_url)) {
-            Storage::disk('public')->delete('avatars/' . $user->avatar_url);
+        if ($user->avatar_url && Storage::disk('public')->exists("avatars/{$user->avatar_url}")) {
+            Storage::disk('public')->delete("avatars/{$user->avatar_url}");
         }
 
         // Clear avatar_url from user
         $user->update(['avatar_url' => null]);
-
-        // Log activity
-        activity()
-            ->causedBy($user)
-            ->performedOn($user)
-            ->withProperties(['action' => 'deleted_avatar'])
-            ->log('Deleted avatar');
 
         return response()->json([
             'message' => 'Avatar deleted successfully.',
@@ -146,13 +126,6 @@ class ProfileController extends Controller
         // Update password
         $user->update(['password' => $request->input('password')]);
 
-        // Log activity
-        activity()
-            ->causedBy($user)
-            ->performedOn($user)
-            ->withProperties(['action' => 'changed_password'])
-            ->log('Changed password');
-
         return response()->json([
             'message' => 'Password changed successfully.',
         ]);
@@ -187,13 +160,6 @@ class ProfileController extends Controller
                     ['value' => $value]
                 );
         }
-
-        // Log activity
-        activity()
-            ->causedBy($user)
-            ->performedOn($user)
-            ->withProperties(['action' => 'updated_preferences'])
-            ->log('Updated preferences');
 
         return response()->json([
             'message' => 'Preferences updated successfully.',

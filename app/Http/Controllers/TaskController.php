@@ -180,7 +180,7 @@ class TaskController extends Controller
         $oldValues = $task->only(array_keys($validated));
 
         // T038: Handle assignee change with permission and validation
-        if (isset($validated['assignee_id']) && $validated['assignee_id'] !== $task->assignee_id) {
+        if (array_key_exists('assignee_id', $validated) && $validated['assignee_id'] !== $task->assignee_id) {
             // Check if user has permission to assign tasks
             $this->authorize('assign', $task);
 

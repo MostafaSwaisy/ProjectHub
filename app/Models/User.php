@@ -105,14 +105,8 @@ class User extends Authenticatable
     /**
      * Get the user's avatar URL with fallback to initials
      */
-    public function getAvatarUrlAttribute(): string
+    public function getAvatarUrlAttribute(): ?string
     {
-        if ($this->avatar_url) {
-            return asset('storage/avatars/' . basename($this->avatar_url));
-        }
-
-        // Generate initials-based fallback
-        $initials = substr(str_replace(' ', '', $this->name), 0, 2);
-        return "https://via.placeholder.com/150?text=" . urlencode($initials);
+        return $this->attributes['avatar_url'] ?? null;
     }
 }

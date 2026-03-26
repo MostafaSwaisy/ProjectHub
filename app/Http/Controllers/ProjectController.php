@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Project;
 use App\Models\Board;
 use App\Models\Activity;
+use App\Models\User;
 use App\Http\Resources\ProjectResource;
 use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
@@ -300,15 +301,14 @@ class ProjectController extends Controller
         $this->authorize('view', $project);
 
         $members = $project->members()
-            ->with('user')
             ->get()
-            ->map(function ($member) {
+            ->map(function ($user) {
                 return [
-                    'id' => $member->user->id,
-                    'name' => $member->user->name,
-                    'email' => $member->user->email,
-                    'avatar_url' => $member->user->avatar_url,
-                    'role' => $member->role,
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'avatar_url' => $user->avatar_url,
+                    'role' => $user->pivot->role,
                 ];
             });
 
@@ -327,16 +327,15 @@ class ProjectController extends Controller
 
         // Return members with roles: owner, lead, member (not viewer)
         $members = $project->members()
-            ->with('user')
-            ->whereIn('role', ['owner', 'lead', 'member'])
+            ->wherePivotIn('role', ['owner', 'lead', 'member'])
             ->get()
-            ->map(function ($member) {
+            ->map(function ($user) {
                 return [
-                    'id' => $member->user->id,
-                    'name' => $member->user->name,
-                    'email' => $member->user->email,
-                    'avatar_url' => $member->user->avatar_url,
-                    'role' => $member->role,
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'avatar_url' => $user->avatar_url,
+                    'role' => $user->pivot->role,
                 ];
             });
 
@@ -364,15 +363,13 @@ class ProjectController extends Controller
     /**
      * Remove a member from the project (T039, T057)
      */
-    public function removeMember(Project $project, $userId)
+    public function removeMember(Project $project, User $user)
     {
         // Authorize the action
-        $this->authorize('manage', $project);
+        $this->authorize('manageMembers', $project);
 
-        // Find and delete the member
-        $member = $project->members()->where('user_id', $userId)->first();
-
-        if (!$member) {
+        // Check if user is a member
+        if (!$project->members()->where('user_id', $user->id)->exists()) {
             return response()->json([
                 'message' => 'Member not found',
             ], 404);
@@ -380,28 +377,28 @@ class ProjectController extends Controller
 
         // T039: Unassign all tasks from the removed user
         $unassignedCount = $project->tasks()
-            ->where('assignee_id', $userId)
+            ->where('assignee_id', $user->id)
             ->update(['assignee_id' => null]);
 
-        // Delete the member
-        $member->delete();
+        // Detach the member from the project
+        $project->members()->detach($user->id);
 
         // Log activity
         Activity::create([
             'user_id' => auth()->id(),
             'project_id' => $project->id,
             'type' => 'member_removed',
-            'subject_type' => 'ProjectMember',
-            'subject_id' => $member->id,
+            'subject_type' => User::class,
+            'subject_id' => $user->id,
             'data' => [
-                'user_id' => $userId,
-                'unassigned_tasks_count' => $unassignedCount,
+                'user_id' => $user->id,
+                'tasks_unassigned' => $unassignedCount,
             ],
         ]);
 
         return response()->json([
-            'message' => 'Member removed successfully',
-            'unassigned_tasks_count' => $unassignedCount,
+            'message' => 'Member removed from project.',
+            'tasks_unassigned' => $unassignedCount,
         ]);
     }
 }
