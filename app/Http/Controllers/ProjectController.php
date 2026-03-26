@@ -401,4 +401,30 @@ class ProjectController extends Controller
             'tasks_unassigned' => $unassignedCount,
         ]);
     }
+
+    /**
+     * Return the permission matrix for the authenticated user on this project.
+     */
+    public function permissions(Project $project): \Illuminate\Http\JsonResponse
+    {
+        $user = auth()->user();
+        $matrix = config('permissions.roles', []);
+
+        // Determine the user's role on this project
+        if ($user->id === $project->instructor_id) {
+            $role = 'owner';
+        } else {
+            $membership = $project->members()->where('user_id', $user->id)->first();
+            $role = $membership ? $membership->pivot->role : null;
+        }
+
+        if (!$role || !isset($matrix[$role])) {
+            return response()->json(['message' => 'You are not a member of this project.'], 403);
+        }
+
+        return response()->json([
+            'role'        => $role,
+            'permissions' => $matrix[$role]['permissions'] ?? [],
+        ]);
+    }
 }
