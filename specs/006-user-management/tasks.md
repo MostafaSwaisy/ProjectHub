@@ -107,10 +107,10 @@
 - [x] T038 [US3] Update `app/Http/Controllers/TaskController.php` update() method to: check task.assign permission before allowing assignee_id change; validate assignee is a project member (not viewer); create Notification record (type: task_assigned) for new assignee; create Notification record (type: task_unassigned) for previous assignee if changed; log activity with old/new assignee data
 - [x] T039 [US3] Add member removal task unassignment logic to `app/Http/Controllers/ProjectController.php` removeMember() method: find all tasks assigned to removed user in this project, set assignee_id to null, return unassigned_tasks_count in response
 - [x] T040 [US3] Register new routes in `routes/api.php`: GET /projects/{project}/members/assignable with auth:sanctum middleware
-- [ ] T041 [US3] Update `resources/js/components/kanban/AssigneeSelector.vue` to: fetch assignable members from /projects/{project}/members/assignable; show avatars (UserAvatar component) and role badges in dropdown; for Members role show only self in dropdown; for Owner/Lead show all assignable members; emit assignment change event
+- [x] T041 [US3] Update `resources/js/components/kanban/AssigneeSelector.vue` to: fetch assignable members from /projects/{project}/members/assignable; show avatars (UserAvatar component) and role badges in dropdown; for Members role show only self in dropdown; for Owner/Lead show all assignable members; emit assignment change event
 - [x] T042 [US3] Update `resources/js/components/kanban/TaskCard.vue` to display assignee avatar (using UserAvatar component) and name on task cards when assignee_id is set
-- [ ] T043 [US3] Update `resources/js/components/kanban/TaskDetailModal.vue` to show assignee section with avatar, name, and role; include AssigneeSelector for changing assignment
-- [ ] T044 [US3] Update `resources/js/pages/MyTasks.vue` to fetch tasks filtered by assignee_id = current user; display grouped by project with priority and due date sorting
+- [x] T043 [US3] Update `resources/js/components/kanban/TaskDetailModal.vue` to show assignee section with avatar, name, and role; include AssigneeSelector for changing assignment
+- [x] T044 [US3] Update `resources/js/pages/MyTasks.vue` to fetch tasks filtered by assignee_id = current user; display grouped by project with priority and due date sorting
 - [x] T045 [US3] Update `resources/js/stores/tasks.js` to handle assignee changes: call PUT /tasks/{id} with assignee_id, update local task state optimistically, show toast notification on success
 
 **Checkpoint**: Task assignment works with role-based restrictions and notifications. Story 3 independently testable.
