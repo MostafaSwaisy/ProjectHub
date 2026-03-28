@@ -12,7 +12,7 @@
           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
           placeholder="Enter your current password"
         />
-        <span v-if="errors.current_password" class="text-sm text-red-600">{{ errors.current_password[0] }}</span>
+        <span v-if="errors.current_password" class="text-sm text-red-600">{{ errors.current_password?.[0] }}</span>
       </div>
 
       <!-- New Password -->
@@ -27,7 +27,7 @@
         <p class="text-xs text-gray-500 mt-1" :class="{ 'text-red-600': formData.password.length > 0 && formData.password.length < 8 }">
           {{ formData.password.length }}/8+ characters
         </p>
-        <span v-if="errors.password" class="text-sm text-red-600">{{ errors.password[0] }}</span>
+        <span v-if="errors.password" class="text-sm text-red-600">{{ errors.password?.[0] }}</span>
       </div>
 
       <!-- Confirm Password -->
@@ -39,7 +39,7 @@
           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
           placeholder="Confirm your new password"
         />
-        <span v-if="errors.password_confirmation" class="text-sm text-red-600">{{ errors.password_confirmation[0] }}</span>
+        <span v-if="errors.password_confirmation" class="text-sm text-red-600">{{ errors.password_confirmation?.[0] }}</span>
       </div>
 
       <!-- Save Button -->
