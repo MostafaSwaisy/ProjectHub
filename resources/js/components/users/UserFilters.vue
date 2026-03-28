@@ -80,7 +80,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import axios from 'axios';
 
 const emit = defineEmits(['filters-changed']);
@@ -128,5 +128,9 @@ const fetchRoles = async () => {
 
 onMounted(() => {
   fetchRoles();
+});
+
+onUnmounted(() => {
+  clearTimeout(searchTimeout);
 });
 </script>
