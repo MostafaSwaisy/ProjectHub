@@ -17,10 +17,12 @@ class ProjectResource extends JsonResource
         $user = $request->user();
 
         // Calculate task completion statistics
-        $totalTasks = $this->tasks()->count();
-        $completedTasks = $this->tasks()
+        // BUG-013: Use preloaded counts from withCount() when available to avoid N+1
+        $totalTasks = $this->tasks_count ?? $this->tasks()->count();
+        // BUG-011: Match common done-column names instead of hardcoded 'Done'
+        $completedTasks = $this->completed_tasks_count ?? $this->tasks()
             ->whereHas('column', function ($query) {
-                $query->where('title', 'Done');
+                $query->whereIn('title', ['Done', 'Completed', 'Complete', 'Finished', 'Closed']);
             })
             ->count();
         $activeTasks = $totalTasks - $completedTasks;
@@ -39,7 +41,12 @@ class ProjectResource extends JsonResource
 
         // Calculate permissions for current user
         $isOwner = $user && $user->id === $this->instructor_id;
-        $membership = $user ? $this->members()->where('user_id', $user->id)->first() : null;
+        // BUG-012: Avoid extra query if members relation is already loaded
+        $membership = $user
+            ? ($this->relationLoaded('members')
+                ? $this->members->firstWhere('user_id', $user->id)
+                : $this->members()->where('user_id', $user->id)->first())
+            : null;
         $userRole = $membership ? $membership->pivot->role : null;
 
         return [

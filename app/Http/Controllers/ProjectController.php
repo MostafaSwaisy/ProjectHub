@@ -36,7 +36,15 @@ class ProjectController extends Controller
         $query = Project::forUser($user->id)
             ->with(['instructor', 'members' => function ($query) {
                 $query->take(5);
-            }]);
+            }])
+            ->withCount([
+                'tasks',
+                'tasks as completed_tasks_count' => function ($q) {
+                    $q->whereHas('column', function ($q) {
+                        $q->whereIn('title', ['Done', 'Completed', 'Complete', 'Finished', 'Closed']);
+                    });
+                },
+            ]);
 
         // Filter by archived status
         $archived = $request->boolean('archived', false);
