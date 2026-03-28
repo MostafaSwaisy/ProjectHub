@@ -2,7 +2,101 @@ import { computed } from 'vue';
 import { useAuth } from './useAuth';
 
 /**
- * Composable for checking project-level permissions
+ * Permission matrix matching backend config/permissions.php
+ */
+const PERMISSION_MATRIX = {
+    owner: {
+        label: 'Owner',
+        permissions: {
+            'project.view': true,
+            'project.edit': true,
+            'project.delete': true,
+            'member.view': true,
+            'member.add': true,
+            'member.remove': true,
+            'member.invite': true,
+            'member.role_change': true,
+            'role.view': true,
+            'role.manage': true,
+            'task.view': true,
+            'task.create': true,
+            'task.edit': true,
+            'task.delete': true,
+            'task.assign': true,
+            'task.comment': true,
+            'label.manage': true,
+        },
+    },
+    lead: {
+        label: 'Lead',
+        permissions: {
+            'project.view': true,
+            'project.edit': false,
+            'project.delete': false,
+            'member.view': true,
+            'member.add': false,
+            'member.remove': false,
+            'member.invite': true,
+            'member.role_change': false,
+            'role.view': true,
+            'role.manage': false,
+            'task.view': true,
+            'task.create': true,
+            'task.edit': true,
+            'task.delete': true,
+            'task.assign': true,
+            'task.comment': true,
+            'label.manage': true,
+        },
+    },
+    member: {
+        label: 'Member',
+        permissions: {
+            'project.view': true,
+            'project.edit': false,
+            'project.delete': false,
+            'member.view': true,
+            'member.add': false,
+            'member.remove': false,
+            'member.invite': false,
+            'member.role_change': false,
+            'role.view': true,
+            'role.manage': false,
+            'task.view': true,
+            'task.create': true,
+            'task.edit': true,
+            'task.delete': true,
+            'task.assign': true,
+            'task.comment': true,
+            'label.manage': false,
+        },
+    },
+    viewer: {
+        label: 'Viewer',
+        permissions: {
+            'project.view': true,
+            'project.edit': false,
+            'project.delete': false,
+            'member.view': true,
+            'member.add': false,
+            'member.remove': false,
+            'member.invite': false,
+            'member.role_change': false,
+            'role.view': true,
+            'role.manage': false,
+            'task.view': true,
+            'task.create': false,
+            'task.edit': false,
+            'task.delete': false,
+            'task.assign': false,
+            'task.comment': false,
+            'label.manage': false,
+        },
+    },
+};
+
+/**
+ * Composable for checking project-level permissions using permission matrix
  * @param {Ref<Object>} project - Reactive project object
  * @returns {Object} Permission check methods
  */
@@ -28,11 +122,11 @@ export function useProjectPermissions(project) {
 
     /**
      * Get current user's role in the project
-     * @returns {'instructor' | 'editor' | 'viewer' | null}
+     * @returns {'owner' | 'lead' | 'member' | 'viewer' | null}
      */
     const userRole = computed(() => {
         if (!project.value || !user.value) return null;
-        if (isOwner.value) return 'instructor';
+        if (isOwner.value) return 'owner';
 
         const members = project.value.members || [];
         const membership = members.find(m =>
@@ -42,41 +136,29 @@ export function useProjectPermissions(project) {
     });
 
     /**
-     * Check if user can edit project details
-     * Instructors and editors can edit
+     * Check if user has a specific permission
      */
-    const canEdit = computed(() => {
-        if (!project.value || !user.value) return false;
-        if (isOwner.value) return true;
-        return userRole.value === 'editor';
-    });
+    const hasPermission = (permission) => {
+        const role = userRole.value;
+        if (!role) return false;
+        return PERMISSION_MATRIX[role]?.permissions[permission] ?? false;
+    };
 
     /**
-     * Check if user can delete the project
-     * Only the owner/instructor can delete
+     * Permission check methods
      */
-    const canDelete = computed(() => isOwner.value);
-
-    /**
-     * Check if user can archive/unarchive the project
-     * Only the owner/instructor can archive
-     */
-    const canArchive = computed(() => isOwner.value);
-
-    /**
-     * Check if user can manage team members
-     * Only the owner/instructor can manage members
-     */
+    const canInvite = computed(() => hasPermission('member.invite'));
+    const canManageRoles = computed(() => hasPermission('member.role_change'));
+    const canAssignTasks = computed(() => hasPermission('task.assign'));
+    const canEditProject = computed(() => hasPermission('project.edit'));
+    const canDeleteProject = computed(() => hasPermission('project.delete'));
+    const canCreateTask = computed(() => hasPermission('task.create'));
+    const canEditTask = computed(() => hasPermission('task.edit'));
+    const canDeleteTask = computed(() => hasPermission('task.delete'));
     const canManageMembers = computed(() => isOwner.value);
-
-    /**
-     * Check if user can view the project
-     * Owners, members, and admins can view
-     */
     const canView = computed(() => {
         if (!project.value || !user.value) return false;
         if (isOwner.value || isMember.value) return true;
-        // Admin check
         return user.value.role?.name === 'admin';
     });
 
@@ -84,9 +166,15 @@ export function useProjectPermissions(project) {
         isOwner,
         isMember,
         userRole,
-        canEdit,
-        canDelete,
-        canArchive,
+        hasPermission,
+        canInvite,
+        canManageRoles,
+        canAssignTasks,
+        canEditProject,
+        canDeleteProject,
+        canCreateTask,
+        canEditTask,
+        canDeleteTask,
         canManageMembers,
         canView,
     };

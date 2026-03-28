@@ -120,7 +120,8 @@ export const useCommentsStore = defineStore('comments', () => {
         if (!comment) throw new Error('Comment not found');
 
         const commentIndex = comments.value.findIndex(c => c.id === commentId);
-        const removedComment = comments.value[commentIndex];
+        if (commentIndex === -1) throw new Error('Comment not found in store');
+        const removedComment = { ...comments.value[commentIndex] };
 
         // Optimistic delete (including replies)
         const idsToRemove = [commentId, ...getReplies.value(commentId).map(r => r.id)];

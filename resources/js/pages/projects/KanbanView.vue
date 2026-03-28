@@ -86,7 +86,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import axios from 'axios';
 import KanbanBoard from '../../components/kanban/KanbanBoard.vue';
@@ -121,6 +121,14 @@ const loadProject = async () => {
 
 onMounted(() => {
     loadProject();
+});
+
+// Reload project data when navigating between projects without unmounting this component
+watch(projectId, (newId, oldId) => {
+    if (newId && newId !== oldId) {
+        activeTab.value = 'boards';
+        loadProject();
+    }
 });
 </script>
 

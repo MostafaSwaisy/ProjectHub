@@ -20,6 +20,8 @@ class SubtaskController extends Controller
      */
     public function index(Task $task): AnonymousResourceCollection
     {
+        $this->authorize('view', $task);
+
         $subtasks = $task->subtasks()->orderBy('position')->get();
 
         return SubtaskResource::collection($subtasks);
@@ -30,6 +32,8 @@ class SubtaskController extends Controller
      */
     public function store(StoreSubtaskRequest $request, Task $task): JsonResponse
     {
+        $this->authorize('update', $task);
+
         $validated = $request->validated();
 
         // Set position to end of list
@@ -55,6 +59,8 @@ class SubtaskController extends Controller
      */
     public function update(UpdateSubtaskRequest $request, Task $task, Subtask $subtask): SubtaskResource
     {
+        $this->authorize('update', $task);
+
         $validated = $request->validated();
         $wasCompleted = $subtask->is_completed;
 
@@ -76,6 +82,8 @@ class SubtaskController extends Controller
      */
     public function destroy(Task $task, Subtask $subtask): JsonResponse
     {
+        $this->authorize('update', $task);
+
         // Log activity before deletion
         $this->logActivity($task, 'deleted', [
             'subtask_id' => $subtask->id,
@@ -93,6 +101,8 @@ class SubtaskController extends Controller
      */
     public function reorder(Request $request, Task $task): AnonymousResourceCollection
     {
+        $this->authorize('update', $task);
+
         $request->validate([
             'subtask_ids' => 'required|array',
             'subtask_ids.*' => 'integer|exists:subtasks,id',

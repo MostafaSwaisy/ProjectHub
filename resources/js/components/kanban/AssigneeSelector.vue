@@ -1,21 +1,22 @@
 <template>
-    <!-- T118-T120: Assignee Selector Dropdown Component -->
+    <!-- T041: Enhanced Assignee Selector with role-based filtering -->
     <div class="assignee-selector">
         <select
             :value="modelValue"
             @change="handleChange"
             class="assignee-select"
+            :disabled="loading"
         >
-            <!-- T120: Unassigned Option -->
+            <!-- Unassigned Option -->
             <option :value="null">Unassigned</option>
 
-            <!-- T119: Project Members -->
+            <!-- Assignable Members (owner/lead/member only) -->
             <option
-                v-for="member in members"
+                v-for="member in filteredMembers"
                 :key="member.id"
                 :value="member.id"
             >
-                {{ member.name }}
+                {{ member.name }} ({{ member.role }})
             </option>
         </select>
 
@@ -24,7 +25,10 @@
             <div class="assignee-avatar">
                 {{ getInitials(selectedMember.name) }}
             </div>
-            <span class="assignee-name">{{ selectedMember.name }}</span>
+            <div class="assignee-info">
+                <span class="assignee-name">{{ selectedMember.name }}</span>
+                <span class="assignee-role">{{ selectedMember.role }}</span>
+            </div>
         </div>
         <div v-else class="assignee-preview">
             <div class="assignee-avatar unassigned">
@@ -39,7 +43,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 
 const props = defineProps({
     modelValue: {
@@ -50,9 +54,28 @@ const props = defineProps({
         type: Array,
         default: () => [],
     },
+    currentUserRole: {
+        type: String,
+        default: 'member', // owner, lead, or member
+    },
 });
 
 const emit = defineEmits(['update:modelValue']);
+
+const loading = ref(false);
+
+// Filter members based on current user role
+const filteredMembers = computed(() => {
+    if (!props.members || props.members.length === 0) return [];
+
+    // Owner and Lead can assign to anyone (except viewers)
+    if (props.currentUserRole === 'owner' || props.currentUserRole === 'lead') {
+        return props.members.filter(m => ['owner', 'lead', 'member'].includes(m.role));
+    }
+
+    // Members can only self-assign
+    return [];
+});
 
 // Computed
 const selectedMember = computed(() => {
@@ -143,9 +166,21 @@ const getInitials = (name) => {
     color: var(--text-secondary);
 }
 
+.assignee-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
 .assignee-name {
     font-size: 14px;
     color: var(--text-primary);
     font-weight: 500;
+}
+
+.assignee-role {
+    font-size: 11px;
+    color: var(--text-secondary);
+    text-transform: capitalize;
 }
 </style>

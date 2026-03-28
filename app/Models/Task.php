@@ -35,13 +35,11 @@ class Task extends Model
         'deleted_at' => 'datetime',
     ];
 
+    // Only is_overdue is kept in appends — it reads a column directly and costs nothing.
+    // The count-based attributes (progress, subtask_count, etc.) are computed in accessors
+    // and should be preloaded via withCount() in controllers to avoid N+1 queries.
     protected $appends = [
-        'progress',
-        'completed_subtask_count',
         'is_overdue',
-        'subtask_count',
-        'comment_count',
-        'label_count',
     ];
 
     public function column(): BelongsTo
@@ -89,13 +87,13 @@ class Task extends Model
      */
     public function getProgressAttribute(): int
     {
-        $totalSubtasks = $this->subtasks()->count();
+        $totalSubtasks = $this->subtasks_count ?? $this->subtasks()->count();
 
         if ($totalSubtasks === 0) {
             return 0;
         }
 
-        $completedSubtasks = $this->subtasks()->where('is_completed', true)->count();
+        $completedSubtasks = $this->completed_subtasks_count ?? $this->subtasks()->where('is_completed', true)->count();
 
         return (int) (($completedSubtasks / $totalSubtasks) * 100);
     }
@@ -107,7 +105,7 @@ class Task extends Model
      */
     public function getCompletedSubtaskCountAttribute(): int
     {
-        return $this->subtasks()->where('is_completed', true)->count();
+        return $this->completed_subtasks_count ?? $this->subtasks()->where('is_completed', true)->count();
     }
 
     /**
@@ -128,7 +126,7 @@ class Task extends Model
      */
     public function getSubtaskCountAttribute(): int
     {
-        return $this->subtasks()->count();
+        return $this->subtasks_count ?? $this->subtasks()->count();
     }
 
     /**
@@ -138,7 +136,7 @@ class Task extends Model
      */
     public function getCommentCountAttribute(): int
     {
-        return $this->comments()->count();
+        return $this->comments_count ?? $this->comments()->count();
     }
 
     /**
@@ -148,7 +146,7 @@ class Task extends Model
      */
     public function getLabelCountAttribute(): int
     {
-        return $this->labels()->count();
+        return $this->labels_count ?? $this->labels()->count();
     }
 
     /**

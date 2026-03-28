@@ -27,6 +27,8 @@ class User extends Authenticatable
         'email',
         'password',
         'role_id',
+        'avatar_url',
+        'bio',
     ];
 
     /**
@@ -98,5 +100,13 @@ class User extends Authenticatable
     public function preferences(): HasMany
     {
         return $this->hasMany(UserPreference::class);
+    }
+
+    /**
+     * Get the user's avatar URL with fallback to initials
+     */
+    public function getAvatarUrlAttribute(): ?string
+    {
+        return $this->attributes['avatar_url'] ?? null;
     }
 }

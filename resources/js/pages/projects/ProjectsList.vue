@@ -254,8 +254,8 @@ onMounted(() => {
     loadProjects();
 });
 
-const loadProjects = () => {
-    projectsStore.fetchProjects();
+const loadProjects = (page = 1) => {
+    projectsStore.fetchProjects(page);
 };
 
 const setViewMode = (mode) => {
@@ -344,7 +344,7 @@ const handleDiscardAfterConflict = () => {
 const switchTab = (archived) => {
     isArchivedTab.value = archived;
     projectsStore.setFilters({ archived });
-    loadProjects();
+    loadProjects(1); // reset to page 1 when switching tabs
 };
 
 const handleArchive = (project) => {

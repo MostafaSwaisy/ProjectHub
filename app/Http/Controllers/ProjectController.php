@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Project;
 use App\Models\Board;
 use App\Models\Activity;
+use App\Models\User;
 use App\Http\Resources\ProjectResource;
 use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
@@ -35,7 +36,15 @@ class ProjectController extends Controller
         $query = Project::forUser($user->id)
             ->with(['instructor', 'members' => function ($query) {
                 $query->take(5);
-            }]);
+            }])
+            ->withCount([
+                'tasks',
+                'tasks as completed_tasks_count' => function ($q) {
+                    $q->whereHas('column', function ($q) {
+                        $q->whereIn('title', ['Done', 'Completed', 'Complete', 'Finished', 'Closed']);
+                    });
+                },
+            ]);
 
         // Filter by archived status
         $archived = $request->boolean('archived', false);
@@ -292,34 +301,138 @@ class ProjectController extends Controller
     }
 
     /**
-     * List project members
+     * List project members (T036)
      */
     public function members(Project $project)
     {
-        // Will be implemented in T072
+        // Authorize the action
+        $this->authorize('view', $project);
+
+        $members = $project->members()
+            ->get()
+            ->map(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'avatar_url' => $user->avatar_url,
+                    'role' => $user->pivot->role,
+                ];
+            });
+
+        return response()->json([
+            'data' => $members,
+        ]);
     }
 
     /**
-     * Add a member to the project
+     * List assignable project members (T037)
+     */
+    public function assignableMembers(Project $project)
+    {
+        // Authorize the action
+        $this->authorize('view', $project);
+
+        // Return members with roles: owner, lead, member (not viewer)
+        $members = $project->members()
+            ->wherePivotIn('role', ['owner', 'lead', 'member'])
+            ->get()
+            ->map(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'avatar_url' => $user->avatar_url,
+                    'role' => $user->pivot->role,
+                ];
+            });
+
+        return response()->json([
+            'data' => $members,
+        ]);
+    }
+
+    /**
+     * Add a member to the project (T057)
      */
     public function addMember(Request $request, Project $project)
     {
-        // Will be implemented in T073
+        // Will be implemented in T057
     }
 
     /**
-     * Update a member's role
+     * Update a member's role (T057)
      */
     public function updateMember(Request $request, Project $project, $userId)
     {
-        // Will be implemented in T074
+        // Will be implemented in T057
     }
 
     /**
-     * Remove a member from the project
+     * Remove a member from the project (T039, T057)
      */
-    public function removeMember(Project $project, $userId)
+    public function removeMember(Project $project, User $user)
     {
-        // Will be implemented in T075
+        // Authorize the action
+        $this->authorize('manageMembers', $project);
+
+        // Check if user is a member
+        if (!$project->members()->where('user_id', $user->id)->exists()) {
+            return response()->json([
+                'message' => 'Member not found',
+            ], 404);
+        }
+
+        // T039: Unassign all tasks from the removed user
+        $unassignedCount = $project->tasks()
+            ->where('assignee_id', $user->id)
+            ->update(['assignee_id' => null]);
+
+        // Detach the member from the project
+        $project->members()->detach($user->id);
+
+        // Log activity
+        Activity::create([
+            'user_id' => auth()->id(),
+            'project_id' => $project->id,
+            'type' => 'member_removed',
+            'subject_type' => User::class,
+            'subject_id' => $user->id,
+            'data' => [
+                'user_id' => $user->id,
+                'tasks_unassigned' => $unassignedCount,
+            ],
+        ]);
+
+        return response()->json([
+            'message' => 'Member removed from project.',
+            'tasks_unassigned' => $unassignedCount,
+        ]);
+    }
+
+    /**
+     * Return the permission matrix for the authenticated user on this project.
+     */
+    public function permissions(Project $project): \Illuminate\Http\JsonResponse
+    {
+        $user = auth()->user();
+        $matrix = config('permissions.roles', []);
+
+        // Determine the user's role on this project
+        if ($user->id === $project->instructor_id) {
+            $role = 'owner';
+        } else {
+            $membership = $project->members()->where('user_id', $user->id)->first();
+            $role = $membership ? $membership->pivot->role : null;
+        }
+
+        if (!$role || !isset($matrix[$role])) {
+            return response()->json(['message' => 'You are not a member of this project.'], 403);
+        }
+
+        return response()->json([
+            'role'        => $role,
+            'permissions' => $matrix[$role]['permissions'] ?? [],
+        ]);
     }
 }

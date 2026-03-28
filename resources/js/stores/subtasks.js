@@ -145,8 +145,8 @@ export const useSubtasksStore = defineStore('subtasks', () => {
             throw new Error('Subtask not found');
         }
 
-        // Store original for rollback
-        const originalSubtask = subtasks.value[index];
+        // Store original for rollback (spread to avoid keeping a mutable reference)
+        const originalSubtask = { ...subtasks.value[index] };
         const originalSubtasks = [...subtasks.value];
 
         // Optimistic removal

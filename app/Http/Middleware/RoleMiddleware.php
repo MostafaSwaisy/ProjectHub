@@ -22,12 +22,23 @@ class RoleMiddleware
             return response()->json(['message' => 'Unauthenticated.'], 401);
         }
 
-        // Get the user's role
+        // Check system-level roles first
         $userRole = $request->user()->role()->first();
 
-        // Check if user's role is in the allowed roles
-        if (!$userRole || !in_array($userRole->name, $roles)) {
-            return response()->json(['message' => 'Forbidden.'], 403);
+        // If checking for system-level roles (admin, instructor, student)
+        if (!empty($roles)) {
+            $systemRoles = ['admin', 'instructor', 'student'];
+            $requestedSystemRoles = array_intersect($roles, $systemRoles);
+
+            if (!empty($requestedSystemRoles)) {
+                if (!$userRole || !in_array($userRole->name, $requestedSystemRoles)) {
+                    return response()->json(['message' => 'Forbidden.'], 403);
+                }
+            }
+
+            // If checking for project-level roles (owner, lead, member, viewer)
+            // These should be checked in the controller using policies
+            // This middleware supports both but leaves project-level to policies
         }
 
         return $next($request);

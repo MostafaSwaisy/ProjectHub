@@ -85,19 +85,19 @@ class DashboardTestSeeder extends Seeder
         ProjectMember::create([
             'project_id' => $project1->id,
             'user_id' => $teamMember1->id,
-            'role' => 'editor',
+            'role' => 'member',
         ]);
 
         ProjectMember::create([
             'project_id' => $project1->id,
             'user_id' => $teamMember2->id,
-            'role' => 'editor',
+            'role' => 'member',
         ]);
 
         ProjectMember::create([
             'project_id' => $project2->id,
             'user_id' => $teamMember1->id,
-            'role' => 'editor',
+            'role' => 'member',
         ]);
 
         ProjectMember::create([
@@ -109,7 +109,7 @@ class DashboardTestSeeder extends Seeder
         ProjectMember::create([
             'project_id' => $project3->id,
             'user_id' => $teamMember2->id,
-            'role' => 'editor',
+            'role' => 'member',
         ]);
 
         // Create boards and columns for each project

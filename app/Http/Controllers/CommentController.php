@@ -34,6 +34,8 @@ class CommentController extends Controller
      */
     public function store(StoreCommentRequest $request, Task $task): JsonResponse
     {
+        $this->authorize('view', $task);
+
         $validated = $request->validated();
         $validated['task_id'] = $task->id;
         $validated['user_id'] = auth()->id();

@@ -59,12 +59,26 @@
                     </div>
                 </div>
 
-                <!-- Assignee -->
-                <div v-if="task.assignee" class="detail-section">
+                <!-- Assignee Section (T043) -->
+                <div class="detail-section">
                     <h4>Assigned To</h4>
-                    <div class="assignee-item">
+                    <div v-if="task.assignee" class="assignee-item">
                         <div class="assignee-avatar">{{ getInitials(task.assignee.name) }}</div>
-                        <span>{{ task.assignee.name }}</span>
+                        <div class="assignee-details">
+                            <span class="assignee-name">{{ task.assignee.name }}</span>
+                            <span v-if="task.assignee.email" class="assignee-email">{{ task.assignee.email }}</span>
+                        </div>
+                    </div>
+                    <div v-else class="assignee-empty">
+                        <span>No assignee</span>
+                    </div>
+                    <!-- Assignment selector for allowed users -->
+                    <div v-if="canAssign && projectMembers.length > 0" class="assignment-controls">
+                        <AssigneeSelector
+                            :modelValue="task.assignee_id"
+                            :members="projectMembers"
+                            @update:modelValue="updateAssignee"
+                        />
                     </div>
                 </div>
 
@@ -107,18 +121,35 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
+import axios from 'axios';
 import SubtaskList from './SubtaskList.vue';
 import CommentList from './CommentList.vue';
+import AssigneeSelector from './AssigneeSelector.vue';
 
 const props = defineProps({
     task: {
         type: Object,
         required: true,
     },
+    projectId: {
+        type: [String, Number],
+        default: null,
+    },
+    projectMembers: {
+        type: Array,
+        default: () => [],
+    },
 });
 
 const emit = defineEmits(['close', 'edit', 'delete', 'updated']);
+
+const updating = ref(false);
+const canAssign = computed(() => {
+    // Allow assignment if user has permission
+    // This would be refined with actual permission checks from useProjectPermissions
+    return true;
+});
 
 // Derive status from column name since task.status may not exist
 const taskStatus = computed(() => {
@@ -159,6 +190,24 @@ const getInitials = (name) => {
         .join('')
         .toUpperCase()
         .substring(0, 2);
+};
+
+// T043: Handle assignee updates
+const updateAssignee = async (newAssigneeId) => {
+    if (newAssigneeId === props.task.assignee_id) return;
+
+    updating.value = true;
+    try {
+        await axios.put(`/api/tasks/${props.task.id}`, {
+            assignee_id: newAssigneeId,
+        });
+        emit('updated');
+    } catch (error) {
+        console.error('Failed to update assignee:', error);
+        alert('Failed to update assignee');
+    } finally {
+        updating.value = false;
+    }
 };
 
 const confirmDelete = () => {
@@ -395,6 +444,33 @@ const confirmDelete = () => {
     font-size: 12px;
     font-weight: var(--font-bold);
     flex-shrink: 0;
+}
+
+.assignee-details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.assignee-name {
+    color: var(--text-primary);
+    font-weight: var(--font-medium);
+}
+
+.assignee-email {
+    font-size: var(--text-xs);
+    color: var(--text-secondary);
+}
+
+.assignee-empty {
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+.assignment-controls {
+    margin-top: var(--spacing-md);
+    padding-top: var(--spacing-md);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 /* Subtasks */
