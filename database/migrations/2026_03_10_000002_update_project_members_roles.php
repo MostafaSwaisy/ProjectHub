@@ -62,16 +62,14 @@ return new class extends Migration
                 $table->string('role_temp')->after('role')->nullable();
             });
 
-            // Migrate data back: member -> editor
+            // Both member and lead revert to editor (lead didn't exist before this migration)
             DB::table('project_members')
-                ->where('role', 'member')
-                ->where('role', '!=', 'lead') // keep lead as-is for users who have it
+                ->whereIn('role', ['member', 'lead'])
                 ->update(['role_temp' => 'editor']);
 
-            // Keep other roles as-is
+            // Keep owner and viewer unchanged
             DB::table('project_members')
-                ->whereIn('role', ['owner', 'viewer', 'lead'])
-                ->where('role', '!=', 'member')
+                ->whereIn('role', ['owner', 'viewer'])
                 ->update(['role_temp' => DB::raw('role')]);
 
             Schema::table('project_members', function (Blueprint $table) {
