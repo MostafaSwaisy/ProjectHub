@@ -387,7 +387,7 @@ class TrashController extends Controller
                     }
 
                     // Authorization: project owner OR task assignee
-                    $isTaskAssignee = $model->assigned_to === $currentUser->id;
+                    $isTaskAssignee = $model->assignee_id === $currentUser->id;
                     if (!$isProjectOwner && !$isTaskAssignee) {
                         return response()->json([
                             'message' => 'Unauthorized to permanently delete this task.',
