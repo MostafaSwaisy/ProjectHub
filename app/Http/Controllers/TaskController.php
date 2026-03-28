@@ -26,7 +26,12 @@ class TaskController extends Controller
     {
         // Build base query
         $query = Task::with(['assignee', 'labels', 'subtasks'])
-            ->withCount(['subtasks', 'labels']);
+            ->withCount([
+                'subtasks',
+                'labels',
+                'comments',
+                'subtasks as completed_subtasks_count' => fn ($q) => $q->where('is_completed', true),
+            ]);
 
         // CRITICAL: Filter by project_id to only show tasks for the current project
         if ($request->has('project_id') && $projectId = $request->input('project_id')) {
