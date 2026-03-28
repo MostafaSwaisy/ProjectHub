@@ -206,8 +206,11 @@ class TrashController extends Controller
                 case 'task':
                     $model = Task::withTrashed()->findOrFail($id);
 
-                    // Check if the column (parent) still exists
-                    if ($model->column && !$model->column->trashed()) {
+                    // Load column including soft-deleted to avoid null pointer
+                    $taskColumn = $model->column()->withTrashed()->first();
+
+                    // Check if the column (parent) still exists and is not trashed
+                    if ($taskColumn && !$taskColumn->trashed()) {
                         // Column exists and is not trashed, proceed with restore
                         $model->restore();
                     } elseif ($columnId) {
@@ -215,8 +218,8 @@ class TrashController extends Controller
                         // Update the column_id before restoring
                         $newColumn = Column::withTrashed()->findOrFail($columnId);
 
-                        // Check if new column is in the same board
-                        if ($newColumn->board_id !== $model->column->board_id) {
+                        // Check if new column is in the same board (only if original column is known)
+                        if ($taskColumn && $newColumn->board_id !== $taskColumn->board_id) {
                             return response()->json([
                                 'message' => 'The selected column is not in the same board.',
                             ], 422);
@@ -227,8 +230,8 @@ class TrashController extends Controller
                         $model->restore();
                     } else {
                         // Column is orphaned and no columnId provided, return 409
-                        $board = $model->column->board;
-                        if ($board->trashed()) {
+                        $board = $taskColumn ? $taskColumn->board()->withTrashed()->first() : null;
+                        if (!$board || $board->trashed()) {
                             return response()->json([
                                 'message' => 'Cannot restore task: parent column\'s board has been permanently deleted.',
                                 'type' => 'board_deleted',
@@ -379,8 +382,12 @@ class TrashController extends Controller
                 case 'task':
                     $model = Task::withTrashed()->findOrFail($id);
 
+                    // Load column and board including soft-deleted to avoid null pointer
+                    $taskColumn = $model->column()->withTrashed()->first();
+                    $taskBoard  = $taskColumn ? $taskColumn->board()->withTrashed()->first() : null;
+
                     // Verify task belongs to this project
-                    if (!$model->column || $model->column->board->project_id !== $project->id) {
+                    if (!$taskBoard || $taskBoard->project_id !== $project->id) {
                         return response()->json([
                             'message' => 'Task not found in this project.',
                         ], 404);
