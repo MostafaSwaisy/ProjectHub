@@ -41,7 +41,6 @@ class ProjectResource extends JsonResource
         $isOwner = $user && $user->id === $this->instructor_id;
         $membership = $user ? $this->members()->where('user_id', $user->id)->first() : null;
         $userRole = $membership ? $membership->pivot->role : null;
-        $isEditor = $userRole === 'editor';
 
         return [
             'id' => $this->id,
@@ -57,12 +56,12 @@ class ProjectResource extends JsonResource
             'members' => $members,
             'total_members' => 1 + ($this->members ? $this->members->count() : 0),
             'task_completion' => $taskCompletion,
-            // Permissions
+            // Permissions — roles are now: owner, lead, member, viewer (editor was renamed to member)
             'permissions' => [
-                'can_edit' => $isOwner || $isEditor,
+                'can_edit' => $isOwner || in_array($userRole, ['lead', 'member']),
                 'can_delete' => $isOwner,
                 'can_archive' => $isOwner,
-                'can_manage_members' => $isOwner,
+                'can_manage_members' => $isOwner || $userRole === 'lead',
             ],
         ];
     }
